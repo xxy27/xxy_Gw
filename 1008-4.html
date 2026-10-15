@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>媒体查询响应式盒子布局</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-width: 320px;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 1rem 4rem;
+            background: #f1f5f9;
+            color: #0f172a;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        h1 {
+            margin: 0 0 2rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .box-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            width: min(100%, 72rem);
+            margin: 0 auto;
+        }
+
+        .box {
+            display: grid;
+            min-height: 9rem;
+            place-items: center;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 0.5rem 1.25rem rgb(15 23 42 / 14%);
+        }
+
+        @media (min-width: 480px) {
+            .box-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .box-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1.25rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .box-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>响应式盒子布局</h1>
+        <section class="box-grid" aria-label="八个盒子">
+            <div class="box">盒子 1</div>
+            <div class="box">盒子 2</div>
+            <div class="box">盒子 3</div>
+            <div class="box">盒子 4</div>
+            <div class="box">盒子 5</div>
+            <div class="box">盒子 6</div>
+            <div class="box">盒子 7</div>
+            <div class="box">盒子 8</div>
+        </section>
+    </main>
+    <footer class="footer">制作人：徐昕妤</footer>
+</body>
+</html>

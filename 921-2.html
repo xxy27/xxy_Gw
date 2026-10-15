@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>左图右文</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .box{
+            width: 80%;
+            margin: 40px auto;
+        }
+        .zitem{
+            display: flex;
+            padding: 10px 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+        .zitem img{
+            width: 30%;
+        }
+        .yitem{
+            flex-grow: 1;
+            margin-left: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .yitem h3{
+            width: 100%;
+            font-size: 20px;
+            line-height: 40px;
+            color: #000;
+        }
+        .author{
+            font-size: 14px;
+            color: #666;
+            flex-grow: 1;
+        }
+        .time{
+            font-size: 14px;
+            color: #666;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">   
+        <!--左图右文-->
+        <div class="zitem">
+            <img src="./img2/1.jpg" >
+            <div class="yitem">
+                <h3>标题</h3>
+                <span class="author">徐昕妤</span>
+                <span class="time">2024-06-21</span>
+            </div>
+        </div>
+        <div class="zitem">
+            <img src="./img2/2.jpg" >
+            <div class="yitem">
+                <h3>标题</h3>
+                <span class="author">徐昕妤</span>
+                <span class="time">2024-06-21</span>
+            </div>
+        </div>
+        <div class="zitem">
+            <img src="./img2/3.jpg" >
+            <div class="yitem">
+                <h3>标题</h3>
+                <span class="author">徐昕妤</span>
+                <span class="time">2024-06-21</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

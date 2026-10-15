@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1012 · CSS长度单位</title>
+    <style>
+        .xu_body {
+            margin: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .xu_container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .xu_title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #f857a6, #ff5858);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .xu_subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+        }
+        .xu_card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .xu_card h2 {
+            margin: 0 0 14px;
+            font-size: 1.3rem;
+            color: #f857a6;
+        }
+        .xu_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .xu_item {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .xu_item code {
+            display: inline-block;
+            background: #f857a6;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        .xu_item p {
+            margin: 6px 0 0;
+            font-size: 0.82rem;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        .xu_demo-box {
+            width: 50%;
+            height: 100px;
+            margin-top: 16px;
+            background: linear-gradient(90deg, #f857a6, #ff5858);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .xu_demo-em {
+            font-size: 2rem;
+            margin-top: 16px;
+            color: #ffd166;
+        }
+        .xu_demo-rem {
+            font-size: 2rem;
+            margin-top: 8px;
+            color: #06d6a0;
+        }
+        .xu_demo-vw {
+            width: 30vw;
+            height: 60px;
+            margin-top: 16px;
+            background: #118ab2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .xu_demo-vmin {
+            width: 40vmin;
+            height: 50px;
+            margin-top: 12px;
+            background: #06d6a0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #000;
+        }
+        .xu_demo-px {
+            width: 200px;
+            height: 50px;
+            margin-top: 16px;
+            background: #ffd166;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #000;
+        }
+        .xu_note {
+            background: rgba(248, 87, 166, 0.12);
+            border-left: 4px solid #f857a6;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.88rem;
+            line-height: 1.8;
+            color: #e0d4f5;
+        }
+    </style>
+</head>
+<body class="xu_body">
+    <div class="xu_container">
+        <h1 class="xu_title">CSS 长度单位</h1>
+        <p class="xu_subtitle">绝对单位 · 相对单位 · 视口单位 — 全面解析</p>
+
+        <div class="xu_card">
+            <h2>绝对单位</h2>
+            <div class="xu_grid">
+                <div class="xu_item">
+                    <code>px</code>
+                    <p>像素单位，1px 对应屏幕上一个物理像素点，是最常用的绝对单位。</p>
+                    <div class="xu_demo-px">200px 宽度</div>
+                </div>
+                <div class="xu_item">
+                    <code>pt</code>
+                    <p>磅单位，1pt = 1/72 英寸，常用于打印样式。</p>
+                </div>
+                <div class="xu_item">
+                    <code>cm / mm / in</code>
+                    <p>厘米、毫米、英寸，物理尺寸单位，主要用于打印。</p>
+                </div>
+                <div class="xu_item">
+                    <code>pc</code>
+                    <p>派卡，1pc = 12pt，印刷行业单位。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="xu_card">
+            <h2>相对单位</h2>
+            <div class="xu_grid">
+                <div class="xu_item">
+                    <code>em</code>
+                    <p>相对于当前元素 font-size 的倍数。2em = 当前字体大小的 2 倍。</p>
+                    <div style="font-size: 16px;">
+                        <div class="xu_demo-em" style="font-size: 2em;">2em 文字</div>
+                    </div>
+                </div>
+                <div class="xu_item">
+                    <code>rem</code>
+                    <p>相对于根元素(html) font-size 的倍数，避免嵌套叠加问题。</p>
+                    <div class="xu_demo-rem" style="font-size: 1.5rem;">1.5rem 文字</div>
+                </div>
+                <div class="xu_item">
+                    <code>%</code>
+                    <p>相对于父元素的百分比，常用于宽度、高度、内边距等。</p>
+                    <div style="background: rgba(255,255,255,0.08); border-radius: 8px; padding: 10px;">
+                        <div class="xu_demo-box">父容器的 50%</div>
+                    </div>
+                </div>
+                <div class="xu_item">
+                    <code>ch</code>
+                    <p>相对于 "0" 字符宽度的倍数，常用于限制文本行宽。</p>
+                </div>
+                <div class="xu_item">
+                    <code>ex</code>
+                    <p>相对于当前字体 x 高度（小写字母 x 的高度）的倍数。</p>
+                </div>
+                <div class="xu_item">
+                    <code>lh</code>
+                    <p>相对于当前元素 line-height 的倍数（CSS3 新增）。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="xu_card">
+            <h2>视口单位（Viewport Units）</h2>
+            <div class="xu_grid">
+                <div class="xu_item">
+                    <code>vw</code>
+                    <p>视口宽度的 1%。100vw = 整个视口宽度。</p>
+                    <div class="xu_demo-vw">30vw 宽度</div>
+                </div>
+                <div class="xu_item">
+                    <code>vh</code>
+                    <p>视口高度的 1%。100vh = 整个视口高度。</p>
+                </div>
+                <div class="xu_item">
+                    <code>vmin</code>
+                    <p>取 vw 和 vmin 中较小值的 1%。</p>
+                    <div class="xu_demo-vmin">40vmin 宽度</div>
+                </div>
+                <div class="xu_item">
+                    <code>vmax</code>
+                    <p>取 vw 和 vmax 中较大值的 1%。</p>
+                </div>
+                <div class="xu_item">
+                    <code>svw / svh</code>
+                    <p>小视口单位，不考虑移动浏览器动态工具栏（CSS3 新增）。</p>
+                </div>
+                <div class="xu_item">
+                    <code>lvw / lvh</code>
+                    <p>大视口单位，包含动态工具栏展开时的尺寸。</p>
+                </div>
+                <div class="xu_item">
+                    <code>dvw / dvh</code>
+                    <p>动态视口单位，实时响应工具栏收缩/展开。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="xu_card">
+            <h2>容器查询单位</h2>
+            <div class="xu_grid">
+                <div class="xu_item">
+                    <code>cqw / cqh</code>
+                    <p>容器宽/高度的 1%，需配合 container-type 使用。</p>
+                </div>
+                <div class="xu_item">
+                    <code>cqi / cqb</code>
+                    <p>容器内联/块轴尺寸的 1%（CSS3 新增）。</p>
+                </div>
+                <div class="xu_item">
+                    <code>cqmin / cqmax</code>
+                    <p>取容器尺寸中较小/较大值的 1%。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="xu_note">
+            <strong>使用建议：</strong>布局推荐用 <code>%</code>、<code>vw/vh</code> 做响应式；字号推荐用 <code>rem</code> 避免嵌套问题；内边距推荐用 <code>em</code> 跟随字号缩放；打印样式用 <code>pt/cm</code>。
+        </div>
+    </div>
+</body>
+</html>

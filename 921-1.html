@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上图下文</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        ul{
+            list-style: none;
+        }
+        .ilist{
+            display: flex;
+            margin: 40px;
+        }
+        .ilist li{
+            width: 30%;
+            margin-right: 20px;
+            flex-grow: 1;
+            position: relative;
+        }
+        .ilist img{
+            width: 100%;
+        }
+        .ilist p{
+            /*居中*/
+            text-align: center;
+            font-size: 17px;
+            line-height: 50px;
+            font-weight: bold;
+            /*绝对定位*/
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, .5);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <ul class = "ilist">    
+        <!--上图下文-->
+        <li>
+            <img src="./img2/1.jpg" >
+            <p>徐昕妤的图片一</p>
+        </li>
+        <li>
+            <img src="./img2/2.jpg" >
+            <p>图片二</p>
+        </li>
+        <li>
+            <img src="./img2/3.jpg" >
+            <p>图片三</p>
+        </li>
+    </ul>
+</body>
+</html>

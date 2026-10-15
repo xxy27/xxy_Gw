@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>HTML表单form</h2>
+    <form action="http://huanqiu.com" name="xxy" method="get">
+        <p>
+            用户名: <input type="text" name = "username">
+        </p>
+        <p>
+            密码: <input type="password" name = "password">
+        </p>
+        <p>
+            性别: <input type="radio" name="sex" value="男">男
+            <input type="radio" name="sex" value="女">女
+            <input type="radio" name="sex" value="保密">保密
+        </p>
+        <p>
+            爱好: <input type="checkbox" name="hobby" value="1">弹琴
+            <input type="checkbox" name="hobby" value="2">下棋
+            <input type="checkbox" name="hobby" value="3">阅读
+        </p>
+        <p>
+            籍贯: <select name="native_place">
+                    <option value="1" selected>北京</option>  <!--默认选中-->
+                    <option value="2">上海</option>
+                    <option value="3">广东</option>
+                    <option value="4">江西</option>
+                </select>
+        </p>
+        <p>
+            个人简介: <textarea name="introduction" cols="30" rows="5"></textarea>
+        </p>
+        <!-- 出生日期 -->
+        <p>
+            出生日期: <input type="date" name="birthday">
+        </p>
+        <!-- 多文件上传 -->
+        <p>
+            多文件上传: <input type="file" name="files" multiple>
+        </p>
+        <!-- 按钮：普通按钮，提交按钮，重置按钮 -->
+        <p>
+            <input type="button" value="普通按钮">
+            <input type="submit" value="提交按钮">
+            <input type="reset" value="重置按钮">
+        </p>
+    </form>
+    <!-- 按钮button -->
+    <button>表单外的按钮</button>
+</body>
+</html>

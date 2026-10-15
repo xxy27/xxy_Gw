@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .flex{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .flex li{
+            border: 1px solid #039;
+            width: 49%;
+            height:400px;
+            list-style: none;
+            /* li本身作为容器，内部子布局整体居中 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .box{
+            background-color: #039;
+            border:1px solid #039;
+        }
+        .flex li:nth-child(1) .box{
+            background:#039;
+        }
+
+        /* --------li1：单个方块-------- */
+        .inner1{
+            width:60%;
+            height:60%;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+        .inner1 .box{
+            width:50%;
+            height:50%;
+        }
+
+        /* --------li2：上下两个矩形-------- */
+        .inner2{
+            width:65%;
+            height:70%;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:15px;
+        }
+        .inner2 .box{
+            flex:1;
+        }
+
+        /* --------li3：2*2四格-------- */
+        .inner3{
+            width:70%;
+            height:70%;
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:space-between;
+            align-content:space-between;
+        }
+        .inner3 .box{
+            width:48%;
+            height:48%;
+        }
+
+        /* --------li4：上通栏，下两个并排-------- */
+        .inner4{
+            width:75%;
+            height:70%;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:15px;
+        }
+        .inner4-bottom{
+            display:flex;
+            gap:15px;
+            flex:1;
+        }
+        .inner4 .box.top{
+            width:100%;
+            height:45%;
+        }
+        .inner4-bottom .box{
+            flex:1;
+        }
+    </style>
+</head>
+<body>
+    <h2>徐昕妤 flex</h2>
+    <ul class = "flex">
+        <!-- 1号格子：布局1 单个方块 -->
+        <li>
+            <div class="inner1">
+                <div class="box"></div>
+            </div>
+        </li>
+        <!-- 2号格子：布局2 上下两个 -->
+        <li>
+            <div class="inner2">
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </li>
+        <!-- 3号格子：布局3 2×2四格 -->
+        <li>
+            <div class="inner3">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </li>
+        <!-- 4号格子：布局4 上通栏，下两个 -->
+        <li>
+            <div class="inner4">
+                <div class="box top"></div>
+                <div class="inner4-bottom">
+                    <div class="box"></div>
+                    <div class="box"></div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <h2>浮动之后</h2>
+</body>
+</html>

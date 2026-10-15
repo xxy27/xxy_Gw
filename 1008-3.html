@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式视口背景</title>
+    <style>
+        html {
+            font-size: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
+            margin: 0;
+        }
+
+        .screen {
+            display: grid;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
+            place-items: center;
+            padding: 2rem;
+            background-color: #ff8a80;
+            transition: background-color 400ms ease;
+        }
+
+        h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 3rem;
+            letter-spacing: 0.12em;
+            text-align: center;
+            text-shadow: 0 0.15rem 0.5rem rgb(0 0 0 / 20%);
+        }
+
+        @media (min-width: 600px) {
+            html {
+                font-size: 18px;
+            }
+
+            .screen {
+                background-color: #64b5f6;
+            }
+
+            h1 {
+                font-size: 4rem;
+            }
+        }
+
+        @media (min-width: 900px) {
+            html {
+                font-size: 20px;
+            }
+
+            .screen {
+                background-color: #81c784;
+            }
+
+            h1 {
+                font-size: 5rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .screen {
+                transition: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="screen">
+        <h1>徐昕妤</h1>
+    </main>
+</body>
+</html>
