@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 Font Awesome 字体图标方式展示图标，资源已本地化到 cdn 目录。">
+    <title>1019 · Font Awesome 字体图标</title>
+    <!-- Font Awesome：字体图标方案，CSS 与字体文件均引用本地 cdn 目录 -->
+    <link rel="stylesheet" href="cdn/fontawesome/css/all.min.css">
+    <style>
+        :root {
+            --xu_ink: #202225;
+            --xu_muted: #686a6d;
+            --xu_paper: #f5f1e9;
+            --xu_surface: #fffdf8;
+            --xu_coral: #ef6b54;
+            --xu_coral-dark: #bd4939;
+            --xu_yellow: #f4c95d;
+            --xu_line: #ded8cc;
+            --xu_shadow: 0 20px 50px rgba(42, 35, 26, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            color: var(--xu_ink);
+            background:
+                radial-gradient(circle at 8% 8%, rgba(244, 201, 93, 0.28), transparent 20rem),
+                linear-gradient(135deg, #f5f1e9 0%, #fbfaf6 52%, #f1e9de 100%);
+            font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+            line-height: 1.6;
+        }
+
+        a { color: inherit; }
+
+        .xu_shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .xu_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 26px 0;
+            border-bottom: 1px solid var(--xu_line);
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+        }
+
+        .xu_mark { font-weight: 700; }
+        .xu_topbar a { text-decoration: none; color: var(--xu_muted); }
+        .xu_topbar a:hover { color: var(--xu_coral-dark); }
+
+        .xu_hero { padding: 70px 0 26px; }
+
+        .xu_eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--xu_coral-dark);
+            font: 700 0.78rem/1 "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .xu_eyebrow::before {
+            width: 34px;
+            height: 2px;
+            background: var(--xu_coral);
+            content: "";
+        }
+
+        .xu_hero h1 {
+            margin: 20px 0 18px;
+            font-size: clamp(2.4rem, 6vw, 4.4rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .xu_hero-copy {
+            max-width: 660px;
+            margin: 0;
+            color: var(--xu_muted);
+            font: 1rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_hero-copy code {
+            background: rgba(239, 107, 84, 0.14);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--xu_coral-dark);
+        }
+
+        .xu_hero-art {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            margin: 40px 0 10px;
+            color: var(--xu_coral);
+            font-size: clamp(2.6rem, 7vw, 4.6rem);
+        }
+
+        .xu_hero-art i { filter: drop-shadow(0 12px 22px rgba(239, 107, 84, 0.30)); }
+
+        .xu_section { padding: 34px 0; }
+
+        .xu_section-title {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .xu_section-title h2 {
+            margin: 0;
+            font-size: 1.7rem;
+            font-weight: 400;
+        }
+
+        .xu_section-title .xu_no {
+            color: var(--xu_coral-dark);
+            font: 700 0.82rem "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.1em;
+        }
+
+        .xu_section-desc {
+            margin: 0 0 24px;
+            color: var(--xu_muted);
+            font: 0.88rem/1.8 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+            gap: 12px;
+        }
+
+        .xu_tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 10px 16px;
+            border: 1px solid var(--xu_line);
+            border-radius: 12px;
+            background: rgba(255, 253, 248, 0.78);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .xu_tile:hover {
+            transform: translateY(-4px);
+            border-color: var(--xu_coral);
+            box-shadow: var(--xu_shadow);
+        }
+
+        .xu_tile i { font-size: 1.9rem; color: var(--xu_ink); }
+        .xu_tile span {
+            font: 0.7rem/1.4 "Microsoft YaHei", sans-serif;
+            color: var(--xu_muted);
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .xu_tile--brand i { color: var(--xu_coral-dark); }
+
+        .xu_demo-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 22px;
+            padding: 26px 28px;
+            border: 1px solid var(--xu_line);
+            border-radius: 12px;
+            background: rgba(255, 253, 248, 0.78);
+        }
+
+        .xu_demo-label {
+            min-width: 92px;
+            font: 700 0.8rem/1.4 "Microsoft YaHei", sans-serif;
+            color: var(--xu_coral-dark);
+            letter-spacing: 0.06em;
+        }
+
+        .xu_size-demo i { color: var(--xu_ink); vertical-align: baseline; }
+
+        .xu_anim-demo { gap: 34px; }
+        .xu_anim-demo i { font-size: 2.4rem; color: var(--xu_coral); }
+
+        .xu_note {
+            padding: 18px 22px;
+            border-left: 4px solid var(--xu_coral);
+            border-radius: 8px;
+            background: rgba(239, 107, 84, 0.10);
+            color: #5c5045;
+            font: 0.88rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_code {
+            display: block;
+            margin: 6px 0 0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: var(--xu_ink);
+            color: #f4c95d;
+            font: 0.82rem/1.7 Consolas, "Courier New", monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        footer.xu_footer {
+            margin-top: 50px;
+            padding: 26px 0 40px;
+            border-top: 1px solid var(--xu_line);
+            color: var(--xu_muted);
+            font: 0.78rem "Microsoft YaHei", sans-serif;
+        }
+
+        @media (max-width: 700px) {
+            .xu_shell { width: min(100% - 28px, 560px); }
+            .xu_grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <header class="xu_shell xu_topbar">
+        <div class="xu_mark">YL / WEB DESIGN</div>
+        <a href="index.html">← 返回实践目录</a>
+    </header>
+
+    <main class="xu_shell">
+        <section class="xu_hero">
+            <div class="xu_eyebrow">Icon Library · Font Icons</div>
+            <h1>Font Awesome<br>字体图标</h1>
+            <p class="xu_hero-copy">
+                Font Awesome 采用 <code>字体图标（Icon Font）</code> 方案：先把一组矢量字形打包成
+                <code>woff2 / ttf</code> 字体文件，再通过 <code>@font-face</code> 注册字体，
+                用 <code>&lt;i class="fa-solid fa-xxx"&gt;</code> 指定某个字形，最后用 CSS 的
+                <code>font-size</code> 与 <code>color</code> 像控制文字一样控制图标。本页所有资源均已下载到本地
+                <code>cdn/fontawesome/</code>，无需联网即可使用。
+            </p>
+            <div class="xu_hero-art" aria-hidden="true">
+                <i class="fa-solid fa-rocket"></i>
+                <i class="fa-solid fa-heart"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">01</span>
+                <h2>实色图标 · Solid</h2>
+            </div>
+            <p class="xu_section-desc">实心填充风格，视觉最重，适合主要操作与导航。</p>
+            <div class="xu_grid">
+                <div class="xu_tile"><i class="fa-solid fa-house"></i><span>fa-house</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-heart"></i><span>fa-heart</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-star"></i><span>fa-star</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-user"></i><span>fa-user</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-gear"></i><span>fa-gear</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-magnifying-glass"></i><span>fa-magnifying-glass</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-cloud"></i><span>fa-cloud</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-envelope"></i><span>fa-envelope</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-bell"></i><span>fa-bell</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-camera"></i><span>fa-camera</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-music"></i><span>fa-music</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-umbrella"></i><span>fa-umbrella</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-rocket"></i><span>fa-rocket</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-fire"></i><span>fa-fire</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-globe"></i><span>fa-globe</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-book"></i><span>fa-book</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-code"></i><span>fa-code</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-palette"></i><span>fa-palette</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-moon"></i><span>fa-moon</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-sun"></i><span>fa-sun</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-bolt"></i><span>fa-bolt</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-heart-pulse"></i><span>fa-heart-pulse</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-folder"></i><span>fa-folder</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-file"></i><span>fa-file</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-comment"></i><span>fa-comment</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-cart-shopping"></i><span>fa-cart-shopping</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-truck"></i><span>fa-truck</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-plane"></i><span>fa-plane</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-mug-hot"></i><span>fa-mug-hot</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-gamepad"></i><span>fa-gamepad</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-paw"></i><span>fa-paw</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-leaf"></i><span>fa-leaf</span></div>
+                <div class="xu_tile"><i class="fa-solid fa-dumbbell"></i><span>fa-dumbbell</span></div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">02</span>
+                <h2>线性图标 · Regular</h2>
+            </div>
+            <p class="xu_section-desc">描边轮廓风格，体积轻盈，适合次级信息与列表图标。</p>
+            <div class="xu_grid">
+                <div class="xu_tile"><i class="fa-regular fa-heart"></i><span>fa-regular fa-heart</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-star"></i><span>fa-regular fa-star</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-user"></i><span>fa-regular fa-user</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-folder"></i><span>fa-regular fa-folder</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-file"></i><span>fa-regular fa-file</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-comment"></i><span>fa-regular fa-comment</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-bell"></i><span>fa-regular fa-bell</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-envelope"></i><span>fa-regular fa-envelope</span></div>
+                <div class="xu_tile"><i class="fa-regular fa-circle-check"></i><span>fa-regular fa-circle-check</span></div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">03</span>
+                <h2>品牌图标 · Brands</h2>
+            </div>
+            <p class="xu_section-desc">社区与产品标识，仅品牌系列提供，常用于页脚与联系方式。</p>
+            <div class="xu_grid">
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-github"></i><span>fa-brands fa-github</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-weixin"></i><span>fa-brands fa-weixin</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-weibo"></i><span>fa-brands fa-weibo</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-bilibili"></i><span>fa-brands fa-bilibili</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-qq"></i><span>fa-brands fa-qq</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-alipay"></i><span>fa-brands fa-alipay</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-android"></i><span>fa-brands fa-android</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-apple"></i><span>fa-brands fa-apple</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-chrome"></i><span>fa-brands fa-chrome</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-edge"></i><span>fa-brands fa-edge</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-firefox"></i><span>fa-brands fa-firefox</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-windows"></i><span>fa-brands fa-windows</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-linux"></i><span>fa-brands fa-linux</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-tiktok"></i><span>fa-brands fa-tiktok</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-x-twitter"></i><span>fa-brands fa-x-twitter</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-facebook"></i><span>fa-brands fa-facebook</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-instagram"></i><span>fa-brands fa-instagram</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-youtube"></i><span>fa-brands fa-youtube</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-zhihu"></i><span>fa-brands fa-zhihu</span></div>
+                <div class="xu_tile xu_tile--brand"><i class="fa-brands fa-npm"></i><span>fa-brands fa-npm</span></div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">04</span>
+                <h2>字号与颜色</h2>
+            </div>
+            <p class="xu_section-desc">字体图标的本质是文字，因此字号、颜色、字重都可以直接用 CSS 控制。</p>
+            <div class="xu_demo-row xu_size-demo">
+                <span class="xu_demo-label">缩放</span>
+                <i class="fa-solid fa-star" style="font-size: 0.8rem;"></i>
+                <i class="fa-solid fa-star" style="font-size: 1.2rem;"></i>
+                <i class="fa-solid fa-star" style="font-size: 1.8rem;"></i>
+                <i class="fa-solid fa-star" style="font-size: 2.6rem;"></i>
+                <i class="fa-solid fa-star" style="font-size: 3.6rem;"></i>
+            </div>
+            <div class="xu_demo-row" style="margin-top: 14px;">
+                <span class="xu_demo-label">配色</span>
+                <i class="fa-solid fa-circle" style="color:#ef6b54; font-size:1.8rem;"></i>
+                <i class="fa-solid fa-circle" style="color:#f4c95d; font-size:1.8rem;"></i>
+                <i class="fa-solid fa-circle" style="color:#06d6a0; font-size:1.8rem;"></i>
+                <i class="fa-solid fa-circle" style="color:#118ab2; font-size:1.8rem;"></i>
+                <i class="fa-solid fa-circle" style="color:#9b5de5; font-size:1.8rem;"></i>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">05</span>
+                <h2>内置动画</h2>
+            </div>
+            <p class="xu_section-desc">Font Awesome 自带旋转、脉冲、跳动等动画类，直接加类名即可启用。</p>
+            <div class="xu_demo-row xu_anim-demo">
+                <span class="xu_demo-label">fa-spin</span>
+                <i class="fa-solid fa-gear fa-spin"></i>
+                <span class="xu_demo-label">fa-pulse</span>
+                <i class="fa-solid fa-gear fa-pulse"></i>
+                <span class="xu_demo-label">fa-beat</span>
+                <i class="fa-solid fa-heart fa-beat"></i>
+                <span class="xu_demo-label">fa-bounce</span>
+                <i class="fa-solid fa-star fa-bounce"></i>
+                <span class="xu_demo-label">fa-shake</span>
+                <i class="fa-solid fa-bell fa-shake"></i>
+                <span class="xu_demo-label">fa-flip</span>
+                <i class="fa-solid fa-rocket fa-flip"></i>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">06</span>
+                <h2>实现方式</h2>
+            </div>
+            <div class="xu_note">
+                <strong>字体图标的三个要素：</strong>
+                <br>1）引入本地 CSS，其中通过 <code>@font-face</code> 注册字体文件；
+                <br>2）字体文件（woff2 / ttf）按 <code>cdn/fontawesome/webfonts/</code> 存放，与 CSS 保持相对路径；
+                <br>3）HTML 中用 <code>&lt;i&gt;</code> 的类名选择字形，用 CSS 控制字号与颜色。
+                <code class="xu_code">&lt;link rel="stylesheet" href="cdn/fontawesome/css/all.min.css"&gt;
+&lt;i class="fa-solid fa-rocket"&gt;&lt;/i&gt;
+&lt;i class="fa-brands fa-github" style="font-size:2rem;color:#bd4939"&gt;&lt;/i&gt;</code>
+            </div>
+        </section>
+    </main>
+
+    <footer class="xu_shell xu_footer">
+        袁磊 · 《高级网页设计》课堂实践　/　1019-1 · Font Awesome 字体图标 · 资源本地化于 cdn/fontawesome
+    </footer>
+</body>
+</html>

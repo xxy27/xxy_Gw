@@ -13,3 +13,19 @@ Time: 2026-10-13 00:00:00
 Model: longcat-2.5-preview-free (opencode)
 Prompt: 设置规则,写入agents.md：新建的html文件加入超链接到首页index.html
 ---
+---
+Time: 2026-10-19 13:40:00
+Model: longcat-2.5-preview-free (opencode)
+Prompt: 做两个html网页1019-1.html和1019-2.html，分别显示fonta wesome图标和lucide图标，前者使用字体图标的方式，后者使用svg的方式，相关的cdn文件下载到本目录下的cdn目录。
+---
+---
+Time: 2026-10-19 14:20:00
+Model: longcat-2.5-preview-free (opencode)
+Prompt: 根据font目录中的iconfont图标完成移动端的固定的自适应宽度的下导航，导航项目包括4个，完成html网页的设计，网页名称1019-3.html和1019-4.html分别使用字体图标和svg，包括右上角的数字徽章和红点。
+---
+
+---
+Time: 2026-10-22 13:55:50
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: \\d:\AI Web/.opencode\skills\submit-project\SKILL.md\创建trea的skill，根据给定文件
+---

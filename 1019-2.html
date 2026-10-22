@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="使用 Lucide SVG 方式展示图标，资源已本地化到 cdn 目录。">
+    <title>1019 · Lucide SVG 图标</title>
+    <style>
+        :root {
+            --xu_ink: #202225;
+            --xu_muted: #686a6d;
+            --xu_paper: #f5f1e9;
+            --xu_surface: #fffdf8;
+            --xu_coral: #ef6b54;
+            --xu_coral-dark: #bd4939;
+            --xu_yellow: #f4c95d;
+            --xu_line: #ded8cc;
+            --xu_shadow: 0 20px 50px rgba(42, 35, 26, 0.10);
+            --xu_teal: #118ab2;
+            --xu_teal-dark: #0b6d8c;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            color: var(--xu_ink);
+            background:
+                radial-gradient(circle at 92% 10%, rgba(17, 138, 178, 0.22), transparent 22rem),
+                linear-gradient(135deg, #f5f1e9 0%, #fbfaf6 52%, #eef1f0 100%);
+            font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+            line-height: 1.6;
+        }
+
+        a { color: inherit; }
+
+        .xu_shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .xu_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 26px 0;
+            border-bottom: 1px solid var(--xu_line);
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+        }
+
+        .xu_mark { font-weight: 700; }
+        .xu_topbar a { text-decoration: none; color: var(--xu_muted); }
+        .xu_topbar a:hover { color: var(--xu_teal-dark); }
+
+        .xu_hero { padding: 70px 0 26px; }
+
+        .xu_eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--xu_teal-dark);
+            font: 700 0.78rem/1 "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .xu_eyebrow::before {
+            width: 34px;
+            height: 2px;
+            background: var(--xu_teal);
+            content: "";
+        }
+
+        .xu_hero h1 {
+            margin: 20px 0 18px;
+            font-size: clamp(2.4rem, 6vw, 4.4rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .xu_hero-copy {
+            max-width: 680px;
+            margin: 0;
+            color: var(--xu_muted);
+            font: 1rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_hero-copy code {
+            background: rgba(17, 138, 178, 0.14);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--xu_teal-dark);
+        }
+
+        .xu_hero-art {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            margin: 40px 0 10px;
+            color: var(--xu_teal);
+        }
+
+        /* Lucide 生成的 svg 统一使用 currentColor，可通过 CSS 着色 */
+        .xu_hero-art svg {
+            width: clamp(46px, 8vw, 74px);
+            height: auto;
+            stroke: var(--xu_teal);
+            filter: drop-shadow(0 12px 22px rgba(17, 138, 178, 0.28));
+        }
+
+        .xu_section { padding: 34px 0; }
+
+        .xu_section-title {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .xu_section-title h2 { margin: 0; font-size: 1.7rem; font-weight: 400; }
+        .xu_section-title .xu_no {
+            color: var(--xu_teal-dark);
+            font: 700 0.82rem "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.1em;
+        }
+
+        .xu_section-desc {
+            margin: 0 0 24px;
+            color: var(--xu_muted);
+            font: 0.88rem/1.8 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+            gap: 12px;
+        }
+
+        .xu_tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 10px 16px;
+            border: 1px solid var(--xu_line);
+            border-radius: 12px;
+            background: rgba(255, 253, 248, 0.78);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .xu_tile:hover {
+            transform: translateY(-4px);
+            border-color: var(--xu_teal);
+            box-shadow: var(--xu_shadow);
+        }
+
+        .xu_tile svg {
+            width: 30px;
+            height: 30px;
+            stroke: var(--xu_ink);
+            stroke-width: 2;
+            fill: none;
+            transition: transform 180ms ease;
+        }
+
+        .xu_tile:hover svg { transform: scale(1.18); }
+        .xu_tile span {
+            font: 0.7rem/1.4 "Microsoft YaHei", sans-serif;
+            color: var(--xu_muted);
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .xu_demo-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 22px;
+            padding: 26px 28px;
+            border: 1px solid var(--xu_line);
+            border-radius: 12px;
+            background: rgba(255, 253, 248, 0.78);
+        }
+
+        .xu_demo-label {
+            min-width: 92px;
+            font: 700 0.8rem/1.4 "Microsoft YaHei", sans-serif;
+            color: var(--xu_teal-dark);
+            letter-spacing: 0.06em;
+        }
+
+        .xu_demo-row svg { stroke: var(--xu_ink); fill: none; stroke-width: 2; }
+
+        .xu_size-demo svg { color: var(--xu_ink); }
+
+        .xu_note {
+            padding: 18px 22px;
+            border-left: 4px solid var(--xu_teal);
+            border-radius: 8px;
+            background: rgba(17, 138, 178, 0.10);
+            color: #4d5a5e;
+            font: 0.88rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_code {
+            display: block;
+            margin: 6px 0 0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: var(--xu_ink);
+            color: #8fd3e8;
+            font: 0.82rem/1.7 Consolas, "Courier New", monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .xu_swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .xu_swatch {
+            width: 34px;
+            height: 34px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 150ms ease, border-color 150ms ease;
+        }
+
+        .xu_swatch:hover { transform: scale(1.12); }
+        .xu_swatch.is-active { border-color: var(--xu_ink); }
+
+        .xu_live-stage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 130px;
+            margin-top: 14px;
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at 50% 45%, rgba(17, 138, 178, 0.12), transparent 60%),
+                rgba(0, 0, 0, 0.03);
+        }
+
+        .xu_live-stage svg {
+            stroke: var(--xu_live-color, #118ab2);
+            stroke-width: var(--xu_live-stroke, 2);
+            fill: none;
+            transition: stroke 200ms ease, width 200ms ease, height 200ms ease;
+            width: var(--xu_live-size, 64px);
+            height: var(--xu_live-size, 64px);
+        }
+
+        footer.xu_footer {
+            margin-top: 50px;
+            padding: 26px 0 40px;
+            border-top: 1px solid var(--xu_line);
+            color: var(--xu_muted);
+            font: 0.78rem "Microsoft YaHei", sans-serif;
+        }
+
+        @media (max-width: 700px) {
+            .xu_shell { width: min(100% - 28px, 560px); }
+            .xu_grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <header class="xu_shell xu_topbar">
+        <div class="xu_mark">YL / WEB DESIGN</div>
+        <a href="index.html">← 返回实践目录</a>
+    </header>
+
+    <main class="xu_shell">
+        <section class="xu_hero">
+            <div class="xu_eyebrow">Icon Library · Inline SVG</div>
+            <h1>Lucide<br>SVG 图标</h1>
+            <p class="xu_hero-copy">
+                Lucide 采用 <code>内联 SVG（Inline SVG）</code> 方案：页面里只写
+                <code>&lt;i data-lucide="home"&gt;&lt;/i&gt;</code> 作为占位，脚本在加载后调用
+                <code>lucide.createIcons()</code>，把对应的矢量路径直接替换成 <code>&lt;svg&gt;</code> 元素。
+                图标是真实 DOM 节点，可用 CSS 改描边、颜色、尺寸，也能单独做动画。本页脚本已下载到本地
+                <code>cdn/lucide/lucide.min.js</code>，无需联网即可使用。
+            </p>
+            <div class="xu_hero-art" aria-hidden="true">
+                <i data-lucide="rocket"></i>
+                <i data-lucide="heart"></i>
+                <i data-lucide="star"></i>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">01</span>
+                <h2>界面图标</h2>
+            </div>
+            <p class="xu_section-desc">Lucide 默认风格：24×24 视口、2px 描边、端点圆润，图标轻量统一。</p>
+            <div class="xu_grid">
+                <div class="xu_tile"><i data-lucide="home"></i><span>home</span></div>
+                <div class="xu_tile"><i data-lucide="heart"></i><span>heart</span></div>
+                <div class="xu_tile"><i data-lucide="star"></i><span>star</span></div>
+                <div class="xu_tile"><i data-lucide="user"></i><span>user</span></div>
+                <div class="xu_tile"><i data-lucide="settings"></i><span>settings</span></div>
+                <div class="xu_tile"><i data-lucide="search"></i><span>search</span></div>
+                <div class="xu_tile"><i data-lucide="cloud"></i><span>cloud</span></div>
+                <div class="xu_tile"><i data-lucide="mail"></i><span>mail</span></div>
+                <div class="xu_tile"><i data-lucide="bell"></i><span>bell</span></div>
+                <div class="xu_tile"><i data-lucide="camera"></i><span>camera</span></div>
+                <div class="xu_tile"><i data-lucide="music"></i><span>music</span></div>
+                <div class="xu_tile"><i data-lucide="umbrella"></i><span>umbrella</span></div>
+                <div class="xu_tile"><i data-lucide="rocket"></i><span>rocket</span></div>
+                <div class="xu_tile"><i data-lucide="flame"></i><span>flame</span></div>
+                <div class="xu_tile"><i data-lucide="globe"></i><span>globe</span></div>
+                <div class="xu_tile"><i data-lucide="book"></i><span>book</span></div>
+                <div class="xu_tile"><i data-lucide="code"></i><span>code</span></div>
+                <div class="xu_tile"><i data-lucide="palette"></i><span>palette</span></div>
+                <div class="xu_tile"><i data-lucide="moon"></i><span>moon</span></div>
+                <div class="xu_tile"><i data-lucide="sun"></i><span>sun</span></div>
+                <div class="xu_tile"><i data-lucide="zap"></i><span>zap</span></div>
+                <div class="xu_tile"><i data-lucide="activity"></i><span>activity</span></div>
+                <div class="xu_tile"><i data-lucide="folder"></i><span>folder</span></div>
+                <div class="xu_tile"><i data-lucide="file"></i><span>file</span></div>
+                <div class="xu_tile"><i data-lucide="message-circle"></i><span>message-circle</span></div>
+                <div class="xu_tile"><i data-lucide="shopping-cart"></i><span>shopping-cart</span></div>
+                <div class="xu_tile"><i data-lucide="truck"></i><span>truck</span></div>
+                <div class="xu_tile"><i data-lucide="plane"></i><span>plane</span></div>
+                <div class="xu_tile"><i data-lucide="coffee"></i><span>coffee</span></div>
+                <div class="xu_tile"><i data-lucide="gamepad-2"></i><span>gamepad-2</span></div>
+                <div class="xu_tile"><i data-lucide="paw-print"></i><span>paw-print</span></div>
+                <div class="xu_tile"><i data-lucide="leaf"></i><span>leaf</span></div>
+                <div class="xu_tile"><i data-lucide="dumbbell"></i><span>dumbbell</span></div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">02</span>
+                <h2>方向与操作</h2>
+            </div>
+            <p class="xu_section-desc">导航箭头与常用操作类图标。</p>
+            <div class="xu_grid">
+                <div class="xu_tile"><i data-lucide="arrow-right"></i><span>arrow-right</span></div>
+                <div class="xu_tile"><i data-lucide="download"></i><span>download</span></div>
+                <div class="xu_tile"><i data-lucide="upload"></i><span>upload</span></div>
+                <div class="xu_tile"><i data-lucide="link"></i><span>link</span></div>
+                <div class="xu_tile"><i data-lucide="image"></i><span>image</span></div>
+                <div class="xu_tile"><i data-lucide="video"></i><span>video</span></div>
+                <div class="xu_tile"><i data-lucide="calendar"></i><span>calendar</span></div>
+                <div class="xu_tile"><i data-lucide="clock"></i><span>clock</span></div>
+                <div class="xu_tile"><i data-lucide="map-pin"></i><span>map-pin</span></div>
+                <div class="xu_tile"><i data-lucide="phone"></i><span>phone</span></div>
+                <div class="xu_tile"><i data-lucide="trash"></i><span>trash</span></div>
+                <div class="xu_tile"><i data-lucide="edit"></i><span>edit</span></div>
+                <div class="xu_tile"><i data-lucide="plus"></i><span>plus</span></div>
+                <div class="xu_tile"><i data-lucide="check"></i><span>check</span></div>
+                <div class="xu_tile"><i data-lucide="x"></i><span>x</span></div>
+                <div class="xu_tile"><i data-lucide="menu"></i><span>menu</span></div>
+                <div class="xu_tile"><i data-lucide="refresh-cw"></i><span>refresh-cw</span></div>
+                <div class="xu_tile"><i data-lucide="rotate-cw"></i><span>rotate-cw</span></div>
+                <div class="xu_tile"><i data-lucide="external-link"></i><span>external-link</span></div>
+                <div class="xu_tile"><i data-lucide="info"></i><span>info</span></div>
+                <div class="xu_tile"><i data-lucide="help-circle"></i><span>help-circle</span></div>
+                <div class="xu_tile"><i data-lucide="bookmark"></i><span>bookmark</span></div>
+                <div class="xu_tile"><i data-lucide="tag"></i><span>tag</span></div>
+                <div class="xu_tile"><i data-lucide="filter"></i><span>filter</span></div>
+                <div class="xu_tile"><i data-lucide="copy"></i><span>copy</span></div>
+                <div class="xu_tile"><i data-lucide="scissors"></i><span>scissors</span></div>
+                <div class="xu_tile"><i data-lucide="printer"></i><span>printer</span></div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">03</span>
+                <h2>尺寸与描边</h2>
+            </div>
+            <p class="xu_section-desc">SVG 方式直接用 CSS 控制宽高与 stroke-width，无需重新请求资源。</p>
+            <div class="xu_demo-row xu_size-demo">
+                <span class="xu_demo-label">尺寸</span>
+                <i data-lucide="star" style="width:18px;height:18px;"></i>
+                <i data-lucide="star" style="width:28px;height:28px;"></i>
+                <i data-lucide="star" style="width:44px;height:44px;"></i>
+                <i data-lucide="star" style="width:64px;height:64px;"></i>
+                <i data-lucide="star" style="width:90px;height:90px;"></i>
+            </div>
+            <div class="xu_demo-row" style="margin-top: 14px;">
+                <span class="xu_demo-label">描边</span>
+                <i data-lucide="heart" style="width:44px;height:44px;stroke-width:1;"></i>
+                <i data-lucide="heart" style="width:44px;height:44px;stroke-width:2;"></i>
+                <i data-lucide="heart" style="width:44px;height:44px;stroke-width:3;"></i>
+                <i data-lucide="heart" style="width:44px;height:44px;stroke-width:4;"></i>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">04</span>
+                <h2>实时交互演示</h2>
+            </div>
+            <p class="xu_section-desc">点击色块更换颜色，拖动滑杆调整描边粗细与尺寸，图标会即时更新。</p>
+            <div class="xu_demo-row" style="flex-direction: column; align-items: stretch; gap: 18px;">
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <span class="xu_demo-label">颜色</span>
+                    <div class="xu_swatches" id="xu_swatches">
+                        <button type="button" class="xu_swatch is-active" data-xu-color="#118ab2" style="background:#118ab2;" aria-label="蓝色"></button>
+                        <button type="button" class="xu_swatch" data-xu-color="#ef6b54" style="background:#ef6b54;" aria-label="珊瑚红"></button>
+                        <button type="button" class="xu_swatch" data-xu-color="#f4c95d" style="background:#f4c95d;" aria-label="明黄"></button>
+                        <button type="button" class="xu_swatch" data-xu-color="#06d6a0" style="background:#06d6a0;" aria-label="青绿"></button>
+                        <button type="button" class="xu_swatch" data-xu-color="#9b5de5" style="background:#9b5de5;" aria-label="紫"></button>
+                        <button type="button" class="xu_swatch" data-xu-color="#202225" style="background:#202225;" aria-label="墨黑"></button>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <span class="xu_demo-label">描边粗细</span>
+                    <input type="range" id="xu_stroke-range" min="0.5" max="5" step="0.5" value="2" style="flex:1; min-width:160px;">
+                    <span id="xu_stroke-value" style="font:700 0.85rem 'Microsoft YaHei',sans-serif; min-width:34px;">2</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <span class="xu_demo-label">尺寸</span>
+                    <input type="range" id="xu_size-range" min="24" max="140" step="2" value="64" style="flex:1; min-width:160px;">
+                    <span id="xu_size-value" style="font:700 0.85rem 'Microsoft YaHei',sans-serif; min-width:44px;">64</span>
+                </div>
+                <div class="xu_live-stage" id="xu_live-stage">
+                    <i data-lucide="heart" id="xu_live-icon"></i>
+                </div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">05</span>
+                <h2>实现方式</h2>
+            </div>
+            <div class="xu_note">
+                <strong>SVG 图标的三个要素：</strong>
+                <br>1）引入本地脚本 <code>cdn/lucide/lucide.min.js</code>；
+                <br>2）HTML 中用 <code>&lt;i data-lucide="名称"&gt;</code> 作为占位；
+                <br>3）脚本加载后调用 <code>lucide.createIcons()</code>，把占位元素替换为内联 <code>&lt;svg&gt;</code>，再用 CSS 控制样式。
+                <code class="xu_code">&lt;script src="cdn/lucide/lucide.min.js"&gt;&lt;/script&gt;
+&lt;i data-lucide="rocket"&gt;&lt;/i&gt;
+&lt;script&gt;lucide.createIcons();&lt;/script&gt;
+
+/* CSS 直接控制生成的 svg */
+.xu_tile svg { width: 30px; height: 30px; stroke: #118ab2; }</code>
+            </div>
+        </section>
+    </main>
+
+    <footer class="xu_shell xu_footer">
+        袁磊 · 《高级网页设计》课堂实践　/　1019-2 · Lucide SVG 图标 · 脚本本地化于 cdn/lucide
+    </footer>
+
+    <!-- Lucide：SVG 方案，脚本引用本地 cdn 目录 -->
+    <script src="cdn/lucide/lucide.min.js"></script>
+    <script>
+        // 所有自定义变量均以 xu_ 前缀命名
+        var xu_liveStage = document.getElementById("xu_live-stage");
+        var xu_liveIcon = document.getElementById("xu_live-icon");
+        var xu_swatchList = document.querySelectorAll("#xu_swatches .xu_swatch");
+        var xu_strokeRange = document.getElementById("xu_stroke-range");
+        var xu_sizeRange = document.getElementById("xu_size-range");
+        var xu_strokeValue = document.getElementById("xu_stroke-value");
+        var xu_sizeValue = document.getElementById("xu_size-value");
+
+        // 先把占位元素替换为内联 SVG
+        lucide.createIcons();
+
+        // 颜色切换
+        for (var xu_i = 0; xu_i < xu_swatchList.length; xu_i++) {
+            xu_swatchList[xu_i].addEventListener("click", function () {
+                var xu_color = this.getAttribute("data-xu-color");
+                for (var xu_j = 0; xu_j < xu_swatchList.length; xu_j++) {
+                    xu_swatchList[xu_j].classList.remove("is-active");
+                }
+                this.classList.add("is-active");
+                xu_liveStage.style.setProperty("--xu_live-color", xu_color);
+            });
+        }
+
+        // 描边粗细
+        xu_strokeRange.addEventListener("input", function () {
+            xu_strokeValue.textContent = this.value;
+            xu_liveStage.style.setProperty("--xu_live-stroke", this.value);
+        });
+
+        // 尺寸
+        xu_sizeRange.addEventListener("input", function () {
+            xu_sizeValue.textContent = this.value;
+            xu_liveStage.style.setProperty("--xu_live-size", this.value + "px");
+        });
+    </script>
+</body>
+</html>

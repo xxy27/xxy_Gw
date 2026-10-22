@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="基于 iconfont 字体图标实现移动端固定自适应宽度底部导航，含数字徽章与红点。">
+    <title>1019 · 移动端底部导航（字体图标）</title>
+    <!-- iconfont：字体图标方案，CSS 与字体文件均引用本地 font 目录 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --xu_ink: #202225;
+            --xu_muted: #686a6d;
+            --xu_paper: #f5f1e9;
+            --xu_surface: #fffdf8;
+            --xu_coral: #ef6b54;
+            --xu_coral-dark: #bd4939;
+            --xu_yellow: #f4c95d;
+            --xu_line: #ded8cc;
+            --xu_shadow: 0 20px 50px rgba(42, 35, 26, 0.10);
+            --xu_app-bg: #f2f3f5;
+            --xu_nav-bg: #ffffff;
+            --xu_inactive: #8a8f99;
+            --xu_alert: #ff3b30;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            padding-bottom: 84px;
+            color: var(--xu_ink);
+            background:
+                radial-gradient(circle at 8% 6%, rgba(244, 201, 93, 0.28), transparent 20rem),
+                linear-gradient(135deg, #f5f1e9 0%, #fbfaf6 52%, #f1e9de 100%);
+            font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+            line-height: 1.6;
+        }
+
+        a { color: inherit; }
+
+        .xu_shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .xu_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 26px 0;
+            border-bottom: 1px solid var(--xu_line);
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+        }
+
+        .xu_mark { font-weight: 700; }
+        .xu_topbar a { text-decoration: none; color: var(--xu_muted); }
+        .xu_topbar a:hover { color: var(--xu_coral-dark); }
+
+        .xu_hero { padding: 64px 0 20px; }
+
+        .xu_eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--xu_coral-dark);
+            font: 700 0.78rem/1 "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .xu_eyebrow::before {
+            width: 34px;
+            height: 2px;
+            background: var(--xu_coral);
+            content: "";
+        }
+
+        .xu_hero h1 {
+            margin: 20px 0 18px;
+            font-size: clamp(2.3rem, 5.6vw, 4.2rem);
+            font-weight: 400;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+        }
+
+        .xu_hero-copy {
+            max-width: 700px;
+            margin: 0 0 22px;
+            color: var(--xu_muted);
+            font: 1rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        .xu_hero-copy code {
+            background: rgba(239, 107, 84, 0.14);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--xu_coral-dark);
+        }
+
+        .xu_chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .xu_chips li {
+            padding: 7px 14px;
+            border: 1px solid var(--xu_line);
+            border-radius: 999px;
+            background: rgba(255, 253, 248, 0.8);
+            font: 700 0.78rem "Microsoft YaHei", sans-serif;
+            color: var(--xu_coral-dark);
+        }
+
+        .xu_section { padding: 40px 0; }
+
+        .xu_section-title {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .xu_section-title h2 { margin: 0; font-size: 1.7rem; font-weight: 400; }
+        .xu_section-title .xu_no {
+            color: var(--xu_coral-dark);
+            font: 700 0.82rem "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.1em;
+        }
+
+        .xu_section-desc {
+            margin: 0 0 24px;
+            color: var(--xu_muted);
+            font: 0.88rem/1.8 "Microsoft YaHei", sans-serif;
+        }
+
+        /* ---------- 手机外框 ---------- */
+        .xu_stage { display: flex; justify-content: center; }
+
+        .xu_phone {
+            width: min(375px, 100%);
+            height: 700px;
+            padding: 12px;
+            border-radius: 44px;
+            background: #1a1a1c;
+            box-shadow: 0 30px 60px rgba(32, 34, 37, 0.28), inset 0 0 0 2px #2c2c2e;
+            position: relative;
+        }
+
+        .xu_screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            background: var(--xu_app-bg);
+        }
+
+        .xu_notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 26px;
+            border-radius: 14px;
+            background: #1a1a1c;
+            z-index: 30;
+        }
+
+        .xu_statusbar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            font: 600 0.78rem "Microsoft YaHei", sans-serif;
+            color: #202225;
+            z-index: 20;
+        }
+
+        .xu_status-icons { display: flex; align-items: center; gap: 6px; }
+        .xu_status-icons i { display: block; }
+        .xu_status-icons .xu_sig { width: 16px; height: 10px; background: linear-gradient(#202225 60%, transparent 60%); clip-path: polygon(0 100%, 0 60%, 25% 60%, 25% 30%, 50% 30%, 50% 0, 75% 0, 75% 60%, 100% 60%, 100% 100%); }
+        .xu_status-icons .xu_wifi { width: 14px; height: 10px; border: 2px solid #202225; border-bottom: none; border-radius: 8px 8px 0 0; position: relative; }
+        .xu_status-icons .xu_wifi::after { content: ""; position: absolute; left: 1px; bottom: -6px; width: 8px; height: 8px; border: 2px solid #202225; border-top: none; border-left: none; transform: rotate(45deg); border-radius: 0 0 6px 0; }
+        .xu_status-icons .xu_bat { width: 22px; height: 11px; border: 1.5px solid #202225; border-radius: 3px; position: relative; }
+        .xu_status-icons .xu_bat::after { content: ""; position: absolute; inset: 1.5px; width: 70%; background: #202225; border-radius: 1px; }
+        .xu_status-icons .xu_bat::before { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 5px; background: #202225; border-radius: 0 2px 2px 0; }
+
+        .xu_app-header {
+            position: absolute;
+            top: 44px; left: 0; right: 0;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: #fff;
+            border-bottom: 1px solid #ececec;
+            z-index: 15;
+        }
+
+        .xu_app-title { font: 700 1rem "Microsoft YaHei", sans-serif; }
+        .xu_app-search { font-size: 18px; color: #686a6d; }
+
+        .xu_app-scroll {
+            position: absolute;
+            top: 96px; bottom: 64px; left: 0; right: 0;
+            overflow-y: auto;
+            padding: 14px;
+            scrollbar-width: none;
+        }
+        .xu_app-scroll::-webkit-scrollbar { display: none; }
+
+        .xu_banner {
+            position: relative;
+            margin-bottom: 14px;
+            padding: 20px;
+            border-radius: 16px;
+            background: linear-gradient(120deg, #ef6b54, #f4c95d);
+            color: #fff;
+            overflow: hidden;
+        }
+        .xu_banner::after {
+            content: "";
+            position: absolute;
+            right: -30px; top: -30px;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+        }
+        .xu_banner-badge {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.28);
+            font: 700 0.7rem "Microsoft YaHei", sans-serif;
+        }
+        .xu_banner-title { font: 700 1.15rem "Microsoft YaHei", sans-serif; }
+        .xu_banner-sub { font: 0.78rem "Microsoft YaHei", sans-serif; opacity: 0.9; }
+
+        .xu_section-head {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0 10px;
+            font: 700 0.92rem "Microsoft YaHei", sans-serif;
+        }
+        .xu_section-head span { color: var(--xu_coral-dark); font-weight: 400; font-size: 0.76rem; }
+
+        .xu_products {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .xu_product {
+            padding: 10px;
+            border-radius: 12px;
+            background: #fff;
+        }
+        .xu_product-thumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 74px;
+            border-radius: 9px;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .xu_product-name { font: 600 0.8rem "Microsoft YaHei", sans-serif; }
+        .xu_product-price { font: 700 0.82rem "Microsoft YaHei", sans-serif; color: var(--xu_coral-dark); }
+
+        /* ---------- 底部导航 ---------- */
+        .xu_tabbar {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            display: flex;
+            min-height: 62px;
+            padding-bottom: env(safe-area-inset-bottom);
+            background: var(--xu_nav-bg);
+            border-top: 1px solid #ececec;
+            z-index: 25;
+        }
+
+        .xu_nav-item {
+            position: relative;
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 8px 4px;
+            color: var(--xu_inactive);
+            text-decoration: none;
+            transition: color 160ms ease;
+        }
+
+        .xu_nav-item:hover { color: #5c6270; }
+
+        .xu_nav-item.is-active { color: var(--xu_coral); }
+
+        /* 选中态顶部指示条 */
+        .xu_nav-item.is-active::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 3px;
+            border-radius: 0 0 3px 3px;
+            background: var(--xu_coral);
+        }
+
+        .xu_nav-icon-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .xu_nav-icon-wrap .iconfont { font-size: 24px; line-height: 1; }
+
+        .xu_nav-label {
+            font: 600 0.68rem/1.2 "Microsoft YaHei", sans-serif;
+            white-space: nowrap;
+        }
+
+        /* 数字徽章 */
+        .xu_badge {
+            position: absolute;
+            top: -6px;
+            right: -14px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 5px;
+            border: 1.5px solid #fff;
+            border-radius: 999px;
+            background: var(--xu_alert);
+            color: #fff;
+            font: 700 0.62rem/15px "Microsoft YaHei", sans-serif;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* 红点 */
+        .xu_dot {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            width: 9px;
+            height: 9px;
+            border: 1.5px solid #fff;
+            border-radius: 50%;
+            background: var(--xu_alert);
+        }
+
+        /* ---------- 自适应宽度演示 ---------- */
+        .xu_width-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .xu_width-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--xu_line);
+            border-radius: 999px;
+            background: rgba(255, 253, 248, 0.8);
+            color: var(--xu_muted);
+            font: 700 0.8rem "Microsoft YaHei", sans-serif;
+            cursor: pointer;
+            transition: all 160ms ease;
+        }
+
+        .xu_width-btn:hover { border-color: var(--xu_coral); color: var(--xu_coral-dark); }
+        .xu_width-btn.is-active {
+            border-color: var(--xu_coral);
+            background: var(--xu_coral);
+            color: #fff;
+        }
+
+        .xu_width-stage {
+            display: flex;
+            justify-content: center;
+            padding: 26px 12px;
+            border-radius: 16px;
+            background:
+                repeating-linear-gradient(90deg, rgba(17, 138, 178, 0.06) 0 1px, transparent 1px 20px),
+                rgba(17, 138, 178, 0.05);
+        }
+
+        .xu_width-frame {
+            width: 320px;
+            max-width: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            background: var(--xu_app-bg);
+            box-shadow: var(--xu_shadow);
+        }
+
+        .xu_width-app {
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px 16px;
+        }
+
+        .xu_width-bar { height: 12px; border-radius: 6px; background: #dfe3e8; }
+        .xu_width-bar.is-short { width: 55%; }
+        .xu_width-bar.is-mid { width: 75%; background: #d4dae0; }
+        .xu_width-blocks { display: flex; gap: 10px; margin-top: 2px; }
+        .xu_width-blocks i {
+            flex: 1;
+            height: 46px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(32, 34, 37, 0.06);
+        }
+
+        .xu_width-readout {
+            margin: 16px 0 0;
+            text-align: center;
+            font: 0.86rem "Microsoft YaHei", sans-serif;
+            color: var(--xu_muted);
+        }
+
+        .xu_width-readout b { color: var(--xu_coral-dark); }
+
+        /* ---------- 徽章与红点详解 ---------- */
+        .xu_anatomy {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .xu_anatomy-card {
+            padding: 26px 22px;
+            border: 1px solid var(--xu_line);
+            border-radius: 14px;
+            background: rgba(255, 253, 248, 0.82);
+            text-align: center;
+        }
+
+        .xu_anatomy-stage {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 30px;
+            min-height: 92px;
+            padding: 16px 0;
+        }
+
+        .xu_anatomy-stage .xu_nav-icon-wrap .iconfont { font-size: 46px; }
+        .xu_anatomy-stage .xu_badge { top: -8px; right: -22px; min-width: 24px; height: 24px; font: 700 0.8rem/21px "Microsoft YaHei", sans-serif; }
+        .xu_anatomy-stage .xu_dot { top: -2px; right: -6px; width: 14px; height: 14px; }
+
+        .xu_anatomy-card h3 { margin: 6px 0 6px; font-size: 1.05rem; font-weight: 400; }
+        .xu_anatomy-card p { margin: 0; font: 0.82rem/1.7 "Microsoft YaHei", sans-serif; color: var(--xu_muted); }
+
+        .xu_code {
+            display: block;
+            margin-top: 8px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: var(--xu_ink);
+            color: #f4c95d;
+            font: 0.8rem/1.7 Consolas, "Courier New", monospace;
+            white-space: pre;
+            overflow-x: auto;
+            text-align: left;
+        }
+
+        .xu_note {
+            padding: 18px 22px;
+            border-left: 4px solid var(--xu_coral);
+            border-radius: 8px;
+            background: rgba(239, 107, 84, 0.10);
+            color: #5c5045;
+            font: 0.88rem/1.9 "Microsoft YaHei", sans-serif;
+        }
+
+        /* 页面底部真实固定导航 */
+        .xu_tabbar--fixed {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 60;
+            box-shadow: 0 -8px 24px rgba(32, 34, 37, 0.10);
+        }
+
+        footer.xu_footer {
+            margin-top: 40px;
+            padding: 26px 0 40px;
+            border-top: 1px solid var(--xu_line);
+            color: var(--xu_muted);
+            font: 0.78rem "Microsoft YaHei", sans-serif;
+        }
+
+        @media (max-width: 700px) {
+            .xu_shell { width: min(100% - 28px, 560px); }
+            .xu_phone { height: 640px; }
+            .xu_tabbar { min-height: 58px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="xu_shell xu_topbar">
+        <div class="xu_mark">YL / WEB DESIGN</div>
+        <a href="index.html">← 返回实践目录</a>
+    </header>
+
+    <main class="xu_shell">
+        <section class="xu_hero">
+            <div class="xu_eyebrow">Mobile UI · Font Icon</div>
+            <h1>移动端底部导航<br>字体图标方案</h1>
+            <p class="xu_hero-copy">
+                基于 <code>font/</code> 目录下的 iconfont 图标，实现一个<strong>固定定位、4 项等分、宽度自适应</strong>的移动端底部导航。
+                图标通过 <code>&lt;i class="iconfont icon-xxx"&gt;</code> 以字体方式渲染，用 CSS 的 <code>color</code> 控制选中态；
+                并在右上角叠加<strong>数字徽章</strong>与<strong>红点</strong>提示。本页资源全部来自本地 <code>font/iconfont.css</code> 与字体文件。
+            </p>
+            <ul class="xu_chips">
+                <li>固定定位 bottom</li>
+                <li>4 项 flex 等分</li>
+                <li>宽度自适应</li>
+                <li>数字徽章</li>
+                <li>红点提示</li>
+                <li>安全区适配</li>
+            </ul>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">01</span>
+                <h2>手机实机预览</h2>
+            </div>
+            <p class="xu_section-desc">导航固定在屏幕底部，上方内容可滚动；“消息”带数字徽章，“我的”带红点。</p>
+            <div class="xu_stage">
+                <div class="xu_phone">
+                    <div class="xu_screen">
+                        <div class="xu_notch"></div>
+                        <div class="xu_statusbar">
+                            <span>9:41</span>
+                            <span class="xu_status-icons"><i class="xu_sig"></i><i class="xu_wifi"></i><i class="xu_bat"></i></span>
+                        </div>
+                        <div class="xu_app-header">
+                            <div class="xu_app-title">袁磊的小店</div>
+                            <i class="iconfont icon-a-sousuosousuokuang xu_app-search"></i>
+                        </div>
+                        <div class="xu_app-scroll">
+                            <div class="xu_banner">
+                                <span class="xu_banner-badge">限时</span>
+                                <div class="xu_banner-title">新品上架 · 全场 8 折</div>
+                                <div class="xu_banner-sub">每周更新 · 好物精选</div>
+                            </div>
+                            <div class="xu_section-head">推荐好物<span>更多 ›</span></div>
+                            <div class="xu_products">
+                                <div class="xu_product">
+                                    <div class="xu_product-thumb" style="background:#ffe3dc;">👜</div>
+                                    <div class="xu_product-name">帆布手提包</div>
+                                    <div class="xu_product-price">¥ 39.0</div>
+                                </div>
+                                <div class="xu_product">
+                                    <div class="xu_product-thumb" style="background:#e2f0ff;">☕</div>
+                                    <div class="xu_product-name">手冲咖啡杯</div>
+                                    <div class="xu_product-price">¥ 59.0</div>
+                                </div>
+                                <div class="xu_product">
+                                    <div class="xu_product-thumb" style="background:#e7f8ef;">🌿</div>
+                                    <div class="xu_product-name">桌面小绿植</div>
+                                    <div class="xu_product-price">¥ 19.9</div>
+                                </div>
+                                <div class="xu_product">
+                                    <div class="xu_product-thumb" style="background:#fff3d6;">🎧</div>
+                                    <div class="xu_product-name">复古耳机</div>
+                                    <div class="xu_product-price">¥ 129.0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <nav class="xu_tabbar" aria-label="底部导航">
+                            <a class="xu_nav-item is-active" href="#">
+                                <span class="xu_nav-icon-wrap"><i class="iconfont icon-shouye1"></i></span>
+                                <span class="xu_nav-label">首页</span>
+                            </a>
+                            <a class="xu_nav-item" href="#">
+                                <span class="xu_nav-icon-wrap">
+                                    <i class="iconfont icon-xiaoxi"></i>
+                                    <span class="xu_badge">9+</span>
+                                </span>
+                                <span class="xu_nav-label">消息</span>
+                            </a>
+                            <a class="xu_nav-item" href="#">
+                                <span class="xu_nav-icon-wrap">
+                                    <i class="iconfont icon-wode"></i>
+                                    <span class="xu_dot"></span>
+                                </span>
+                                <span class="xu_nav-label">我的</span>
+                            </a>
+                            <a class="xu_nav-item" href="#">
+                                <span class="xu_nav-icon-wrap"><i class="iconfont icon-shezhi"></i></span>
+                                <span class="xu_nav-label">设置</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">02</span>
+                <h2>自适应宽度</h2>
+            </div>
+            <p class="xu_section-desc">点击切换容器宽度，观察 4 个导航项始终等分并随宽度自适应（<code>flex: 1</code>）。</p>
+            <div class="xu_width-toolbar" id="xu_width-toolbar">
+                <button type="button" class="xu_width-btn is-active" data-xu-width="320">320px</button>
+                <button type="button" class="xu_width-btn" data-xu-width="375">375px</button>
+                <button type="button" class="xu_width-btn" data-xu-width="430">430px</button>
+                <button type="button" class="xu_width-btn" data-xu-width="100%">全宽</button>
+            </div>
+            <div class="xu_width-stage">
+                <div class="xu_width-frame" id="xu_width-frame">
+                    <div class="xu_width-app">
+                        <div class="xu_width-bar"></div>
+                        <div class="xu_width-bar is-short"></div>
+                        <div class="xu_width-bar is-mid"></div>
+                        <div class="xu_width-blocks"><i></i><i></i><i></i></div>
+                    </div>
+                    <nav class="xu_tabbar" aria-label="底部导航">
+                        <a class="xu_nav-item is-active" href="#">
+                            <span class="xu_nav-icon-wrap"><i class="iconfont icon-shouye1"></i></span>
+                            <span class="xu_nav-label">首页</span>
+                        </a>
+                        <a class="xu_nav-item" href="#">
+                            <span class="xu_nav-icon-wrap">
+                                <i class="iconfont icon-xiaoxi"></i>
+                                <span class="xu_badge">9+</span>
+                            </span>
+                            <span class="xu_nav-label">消息</span>
+                        </a>
+                        <a class="xu_nav-item" href="#">
+                            <span class="xu_nav-icon-wrap">
+                                <i class="iconfont icon-wode"></i>
+                                <span class="xu_dot"></span>
+                            </span>
+                            <span class="xu_nav-label">我的</span>
+                        </a>
+                        <a class="xu_nav-item" href="#">
+                            <span class="xu_nav-icon-wrap"><i class="iconfont icon-shezhi"></i></span>
+                            <span class="xu_nav-label">设置</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            <p class="xu_width-readout" id="xu_width-readout">容器宽度：<b>320px</b> · 每项约 <b>80px</b></p>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">03</span>
+                <h2>数字徽章与红点</h2>
+            </div>
+            <p class="xu_section-desc">徽章与红点都绝对定位于图标右上角，通过外层包裹元素定位，不占用布局空间。</p>
+            <div class="xu_anatomy">
+                <div class="xu_anatomy-card">
+                    <div class="xu_anatomy-stage">
+                        <span class="xu_nav-icon-wrap">
+                            <i class="iconfont icon-xiaoxi"></i>
+                            <span class="xu_badge">9+</span>
+                        </span>
+                    </div>
+                    <h3>数字徽章</h3>
+                    <p>用于展示未读数量，超过上限时用 <code>9+</code> 形式；圆角胶囊 + 白色描边，避免与图标粘连。</p>
+                    <code class="xu_code">&lt;span class="xu_nav-icon-wrap"&gt;
+  &lt;i class="iconfont icon-xiaoxi"&gt;&lt;/i&gt;
+  &lt;span class="xu_badge"&gt;9+&lt;/span&gt;
+&lt;/span&gt;</code>
+                </div>
+                <div class="xu_anatomy-card">
+                    <div class="xu_anatomy-stage">
+                        <span class="xu_nav-icon-wrap">
+                            <i class="iconfont icon-wode"></i>
+                            <span class="xu_dot"></span>
+                        </span>
+                    </div>
+                    <h3>红点提示</h3>
+                    <p>仅提示“有新内容”，不显示具体数量；小圆点 + 白色描边，视觉更轻。</p>
+                    <code class="xu_code">&lt;span class="xu_nav-icon-wrap"&gt;
+  &lt;i class="iconfont icon-wode"&gt;&lt;/i&gt;
+  &lt;span class="xu_dot"&gt;&lt;/span&gt;
+&lt;/span&gt;</code>
+                </div>
+            </div>
+        </section>
+
+        <section class="xu_section">
+            <div class="xu_section-title">
+                <span class="xu_no">04</span>
+                <h2>实现方式</h2>
+            </div>
+            <div class="xu_note">
+                <strong>字体图标方案的要点：</strong>
+                <br>1）引入本地 <code>font/iconfont.css</code>，其中 <code>@font-face</code> 注册 <code>woff2/woff/ttf</code> 字体；
+                <br>2）HTML 中用 <code>&lt;i class="iconfont icon-名称"&gt;</code> 选择字形，字号用 <code>font-size</code>、颜色用 <code>color</code> 控制；
+                <br>3）导航容器 <code>display:flex</code>，4 项 <code>flex:1</code> 等分并自适应宽度；
+                <br>4）<code>position:fixed; bottom:0; left:0; right:0</code> 固定在底部，配合 <code>env(safe-area-inset-bottom)</code> 适配全面屏；
+                <br>5）徽章/红点用 <code>position:absolute</code> 挂在图标右上角。
+                <code class="xu_code">&lt;link rel="stylesheet" href="font/iconfont.css"&gt;
+
+&lt;nav class="xu_tabbar"&gt;
+  &lt;a class="xu_nav-item"&gt;
+    &lt;span class="xu_nav-icon-wrap"&gt;
+      &lt;i class="iconfont icon-shouye1"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+    &lt;span class="xu_nav-label"&gt;首页&lt;/span&gt;
+  &lt;/a&gt;
+&lt;/nav&gt;</code>
+            </div>
+        </section>
+    </main>
+
+    <footer class="xu_shell xu_footer">
+        袁磊 · 《高级网页设计》课堂实践　/　1019-3 · 移动端底部导航（字体图标）· 资源来自本地 font 目录
+    </footer>
+
+    <!-- 页面底部真实固定导航实例 -->
+    <nav class="xu_tabbar xu_tabbar--fixed" aria-label="底部导航">
+        <a class="xu_nav-item is-active" href="#">
+            <span class="xu_nav-icon-wrap"><i class="iconfont icon-shouye1"></i></span>
+            <span class="xu_nav-label">首页</span>
+        </a>
+        <a class="xu_nav-item" href="#">
+            <span class="xu_nav-icon-wrap">
+                <i class="iconfont icon-xiaoxi"></i>
+                <span class="xu_badge">9+</span>
+            </span>
+            <span class="xu_nav-label">消息</span>
+        </a>
+        <a class="xu_nav-item" href="#">
+            <span class="xu_nav-icon-wrap">
+                <i class="iconfont icon-wode"></i>
+                <span class="xu_dot"></span>
+            </span>
+            <span class="xu_nav-label">我的</span>
+        </a>
+        <a class="xu_nav-item" href="#">
+            <span class="xu_nav-icon-wrap"><i class="iconfont icon-shezhi"></i></span>
+            <span class="xu_nav-label">设置</span>
+        </a>
+    </nav>
+
+    <script>
+        // 自适应宽度演示（所有自定义变量均以 xu_ 前缀命名）
+        var xu_widthBtns = document.querySelectorAll("#xu_width-toolbar .xu_width-btn");
+        var xu_widthFrame = document.getElementById("xu_width-frame");
+        var xu_widthReadout = document.getElementById("xu_width-readout");
+
+        function xu_updateWidth(value) {
+            xu_widthFrame.style.width = value === "100%" ? "100%" : value + "px";
+            var xu_px = value === "100%" ? Math.round(xu_widthFrame.clientWidth) : parseInt(value, 10);
+            var xu_each = Math.round(xu_px / 4);
+            xu_widthReadout.innerHTML = "容器宽度：<b>" + xu_px + "px</b> · 每项约 <b>" + xu_each + "px</b>";
+        }
+
+        for (var xu_i = 0; xu_i < xu_widthBtns.length; xu_i++) {
+            xu_widthBtns[xu_i].addEventListener("click", function () {
+                for (var xu_j = 0; xu_j < xu_widthBtns.length; xu_j++) {
+                    xu_widthBtns[xu_j].classList.remove("is-active");
+                }
+                this.classList.add("is-active");
+                xu_updateWidth(this.getAttribute("data-xu-width"));
+            });
+        }
+
+        window.addEventListener("resize", function () {
+            var xu_active = document.querySelector("#xu_width-toolbar .xu_width-btn.is-active");
+            if (xu_active && xu_active.getAttribute("data-xu-width") === "100%") {
+                xu_updateWidth("100%");
+            }
+        });
+    </script>
+</body>
+</html>
