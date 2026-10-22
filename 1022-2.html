@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1022-2 · JavaScript 基本数据类型</title>
+    <!-- 姓名：徐昕妤，日期：2026-10-22，功能名称：JavaScript 基本数据类型演示 -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.6;
+        }
+
+        .xxy_hero {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: #fff;
+            text-align: center;
+            padding: 48px 16px 40px;
+        }
+        .xxy_hero h1 { font-size: 30px; margin-bottom: 10px; }
+        .xxy_hero p { opacity: .85; font-size: 15px; }
+        .xxy_hero .xxy_code {
+            display: inline-block;
+            margin-top: 14px;
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+        }
+
+        .xxy_wrap { max-width: 1080px; margin: 0 auto; padding: 32px 16px 56px; }
+
+        .xxy_section-title {
+            font-size: 20px;
+            margin: 34px 0 16px;
+            padding-left: 12px;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .xxy_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 16px;
+        }
+
+        .xxy_card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 2px 10px rgba(30, 58, 138, .08);
+            border-top: 4px solid var(--xxy_color, #3b82f6);
+        }
+        .xxy_card h3 {
+            font-size: 17px;
+            color: var(--xxy_color, #3b82f6);
+            margin-bottom: 6px;
+        }
+        .xxy_card h3 .xxy_en { font-size: 13px; color: #8a90a0; font-weight: normal; margin-left: 6px; }
+        .xxy_card p { font-size: 14px; color: #4b5162; }
+        .xxy_card pre {
+            margin-top: 10px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .xxy_card .xxy_out { color: #7dd3fc; }
+
+        .xxy_lab {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(30, 58, 138, .08);
+            padding: 20px;
+        }
+        .xxy_btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .xxy_btn {
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-family: Consolas, monospace;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .xxy_btn:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+        .xxy_custom { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .xxy_custom input {
+            flex: 1;
+            min-width: 220px;
+            border: 1px solid #d3d9e6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            outline: none;
+        }
+        .xxy_custom input:focus { border-color: #3b82f6; }
+        .xxy_custom button {
+            border: none;
+            background: #3b82f6;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .xxy_custom button:hover { background: #1e3a8a; }
+
+        .xxy_panel {
+            background: #0f172a;
+            border-radius: 10px;
+            min-height: 180px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+        .xxy_panel .xxy_line { padding: 3px 0; border-bottom: 1px dashed #1e293b; white-space: pre-wrap; word-break: break-all; }
+        .xxy_panel .xxy_tip { color: #64748b; }
+        .xxy_panel .xxy_kw { color: #f472b6; }
+        .xxy_panel .xxy_res { color: #7dd3fc; }
+        .xxy_panel .xxy_err { color: #fca5a5; }
+
+        .xxy_note {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #8a5a00;
+            background: #fff8e6;
+            border: 1px solid #ffe1a6;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; padding: 20px 0 30px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <h1>JavaScript 基本数据类型</h1>
+        <p>六种基本类型：String、Number、Boolean、Undefined、Null、Object</p>
+        <span class="xxy_code">使用 typeof 运算符检测数据类型</span>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_section-title">六大类型一览</h2>
+        <div class="xxy_cards" id="xxy_cards"></div>
+
+        <h2 class="xxy_section-title">typeof 交互实验室</h2>
+        <div class="xxy_lab">
+            <p style="font-size:14px;color:#4b5162;margin-bottom:12px;">点击下方按钮，查看不同数据的 typeof 检测结果：</p>
+            <div class="xxy_btns" id="xxy_lab_btns"></div>
+            <div class="xxy_custom">
+                <input type="text" id="xxy_input" placeholder='输入任意字面量，如 "hi" 、 66 、 true 、 null 、 {a:1}'>
+                <button id="xxy_run_btn">检测类型</button>
+            </div>
+            <div class="xxy_panel" id="xxy_panel">
+                <div class="xxy_line xxy_tip">// 检测结果将显示在这里……</div>
+            </div>
+            <div class="xxy_note">
+                注意：<b>typeof null</b> 的结果是 <b>"object"</b>，这是 JavaScript 早期设计留下的历史遗留问题；
+                数组 <b>[1,2,3]</b> 也属于 Object 类型，判断数组应使用 <b>Array.isArray()</b>。
+                ES6 之后新增了 Symbol 与 BigInt 两种类型，但不属于本页演示的六种基本类型。
+            </div>
+        </div>
+
+        <p class="xxy_footer">1022-2 · JavaScript 基本数据类型演示 · 徐昕妤</p>
+    </div>
+
+    <script>
+        // ===== 六种基本数据类型数据 =====
+        var xxy_types = [
+            {
+                xxy_name: "字符串", xxy_en: "String", xxy_color: "#16a34a",
+                xxy_desc: "由零个或多个字符组成的文本，用单引号、双引号或反引号包裹。",
+                xxy_code: 'var xxy_str = "hello";\nconsole.log(typeof xxy_str);'
+            },
+            {
+                xxy_name: "数值", xxy_en: "Number", xxy_color: "#2563eb",
+                xxy_desc: "整数与浮点数，还包括特殊值 NaN（非数值）和 Infinity（无穷大）。",
+                xxy_code: "var xxy_num = 3.14;\nconsole.log(typeof xxy_num);"
+            },
+            {
+                xxy_name: "布尔", xxy_en: "Boolean", xxy_color: "#9333ea",
+                xxy_desc: "只有两个值：true（真）与 false（假），常用于逻辑判断。",
+                xxy_code: "var xxy_bool = true;\nconsole.log(typeof xxy_bool);"
+            },
+            {
+                xxy_name: "未定义", xxy_en: "Undefined", xxy_color: "#dc2626",
+                xxy_desc: "变量声明后尚未赋值时的默认值，表示“未定义”。",
+                xxy_code: "var xxy_undef;\nconsole.log(typeof xxy_undef);"
+            },
+            {
+                xxy_name: "空值", xxy_en: "Null", xxy_color: "#ea580c",
+                xxy_desc: "表示“空”，通常用于主动清空变量。注意 typeof null 返回 \"object\"。",
+                xxy_code: "var xxy_null = null;\nconsole.log(typeof xxy_null);"
+            },
+            {
+                xxy_name: "对象", xxy_en: "Object", xxy_color: "#0891b2",
+                xxy_desc: "由键值对组成的引用类型，数组和函数都是特殊的对象。",
+                xxy_code: 'var xxy_obj = { name: "徐昕妤", age: 20 };\nconsole.log(typeof xxy_obj);'
+            }
+        ];
+
+        // ===== 渲染类型卡片 =====
+        var xxy_cards_box = document.getElementById("xxy_cards");
+        var xxy_html = "";
+        for (var xxy_i = 0; xxy_i < xxy_types.length; xxy_i++) {
+            var xxy_t = xxy_types[xxy_i];
+            xxy_html += '<div class="xxy_card" style="--xxy_color:' + xxy_t.xxy_color + '">'
+                + '<h3>' + xxy_t.xxy_name + '<span class="xxy_en">' + xxy_t.xxy_en + '</span></h3>'
+                + '<p>' + xxy_t.xxy_desc + '</p>'
+                + '<pre>' + xxy_t.xxy_code + '</pre>'
+                + '</div>';
+        }
+        xxy_cards_box.innerHTML = xxy_html;
+
+        // ===== typeof 实验室 =====
+        var xxy_panel = document.getElementById("xxy_panel");
+        var xxy_btns_box = document.getElementById("xxy_lab_btns");
+
+        // 待检测的示例数据（label 为显示用代码，value 为实际值）
+        var xxy_samples = [
+            { xxy_label: '"hello"',     xxy_value: "hello" },
+            { xxy_label: "66",          xxy_value: 66 },
+            { xxy_label: "3.14",        xxy_value: 3.14 },
+            { xxy_label: "true",        xxy_value: true },
+            { xxy_label: "undefined",   xxy_value: undefined },
+            { xxy_label: "null",        xxy_value: null },
+            { xxy_label: "{name:'徐昕妤'}", xxy_value: { name: "徐昕妤" } },
+            { xxy_label: "[1,2,3]",     xxy_value: [1, 2, 3] },
+            { xxy_label: "NaN",         xxy_value: NaN },
+            { xxy_label: "function(){}", xxy_value: function () { } }
+        ];
+
+        // 输出一行结果到面板
+        function xxy_log_line(xxy_code_text, xxy_result_text, xxy_is_error) {
+            var xxy_tip = xxy_panel.querySelector(".xxy_tip");
+            if (xxy_tip) { xxy_tip.remove(); }
+            var xxy_line = document.createElement("div");
+            xxy_line.className = "xxy_line";
+            if (xxy_is_error) {
+                xxy_line.innerHTML = '<span class="xxy_err">' + xxy_code_text + '</span>';
+            } else {
+                xxy_line.innerHTML = '<span class="xxy_kw">typeof</span> ' + xxy_code_text
+                    + '  <span style="color:#64748b">//</span>  <span class="xxy_res">"' + xxy_result_text + '"</span>';
+            }
+            xxy_panel.appendChild(xxy_line);
+            xxy_panel.scrollTop = xxy_panel.scrollHeight;
+        }
+
+        // 生成示例按钮
+        for (var xxy_j = 0; xxy_j < xxy_samples.length; xxy_j++) {
+            (function (xxy_item) {
+                var xxy_btn = document.createElement("button");
+                xxy_btn.className = "xxy_btn";
+                xxy_btn.textContent = xxy_item.xxy_label;
+                xxy_btn.addEventListener("click", function () {
+                    xxy_log_line(xxy_item.xxy_label, typeof xxy_item.xxy_value, false);
+                });
+                xxy_btns_box.appendChild(xxy_btn);
+            })(xxy_samples[xxy_j]);
+        }
+
+        // 自定义输入检测：把输入当作 JS 字面量求值后再检测
+        function xxy_run_custom() {
+            var xxy_text = document.getElementById("xxy_input").value;
+            if (xxy_text.trim() === "") {
+                xxy_log_line("输入为空，请先输入一个字面量", "", true);
+                return;
+            }
+            try {
+                var xxy_val = new Function("return (" + xxy_text + ")")();
+                xxy_log_line(xxy_text, typeof xxy_val, false);
+            } catch (xxy_err) {
+                xxy_log_line(xxy_text + "  ← 不是合法的字面量：" + xxy_err.message, "", true);
+            }
+        }
+        document.getElementById("xxy_run_btn").addEventListener("click", xxy_run_custom);
+        document.getElementById("xxy_input").addEventListener("keydown", function (xxy_e) {
+            if (xxy_e.key === "Enter") { xxy_run_custom(); }
+        });
+    </script>
+</body>
+</html>
