@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1026-2 · JavaScript 程序结构 · 条件与循环</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-10-26 14:39，使用大模型：GLM-5.3-Flash，功能名称：JavaScript程序结构演示（条件与循环） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.6;
+        }
+
+        .xxy_hero {
+            background: linear-gradient(135deg, #4338ca, #8b5cf6);
+            color: #fff;
+            text-align: center;
+            padding: 40px 16px 34px;
+            position: relative;
+        }
+        .xxy_hero h1 { font-size: 28px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; }
+
+        .xxy_wrap { max-width: 960px; margin: 0 auto; padding: 26px 16px 50px; }
+
+        .xxy_section-title {
+            font-size: 20px;
+            margin: 30px 0 14px;
+            padding-left: 12px;
+            border-left: 5px solid #8b5cf6;
+        }
+
+        /* 三大结构卡片 */
+        .xxy_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .xxy_card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 10px rgba(67, 56, 202, .08);
+            border-top: 4px solid var(--xxy_color, #8b5cf6);
+        }
+        .xxy_card h3 { font-size: 17px; color: var(--xxy_color, #8b5cf6); margin-bottom: 6px; }
+        .xxy_card p { font-size: 13.5px; color: #4b5162; }
+        .xxy_card pre {
+            margin-top: 8px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            overflow-x: auto;
+        }
+
+        /* 实验室 */
+        .xxy_lab {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(67, 56, 202, .08);
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .xxy_lab h3 { font-size: 16px; color: #4338ca; margin-bottom: 10px; }
+        .xxy_lab p.xxy_desc { font-size: 13.5px; color: #4b5162; margin-bottom: 12px; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .xxy_row input {
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid #d3d9e6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            outline: none;
+        }
+        .xxy_row input:focus { border-color: #8b5cf6; }
+        .xxy_btn {
+            border: none;
+            background: #8b5cf6;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .xxy_btn:hover { background: #4338ca; }
+        .xxy_btn.xxy_ghost {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        .xxy_btn.xxy_ghost:hover { background: #ddd6fe; }
+        .xxy_result {
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #4338ca;
+            font-weight: bold;
+        }
+
+        /* 循环输出面板 */
+        .xxy_panel {
+            background: #0f172a;
+            border-radius: 10px;
+            min-height: 150px;
+            max-height: 300px;
+            overflow: auto;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .xxy_panel .xxy_tip { color: #64748b; }
+        .xxy_panel .xxy_accent { color: #c4b5fd; }
+
+        /* 九九乘法表 */
+        .xxy_table {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .xxy_cell {
+            background: #ede9fe;
+            color: #4338ca;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            padding: 5px 2px;
+            font-family: Consolas, monospace;
+        }
+        .xxy_note {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #8a5a00;
+            background: #fff8e6;
+            border: 1px solid #ffe1a6;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        <h1>JavaScript 程序结构</h1>
+        <p>顺序 · 分支（条件） · 循环 —— 三大程序结构交互演示</p>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_section-title">三大程序结构</h2>
+        <div class="xxy_cards">
+            <div class="xxy_card" style="--xxy_color:#0ea5e9">
+                <h3>顺序结构</h3>
+                <p>代码自上而下逐句执行，是最基本的结构。</p>
+                <pre>var xxy_a = 1;
+var xxy_b = 2;
+console.log(xxy_a + xxy_b); // 3</pre>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#f59e0b">
+                <h3>分支结构（条件）</h3>
+                <p>根据条件是否成立，选择执行不同的代码。常用 if/else、switch。</p>
+                <pre>if (xxy_score >= 60) {
+  console.log("及格");
+} else {
+  console.log("不及格");
+}</pre>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#10b981">
+                <h3>循环结构</h3>
+                <p>重复执行某段代码，直到条件不满足。常用 for、while、do...while。</p>
+                <pre>for (var xxy_i = 1; xxy_i <= 5; xxy_i++) {
+  console.log(xxy_i);
+}</pre>
+            </div>
+        </div>
+
+        <h2 class="xxy_section-title">条件分支实验室（if / else if / else）</h2>
+        <div class="xxy_lab">
+            <h3>成绩等级判定</h3>
+            <p class="xxy_desc">输入 0 ~ 100 的分数：≥85 优秀，≥70 良好，≥60 及格，否则不及格；同时用 % 判断奇偶。</p>
+            <div class="xxy_row">
+                <input type="number" id="xxy_score_input" placeholder="请输入分数，如 88">
+                <button class="xxy_btn" id="xxy_judge_btn">判定等级</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_odd_btn">判断奇偶</button>
+            </div>
+            <div class="xxy_result" id="xxy_score_result">// 判定结果将显示在这里</div>
+        </div>
+
+        <h2 class="xxy_section-title">循环实验室（for / while / do...while）</h2>
+        <div class="xxy_lab">
+            <h3>点击按钮运行循环示例</h3>
+            <p class="xxy_desc">break 立即结束整个循环，continue 跳过本次进入下一次。</p>
+            <div class="xxy_row">
+                <button class="xxy_btn" id="xxy_for_btn">for · 1~100求和</button>
+                <button class="xxy_btn" id="xxy_while_btn">while · 1~10输出</button>
+                <button class="xxy_btn" id="xxy_dowhile_btn">do...while · 倒计时</button>
+                <button class="xxy_btn" id="xxy_break_btn">break · 找到7就停</button>
+                <button class="xxy_btn" id="xxy_continue_btn">continue · 跳过7的倍数</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_table_btn">for嵌套 · 九九乘法表</button>
+            </div>
+            <div class="xxy_panel" id="xxy_panel"><span class="xxy_tip">// 循环运行结果将显示在这里……</span></div>
+            <div class="xxy_table" id="xxy_table" style="display:none;"></div>
+            <div class="xxy_note">
+                小结：for 适合已知次数的循环；while 先判断后执行；do...while 先执行一次再判断（至少执行一次）；
+                循环里可以嵌套 if 做条件过滤，两层 for 可以遍历二维结构（如乘法表）。
+            </div>
+        </div>
+
+        <p class="xxy_footer">1026-2 · JavaScript 程序结构演示 · 徐昕妤</p>
+    </div>
+
+    <script>
+        // ================= 条件分支实验室 =================
+        var xxy_score_result = document.getElementById("xxy_score_result");
+
+        // 读取输入框中的分数，非法输入返回 null
+        function xxy_get_score() {
+            var xxy_v = Number(document.getElementById("xxy_score_input").value);
+            if (document.getElementById("xxy_score_input").value.trim() === "" || isNaN(xxy_v) || xxy_v < 0 || xxy_v > 100) {
+                return null;
+            }
+            return xxy_v;
+        }
+
+        // if / else if / else 判定成绩等级
+        function xxy_judge_score() {
+            var xxy_s = xxy_get_score();
+            if (xxy_s === null) {
+                xxy_score_result.textContent = "请输入 0 ~ 100 之间的有效分数！";
+                return;
+            }
+            var xxy_level;
+            if (xxy_s >= 85) {
+                xxy_level = "优秀";
+            } else if (xxy_s >= 70) {
+                xxy_level = "良好";
+            } else if (xxy_s >= 60) {
+                xxy_level = "及格";
+            } else {
+                xxy_level = "不及格";
+            }
+            xxy_score_result.textContent = "分数 " + xxy_s + " 的等级是：" + xxy_level;
+        }
+
+        // if + 取余运算判断奇偶
+        function xxy_judge_odd() {
+            var xxy_s = xxy_get_score();
+            if (xxy_s === null) {
+                xxy_score_result.textContent = "请输入 0 ~ 100 之间的有效分数！";
+                return;
+            }
+            if (xxy_s % 2 === 0) {
+                xxy_score_result.textContent = "分数 " + xxy_s + " 是偶数（" + xxy_s + " % 2 === 0）";
+            } else {
+                xxy_score_result.textContent = "分数 " + xxy_s + " 是奇数（" + xxy_s + " % 2 !== 0）";
+            }
+        }
+        document.getElementById("xxy_judge_btn").addEventListener("click", xxy_judge_score);
+        document.getElementById("xxy_odd_btn").addEventListener("click", xxy_judge_odd);
+        document.getElementById("xxy_score_input").addEventListener("keydown", function (xxy_e) {
+            if (xxy_e.key === "Enter") { xxy_judge_score(); }
+        });
+
+        // ================= 循环实验室 =================
+        var xxy_panel = document.getElementById("xxy_panel");
+
+        // 输出一行结果（覆盖面板）
+        function xxy_show(xxy_text) {
+            xxy_panel.innerHTML = '<span class="xxy_accent">' + xxy_text + "</span>";
+        }
+
+        // for 循环：1~100 累加求和
+        function xxy_run_for() {
+            var xxy_sum = 0;
+            for (var xxy_i = 1; xxy_i <= 100; xxy_i++) {
+                xxy_sum += xxy_i;
+            }
+            xxy_show("for (var i = 1; i <= 100; i++) sum += i;\n结果：1 + 2 + ... + 100 = " + xxy_sum);
+        }
+
+        // while 循环：先判断后执行
+        function xxy_run_while() {
+            var xxy_i = 1;
+            var xxy_out = "while (i <= 10) 依次输出：";
+            while (xxy_i <= 10) {
+                xxy_out += xxy_i + " ";
+                xxy_i++;
+            }
+            xxy_show(xxy_out);
+        }
+
+        // do...while 循环：先执行一次再判断
+        function xxy_run_dowhile() {
+            var xxy_i = 5;
+            var xxy_out = "do { 输出 i } while (i > 0) 倒计时：";
+            do {
+                xxy_out += xxy_i + " ";
+                xxy_i--;
+            } while (xxy_i > 0);
+            xxy_show(xxy_out);
+        }
+
+        // break：满足条件立即终止整个循环
+        function xxy_run_break() {
+            var xxy_out = "for 1~10 遇到 7 就 break：";
+            for (var xxy_i = 1; xxy_i <= 10; xxy_i++) {
+                if (xxy_i === 7) {
+                    xxy_out += "【遇到7，break！】";
+                    break;
+                }
+                xxy_out += xxy_i + " ";
+            }
+            xxy_show(xxy_out);
+        }
+
+        // continue：跳过本次循环，继续下一次
+        function xxy_run_continue() {
+            var xxy_out = "1~20 跳过 7 的倍数：";
+            for (var xxy_i = 1; xxy_i <= 20; xxy_i++) {
+                if (xxy_i % 7 === 0) {
+                    xxy_out += "[跳过" + xxy_i + "] ";
+                    continue;
+                }
+                xxy_out += xxy_i + " ";
+            }
+            xxy_show(xxy_out);
+        }
+
+        // 双层 for 嵌套：九九乘法表
+        function xxy_run_table() {
+            var xxy_table = document.getElementById("xxy_table");
+            var xxy_html = "";
+            for (var xxy_r = 1; xxy_r <= 9; xxy_r++) {
+                for (var xxy_c = 1; xxy_c <= xxy_r; xxy_c++) {
+                    xxy_html += '<div class="xxy_cell">' + xxy_c + "×" + xxy_r + "=" + (xxy_c * xxy_r) + "</div>";
+                }
+            }
+            xxy_table.innerHTML = xxy_html;
+            xxy_table.style.display = "grid";
+            xxy_show("两层 for 嵌套生成九九乘法表（共 45 个算式）");
+        }
+        document.getElementById("xxy_for_btn").addEventListener("click", xxy_run_for);
+        document.getElementById("xxy_while_btn").addEventListener("click", xxy_run_while);
+        document.getElementById("xxy_dowhile_btn").addEventListener("click", xxy_run_dowhile);
+        document.getElementById("xxy_break_btn").addEventListener("click", xxy_run_break);
+        document.getElementById("xxy_continue_btn").addEventListener("click", xxy_run_continue);
+        document.getElementById("xxy_table_btn").addEventListener("click", xxy_run_table);
+    </script>
+</body>
+</html>
