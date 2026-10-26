@@ -47,3 +47,21 @@ Time: 2026-10-22 14:43:56
 Model: GLM-5.3-Flash (Trae CN)
 Prompt: 设置项目规则，使用原生的html、css和Javascript实现，图标使用font目录下的iconfont图标，不适用第三方库和cdn，使用fetch获取服务器端数据
 ---
+
+---
+Time: 2026-10-26 13:33:53
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 编写1026-1.html，100个盒子，里面有数字，按照数7的规则（7的倍数，个位数为7的数字等），不满足要求的显示数字，满足要求的显示空盒子。
+---
+
+---
+Time: 2026-10-26 13:40:32
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 修改规则agents.md，在新建一个html文件时，都要加入注释，注释包括：徐昕妤，建立时间，使用的大模型，功能名称
+---
+
+---
+Time: 2026-10-26 14:07:41
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 创建技能skill：提交到github，commit和push整个项目到 https://github.com/xxy27/xxy_Gw.git，公钥已设置。
+---

@@ -10,7 +10,7 @@ Static HTML + CSS student portfolio (袁磊 · 《高级网页设计》课堂实
 - **Icons:** 图标统一使用 `font/` 目录下的 iconfont 图标——`<link rel="stylesheet" href="font/iconfont.css">`，类名形如 `iconfont icon-xxx`；可用 `font/demo_index.html` 预览可用图标。
 - **Data fetching:** 需要获取服务器端数据时，一律使用原生 `fetch` API，不使用 XMLHttpRequest、jQuery、axios 等。
 - **Prefix:** all CSS class names, id names, and JS variables must start with `xxy_`.（早期页面使用 `xu_` 前缀，仅在新代码中使用 `xxy_`，不回改旧页面）
-- **Author comment:** every HTML page must include a comment near the top of `<head>` or `<body>`: `<!-- 姓名：徐昕妤，日期：YYYY-MM-DD，功能名称：页面功能 -->`（日期为创建日期，功能名称为该页面/功能的名称）。
+- **Author comment:** 每个新建的 HTML 文件都必须在 `<head>` 或 `<body>` 顶部加入注释，格式：`<!-- 姓名：徐昕妤，建立时间：YYYY-MM-DD HH:mm，使用大模型：模型名称，功能名称：页面功能 -->`。建立时间为创建该文件的日期时间，大模型为生成该页面所用的 AI 模型，功能名称为该页面/功能的名称。
 - **Prompt log:** before executing any prompt, append it to `xu_prompt.md` with timestamp, model used, and prompt content. Never overwrite — append only.
 - **Page naming:** practice pages follow `MMDD-N.html` (date + sequence, e.g. `903-1.html`, `914-2.html`). Use this pattern for new pages.
 - **Styles:** most pages are self-contained with inline `<style>` blocks. The root `css.css` is only linked by `914-1.html` — don't assume it's global.

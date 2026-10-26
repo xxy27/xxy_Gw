@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1026-1 · 数七游戏 · 100个盒子</title>
+    <!-- 姓名：徐昕妤，日期：2026-10-26，功能名称：数七游戏（逢七过） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.6;
+        }
+
+        .xxy_hero {
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            color: #fff;
+            text-align: center;
+            padding: 40px 16px 34px;
+        }
+        .xxy_hero h1 { font-size: 28px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; }
+
+        .xxy_wrap { max-width: 900px; margin: 0 auto; padding: 26px 16px 50px; }
+
+        .xxy_rules {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, .08);
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #4b5162;
+        }
+        .xxy_rules b { color: #0f766e; }
+        .xxy_legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; }
+        .xxy_legend .xxy_demo {
+            width: 30px; height: 30px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px; margin-right: 6px; vertical-align: middle;
+        }
+        .xxy_demo_normal { background: #fff; border: 1px solid #cbd5e1; }
+        .xxy_demo_pass { background: #fef2f2; border: 2px dashed #f87171; }
+
+        .xxy_stats {
+            margin: 18px 0;
+            font-size: 14px;
+            color: #4b5162;
+            text-align: center;
+        }
+        .xxy_stats b { color: #0f766e; font-size: 18px; }
+
+        .xxy_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 10px;
+        }
+
+        .xxy_box {
+            aspect-ratio: 1 / 1;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #334155;
+            box-shadow: 0 1px 4px rgba(15, 118, 110, .06);
+            transition: transform .12s;
+        }
+        .xxy_box:hover { transform: translateY(-3px); }
+
+        /* 满足数七规则：显示空盒子，悬停时 faint 显示原数字便于核对 */
+        .xxy_box.xxy_pass {
+            background: #fef2f2;
+            border: 2px dashed #f87171;
+            color: #f87171;
+        }
+        .xxy_box.xxy_pass .xxy_num { opacity: 0; }
+        .xxy_box.xxy_pass:hover .xxy_num { opacity: .5; }
+
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 26px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        <h1>数七游戏 · 逢七过</h1>
+        <p>1 ~ 100 共 100 个盒子，满足数七规则的显示空盒子，其余显示数字</p>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_rules">
+            <b>数七规则：</b>遇到 <b>7 的倍数</b>（7、14、21……）、<b>个位是 7</b> 的数字（7、17、27……）、
+            <b>十位是 7</b> 的数字（70 ~ 79）时，要“过”——这些盒子显示为空盒子（悬停可核对原数字）；
+            不满足要求的盒子正常显示数字。
+            <div class="xxy_legend">
+                <span><span class="xxy_demo xxy_demo_normal"></span>不满足要求 · 显示数字</span>
+                <span><span class="xxy_demo xxy_demo_pass"></span>满足规则 · 空盒子（逢七过）</span>
+            </div>
+        </div>
+
+        <p class="xxy_stats">1 ~ 100 中共有 <b id="xxy_pass_count">0</b> 个数字需要“过”</p>
+
+        <div class="xxy_grid" id="xxy_grid"></div>
+
+        <p class="xxy_footer">1026-1 · 数七游戏演示 · 徐昕妤</p>
+    </div>
+
+    <script>
+        // ===== 数七规则判断：7的倍数、个位为7、十位为7 =====
+        function xxy_is_pass(xxy_n) {
+            return xxy_n % 7 === 0 || xxy_n % 10 === 7 || Math.floor(xxy_n / 10) === 7;
+        }
+
+        // ===== 生成 100 个盒子 =====
+        var xxy_grid = document.getElementById("xxy_grid");
+        var xxy_pass_total = 0;
+        var xxy_html = "";
+        for (var xxy_i = 1; xxy_i <= 100; xxy_i++) {
+            if (xxy_is_pass(xxy_i)) {
+                // 满足要求：空盒子，title 提示原数字
+                xxy_pass_total++;
+                xxy_html += '<div class="xxy_box xxy_pass" title="' + xxy_i + ' · 逢七过"><span class="xxy_num">' + xxy_i + '</span></div>';
+            } else {
+                // 不满足要求：正常显示数字
+                xxy_html += '<div class="xxy_box" title="' + xxy_i + '"><span class="xxy_num">' + xxy_i + '</span></div>';
+            }
+        }
+        xxy_grid.innerHTML = xxy_html;
+
+        // ===== 统计需要“过”的个数 =====
+        document.getElementById("xxy_pass_count").textContent = xxy_pass_total;
+        console.log("1~100 中满足数七规则的数字共 " + xxy_pass_total + " 个");
+    </script>
+</body>
+</html>
