@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1029-3 · 浏览周排行榜</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-10-29 14:24，使用大模型：GLM-5.3-Flash (Trae CN)，功能名称：浏览周排行榜列表页 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+            background: #f2f4f7;
+            color: #2f3237;
+            line-height: 1.5;
+            padding: 30px 12px 50px;
+        }
+
+        .xxy_back {
+            display: block;
+            max-width: 470px;
+            margin: 0 auto 10px;
+            color: #6b7684;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .xxy_back:hover { color: #1a3d6d; text-decoration: underline; }
+
+        /* ---------- 排行榜卡片 ---------- */
+        .xxy_panel {
+            width: 100%;
+            max-width: 470px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #dbe6f3;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(26, 61, 109, .07);
+            overflow: hidden;
+        }
+
+        .xxy_panelHead {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #1a3d6d;
+            letter-spacing: 0.5px;
+            background: #eaf3fd;
+            border-bottom: 1px solid #dbe6f3;
+            padding: 12px 16px 11px;
+        }
+
+        /* ---------- 榜单条目 ---------- */
+        .xxy_list { list-style: none; }
+
+        .xxy_item {
+            padding: 13px 16px 11px;
+            border-bottom: 1px dashed #e4e9f0;
+            transition: background .18s ease;
+        }
+        .xxy_item:last-child { border-bottom: none; }
+        .xxy_item:hover { background: #f8fbff; }
+
+        .xxy_titleRow {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+        }
+
+        .xxy_rank {
+            flex: none;
+            min-width: 25px;
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.35;
+            text-align: left;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .xxy_title {
+            flex: 1;
+            min-width: 0;
+            font-size: 16.5px;
+            line-height: 1.45;
+            color: #2f3237;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ---------- 元信息行 ---------- */
+        .xxy_meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 6px;
+            font-size: 13px;
+            color: #98a2b3;
+        }
+
+        .xxy_metaItem {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .xxy_metaItem .iconfont { font-size: 13px; color: #98a2b3; }
+        .xxy_metaItem .xxy_num { font-variant-numeric: tabular-nums; }
+
+        .xxy_metaItem.xxy_comment { margin-left: auto; }
+
+        /* 时间图标：用纯 CSS 画一个小闹钟（iconfont 中没有时钟图标） */
+        .xxy_clock {
+            position: relative;
+            flex: none;
+            width: 13px;
+            height: 13px;
+            border: 1.4px solid #98a2b3;
+            border-radius: 50%;
+        }
+        .xxy_clock::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 50%;
+            width: 1.3px;
+            height: 4px;
+            background: #98a2b3;
+            transform: translateX(-50%);
+        }
+        .xxy_clock::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 3.6px;
+            height: 1.3px;
+            background: #98a2b3;
+        }
+
+        @media (max-width: 520px) {
+            body { padding: 16px 8px 40px; }
+            .xxy_back { padding-left: 4px; }
+            .xxy_panelHead { font-size: 18px; padding: 10px 14px; }
+            .xxy_item { padding: 11px 14px 9px; }
+            .xxy_title { font-size: 15.5px; }
+            .xxy_rank { font-size: 17px; min-width: 23px; }
+            .xxy_meta { gap: 12px; font-size: 12.5px; }
+        }
+    </style>
+</head>
+<body>
+    <a class="xxy_back" href="index.html">← 返回首页</a>
+
+    <section class="xxy_panel">
+        <h2 class="xxy_panelHead">浏览周排行榜</h2>
+        <ul class="xxy_list" id="xxy_list"></ul>
+    </section>
+
+    <script>
+        // 榜单数据：标题、日期、作者、浏览量、评论数
+        const xxy_DATA = [
+            { title: '纽约大都会里复刻了座苏州网师园，园林之美跨越重洋', date: '10-24', author: '路德维希维', views: 9583, comments: 35 },
+            { title: '越南论坛：越南游客蜂拥前往中国，热门城市排队打卡', date: '10-27', author: 'yuan2301', views: 8613, comments: 89 },
+            { title: '苏州博物馆新展：宋人山水里的四季，一眼便是千年', date: '10-24', author: 'Natsuo', views: 8360, comments: 19 },
+            { title: '菜市场里的中国味：一碗面里的烟火气，藏着半座城', date: '10-28', author: '青丘国的守', views: 8142, comments: 23 },
+            { title: 'DeepSeek 公布了 DeepInfer 这个新模型的技术细节', date: '10-24', author: '兰陵笑笑生', views: 7925, comments: 35 },
+            { title: '公元前1250年的古代汉字——甲骨文里的时间密码', date: '10-23', author: '昨日重新', views: 7817, comments: 34 },
+            { title: '手机里聊了三年的网友，原来是同一个小镇的老同学', date: '10-22', author: '爱无痕吗', views: 7620, comments: 58 },
+            { title: '越南话题：当地农户开始用上无人机，一人管千亩田', date: '10-22', author: '驿路遛马', views: 7404, comments: 26 },
+            { title: '这款新款穿戴式机器人助力步行，实测续航八小时', date: '10-26', author: '花有重开日', views: 7239, comments: 26 },
+            { title: '徒步穿越中国一年：前后对比1000公里的变化', date: '10-23', author: '哎呀嘛', views: 7170, comments: 12 }
+        ];
+
+        // 名次配色：由红到紫渐次过渡
+        const xxy_RANK_COLORS = [
+            '#d92b2b', '#ef6a12', '#e8a00c', '#2fa84f', '#13a3a3',
+            '#1f7fd1', '#6c5ce7', '#8e44ad', '#c026d3', '#7b3fbf'
+        ];
+
+        function xxy_renderList() {
+            const xxy_ul = document.getElementById('xxy_list');
+            let xxy_html = '';
+            xxy_DATA.forEach(function (xxy_row, xxy_i) {
+                const xxy_color = xxy_RANK_COLORS[xxy_i % xxy_RANK_COLORS.length];
+                xxy_html +=
+                    '<li class="xxy_item">' +
+                        '<div class="xxy_titleRow">' +
+                            '<span class="xxy_rank" style="color:' + xxy_color + '">' + (xxy_i + 1) + '</span>' +
+                            '<span class="xxy_title" title="' + xxy_row.title + '">' + xxy_row.title + '</span>' +
+                        '</div>' +
+                        '<div class="xxy_meta">' +
+                            '<span class="xxy_metaItem"><span class="xxy_clock"></span>' + xxy_row.date + '</span>' +
+                            '<span class="xxy_metaItem"><i class="iconfont icon-wode"></i>' + xxy_row.author + '</span>' +
+                            '<span class="xxy_metaItem"><i class="iconfont icon-a-sousuosousuokuang"></i><span class="xxy_num">' + xxy_row.views + '</span></span>' +
+                            '<span class="xxy_metaItem xxy_comment"><i class="iconfont icon-xiaoxi"></i><span class="xxy_num">' + xxy_row.comments + '</span></span>' +
+                        '</div>' +
+                    '</li>';
+            });
+            xxy_ul.innerHTML = xxy_html;
+        }
+
+        xxy_renderList();
+    </script>
+</body>
+</html>

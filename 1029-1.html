@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1029-1 · JavaScript 数组图鉴</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-10-29 13:40，使用大模型：GLM-5.3-Flash (Trae CN)，功能名称：JavaScript 数组方法可视化演示 -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.65;
+        }
+
+        /* ---------- 头部 ---------- */
+        .xxy_hero {
+            position: relative;
+            background: linear-gradient(135deg, #312e81, #6d28d9, #a855f7);
+            color: #fff;
+            text-align: center;
+            padding: 46px 16px 40px;
+        }
+        .xxy_hero h1 { font-size: 30px; letter-spacing: 2px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; text-decoration: underline; }
+
+        .xxy_wrap { max-width: 960px; margin: 0 auto; padding: 26px 16px 60px; }
+
+        /* ---------- 通用卡片 ---------- */
+        .xxy_card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(49, 46, 129, .08);
+            padding: 22px 24px;
+            margin-bottom: 22px;
+        }
+        .xxy_card h2 {
+            font-size: 19px;
+            color: #312e81;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .xxy_card h2::before {
+            content: "";
+            width: 8px; height: 22px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #6d28d9, #a855f7);
+            flex: none;
+        }
+        .xxy_card > p.xxy_desc { font-size: 13.5px; color: #64748b; margin-bottom: 14px; }
+
+        .xxy_code {
+            display: block;
+            background: #1e1b4b;
+            color: #c7d2fe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            margin: 10px 0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .xxy_code b { color: #fbbf24; font-weight: normal; }
+        .xxy_code i { color: #86efac; font-style: normal; }
+        .xxy_code u { color: #f9a8d4; text-decoration: none; }
+
+        /* ---------- 数组盒子 ---------- */
+        .xxy_row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 8px;
+            min-height: 74px;
+            padding: 12px 4px 4px;
+        }
+        .xxy_item {
+            min-width: 62px;
+            padding: 9px 12px 7px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+            box-shadow: 0 3px 8px rgba(109, 40, 217, .30);
+            position: relative;
+            animation: xxy_in .35s ease both;
+        }
+        .xxy_item small {
+            display: block;
+            font-size: 10.5px;
+            font-weight: normal;
+            opacity: .85;
+            margin-top: 2px;
+        }
+        .xxy_item.xxy_c1 { background: linear-gradient(135deg, #0ea5e9, #38bdf8); box-shadow: 0 3px 8px rgba(14,165,233,.30); }
+        .xxy_item.xxy_c2 { background: linear-gradient(135deg, #059669, #34d399); box-shadow: 0 3px 8px rgba(5,150,105,.30); }
+        .xxy_item.xxy_c3 { background: linear-gradient(135deg, #d97706, #fbbf24); box-shadow: 0 3px 8px rgba(217,119,6,.30); }
+        .xxy_item.xxy_c4 { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 3px 8px rgba(220,38,38,.30); }
+        .xxy_item.xxy_ghost {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 2px dashed #cbd5e1;
+            box-shadow: none;
+        }
+        .xxy_item.xxy_hit { outline: 3px solid #facc15; outline-offset: 2px; animation: xxy_hit .5s ease 2; }
+
+        @keyframes xxy_in {
+            from { transform: scale(.4) translateY(10px); opacity: 0; }
+            to   { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes xxy_hit {
+            50% { transform: scale(1.15); }
+        }
+        .xxy_arrow {
+            align-self: center;
+            color: #a855f7;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 0 2px;
+        }
+
+        /* ---------- 互动游乐场 ---------- */
+        .xxy_stage {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            padding: 6px 14px 10px;
+            position: relative;
+        }
+        .xxy_stage::before {
+            content: "数组容器 arr";
+            position: absolute;
+            top: -11px; left: 16px;
+            background: #f8fafc;
+            padding: 0 8px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .xxy_tag {
+            display: inline-block;
+            font-size: 11.5px;
+            color: #64748b;
+            background: #e2e8f0;
+            border-radius: 20px;
+            padding: 2px 10px;
+            margin-right: 6px;
+        }
+
+        .xxy_btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 14px 0 4px;
+        }
+        .xxy_btn {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13.5px;
+            font-family: inherit;
+            color: #fff;
+            background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+            box-shadow: 0 2px 6px rgba(109, 40, 217, .30);
+            transition: transform .12s ease, filter .12s ease;
+        }
+        .xxy_btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .xxy_btn:active { transform: translateY(0); }
+        .xxy_btn.xxy_warn { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 2px 6px rgba(220,38,38,.30); }
+        .xxy_btn.xxy_calm { background: linear-gradient(135deg, #059669, #34d399); box-shadow: 0 2px 6px rgba(5,150,105,.30); }
+        .xxy_btn.xxy_plain { background: linear-gradient(135deg, #475569, #64748b); box-shadow: 0 2px 6px rgba(71,85,105,.30); }
+        .xxy_btn small { display: block; font-size: 10.5px; opacity: .85; font-weight: normal; }
+
+        .xxy_console {
+            background: #0f172a;
+            color: #86efac;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            min-height: 42px;
+            margin-top: 12px;
+        }
+        .xxy_console .xxy_prompt { color: #fbbf24; }
+
+        /* ---------- 小网格说明 ---------- */
+        .xxy_notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .xxy_note {
+            background: #faf5ff;
+            border: 1px solid #e9d5ff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #6b21a8;
+        }
+        .xxy_note b { display: block; color: #7e22ce; margin-bottom: 2px; }
+
+        .xxy_foot {
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            padding: 10px 0 30px;
+        }
+
+        @media (max-width: 560px) {
+            .xxy_hero h1 { font-size: 24px; }
+            .xxy_card { padding: 16px; }
+            .xxy_item { min-width: 52px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html">← 返回首页</a>
+        <h1>JavaScript 数组图鉴</h1>
+        <p>把数组想象成一排彩色小盒子：每个盒子都有编号（下标），数据就住在里面</p>
+    </header>
+
+    <main class="xxy_wrap">
+
+        <!-- 1. 认识数组 -->
+        <section class="xxy_card">
+            <h2>认识数组：一排带编号的盒子</h2>
+            <p class="xxy_desc">数组（Array）按顺序存放一组数据，每个位置都有下标，<b>从 0 开始数</b>。用 <code style="color:#7e22ce">arr[下标]</code> 就能取出对应盒子里的东西。</p>
+            <div class="xxy_row">
+                <div class="xxy_item xxy_c1">苹果<small>arr[0]</small></div>
+                <div class="xxy_item xxy_c2">香蕉<small>arr[1]</small></div>
+                <div class="xxy_item xxy_c3">橙子<small>arr[2]</small></div>
+                <div class="xxy_item xxy_c4">葡萄<small>arr[3]</small></div>
+                <div class="xxy_item xxy_ghost">空位<small>arr[4]</small></div>
+            </div>
+            <code class="xxy_code"><u>let</u> fruits = [<i>'苹果'</i>, <i>'香蕉'</i>, <i>'橙子'</i>, <i>'葡萄'</i>];<br>fruits[<b>0</b>]  →  <i>'苹果'</i>　　　fruits.length  →  <b>4</b></code>
+        </section>
+
+        <!-- 2. 创建数组 -->
+        <section class="xxy_card">
+            <h2>创建数组的两种方式</h2>
+            <p class="xxy_desc">日常推荐字面量写法（更简洁直观）；构造函数写法在预分配长度时才用得上。</p>
+            <code class="xxy_code"><u>// 方式一：字面量（推荐）</u><br><u>let</u> arr1 = [<b>10</b>, <b>20</b>, <b>30</b>];<br><br><u>// 方式二：构造函数</u><br><u>let</u> arr2 = <b>new</b> Array(<b>10</b>, <b>20</b>, <b>30</b>);  <u>// [10, 20, 30]</u><br><u>let</u> arr3 = <b>new</b> Array(<b>3</b>);           <u>// 3 个空位的空数组</u></code>
+            <div class="xxy_row">
+                <div class="xxy_item xxy_c1">10<small>[0]</small></div>
+                <div class="xxy_item xxy_c2">20<small>[1]</small></div>
+                <div class="xxy_item xxy_c3">30<small>[2]</small></div>
+                <span class="xxy_arrow">=</span>
+                <div class="xxy_item xxy_c1">10<small>[0]</small></div>
+                <div class="xxy_item xxy_c2">20<small>[1]</small></div>
+                <div class="xxy_item xxy_c3">30<small>[2]</small></div>
+            </div>
+        </section>
+
+        <!-- 3. 互动游乐场 -->
+        <section class="xxy_card">
+            <h2>增删游乐场：亲手动一动</h2>
+            <p class="xxy_desc">push / pop 从<b>队尾</b>进出，unshift / shift 从<b>队头</b>进出，splice 可以在<b>任意位置</b>增删。点击按钮看盒子的进出！</p>
+            <div class="xxy_stage">
+                <div class="xxy_row" id="xxy_stageRow"></div>
+            </div>
+            <div class="xxy_btns">
+                <button class="xxy_btn" onclick="xxy_push()">push 尾部添加<small>push('芒果')</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_pop()">pop 尾部删除<small>pop()</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_unshift()">unshift 头部添加<small>unshift('草莓')</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_shift()">shift 头部删除<small>shift()</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_splice()">splice 中间删除<small>splice(1, 1)</small></button>
+                <button class="xxy_btn xxy_plain" onclick="xxy_reset()">重置数组</button>
+            </div>
+            <div class="xxy_console" id="xxy_console"><span class="xxy_prompt">&gt;</span> 点击上方按钮，这里会显示执行过的代码和返回值</div>
+            <div class="xxy_notes">
+                <div class="xxy_note"><b>栈（stack）</b>push + pop：像叠盘子，后放的先拿，"后进先出"。</div>
+                <div class="xxy_note"><b>队列（queue）</b>push + shift：像排队买票，先来的先走，"先进先出"。</div>
+                <div class="xxy_note"><b>返回值</b>pop / shift 返回被删除的元素；push / unshift 返回新长度。</div>
+            </div>
+        </section>
+
+        <!-- 4. 查找定位 -->
+        <section class="xxy_card">
+            <h2>查找定位：在盒子里找东西</h2>
+            <p class="xxy_desc">indexOf 返回元素的下标（找不到返回 -1）；includes 只回答"有没有"（true / false）。</p>
+            <div class="xxy_stage">
+                <div class="xxy_row" id="xxy_findRow"></div>
+            </div>
+            <div class="xxy_btns">
+                <button class="xxy_btn" onclick="xxy_find('橙子')">indexOf('橙子')</button>
+                <button class="xxy_btn" onclick="xxy_find('西瓜')">indexOf('西瓜')</button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_has('香蕉')">includes('香蕉')</button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_has('西瓜')">includes('西瓜')</button>
+            </div>
+            <div class="xxy_console" id="xxy_findConsole"><span class="xxy_prompt">&gt;</span> 点击按钮，找到的盒子会被高亮闪烁</div>
+        </section>
+
+        <!-- 5. 截取 · 合并 · 拼接 -->
+        <section class="xxy_card">
+            <h2>截取 · 合并 · 拼接</h2>
+            <p class="xxy_desc">slice 剪出一段副本（不动原数组）；concat 把两串盒子接起来；join 把盒子串成一根字符串糖葫芦。</p>
+            <code class="xxy_code"><u>let</u> arr = [<b>1</b>, <b>2</b>, <b>3</b>, <b>4</b>, <b>5</b>];</code>
+            <div class="xxy_btns">
+                <button class="xxy_btn" onclick="xxy_slice()">slice(1, 4)<small>剪出 [1,4) 一段</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_concat()">concat([6, 7])<small>接到尾部</small></button>
+                <button class="xxy_btn xxy_plain" onclick="xxy_join()">join('-')<small>拼成字符串</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_revsort('reverse')">reverse()<small>整个倒过来</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_revsort('sort')">sort()<small>按字符排序</small></button>
+            </div>
+            <div class="xxy_stage">
+                <div class="xxy_row" id="xxy_cutRow"></div>
+            </div>
+            <div class="xxy_console" id="xxy_cutConsole"><span class="xxy_prompt">&gt;</span> 结果显示在这里（原数组永远不变的是 slice，会变的是 reverse / sort）</div>
+        </section>
+
+        <!-- 6. 迭代加工厂 -->
+        <section class="xxy_card">
+            <h2>迭代加工厂：forEach · map · filter · reduce</h2>
+            <p class="xxy_desc">把数组当成流水线：forEach 逐个过一遍，map 每个盒子加工一次，filter 筛掉不合格的，reduce 把所有盒子压成一颗。</p>
+            <code class="xxy_code"><u>let</u> nums = [<b>1</b>, <b>2</b>, <b>3</b>, <b>4</b>, <b>5</b>, <b>6</b>];</code>
+            <div class="xxy_stage">
+                <div class="xxy_row" id="xxy_iterRow"></div>
+            </div>
+            <div class="xxy_btns">
+                <button class="xxy_btn xxy_plain" onclick="xxy_iter('forEach')">forEach<small>逐个报到</small></button>
+                <button class="xxy_btn" onclick="xxy_iter('map')">map(x =&gt; x * 10)<small>全体放大 10 倍</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_iter('filter')">filter(x =&gt; x % 2 === 0)<small>只留偶数</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_iter('reduce')">reduce((a, b) =&gt; a + b)<small>求总和</small></button>
+            </div>
+            <div class="xxy_console" id="xxy_iterConsole"><span class="xxy_prompt">&gt;</span> 加工结果会显示在这里</div>
+        </section>
+
+        <p class="xxy_foot">1029-1 · JavaScript 数组主要方法可视化 · 纯原生 HTML + CSS + JS</p>
+    </main>
+
+    <script>
+        /* ============ 通用渲染 ============ */
+        const xxy_COLORS = ['xxy_c1', 'xxy_c2', 'xxy_c3', 'xxy_c4', ''];
+
+        // 渲染一排盒子：rowId 容器，items 数据数组，showIdx 是否显示下标
+        function xxy_render(rowId, items, showIdx) {
+            const xxy_row = document.getElementById(rowId);
+            xxy_row.innerHTML = '';
+            if (items.length === 0) {
+                xxy_row.innerHTML = '<div class="xxy_item xxy_ghost">数组空了<small>length: 0</small></div>';
+                return;
+            }
+            items.forEach(function (xxy_v, xxy_i) {
+                const xxy_d = document.createElement('div');
+                xxy_d.className = 'xxy_item ' + xxy_COLORS[xxy_i % xxy_COLORS.length];
+                if (!showIdx) xxy_d.classList.add('xxy_ghost');
+                xxy_d.innerHTML = xxy_v + (showIdx ? '<small>[' + xxy_i + ']</small>' : '');
+                xxy_row.appendChild(xxy_d);
+            });
+        }
+
+        function xxy_log(id, xxy_codeStr, xxy_result) {
+            document.getElementById(id).innerHTML =
+                '<span class="xxy_prompt">&gt;</span> ' + xxy_codeStr +
+                '<br><span class="xxy_prompt">←</span> 返回：' + xxy_result;
+        }
+
+        /* ============ 3. 增删游乐场 ============ */
+        let xxy_arr = ['苹果', '香蕉', '橙子', '葡萄'];
+        const xxy_INIT = ['苹果', '香蕉', '橙子', '葡萄'];
+
+        function xxy_refreshStage() {
+            const xxy_row = document.getElementById('xxy_stageRow');
+            xxy_row.innerHTML = '';
+            if (xxy_arr.length === 0) {
+                xxy_row.innerHTML = '<div class="xxy_item xxy_ghost">数组空了！<small>length: 0</small></div>';
+                return;
+            }
+            xxy_arr.forEach(function (xxy_v, xxy_i) {
+                const xxy_d = document.createElement('div');
+                xxy_d.className = 'xxy_item ' + xxy_COLORS[xxy_i % xxy_COLORS.length];
+                let xxy_tag = '<small>[' + xxy_i + ']</small>';
+                if (xxy_i === 0 && xxy_arr.length > 1) xxy_tag = '<small>队头 [' + xxy_i + ']</small>';
+                if (xxy_i === xxy_arr.length - 1 && xxy_arr.length > 1) xxy_tag = '<small>队尾 [' + xxy_i + ']</small>';
+                xxy_d.innerHTML = xxy_v + xxy_tag;
+                xxy_row.appendChild(xxy_d);
+            });
+        }
+
+        function xxy_push() {
+            const xxy_r = xxy_arr.push('芒果');
+            xxy_refreshStage();
+            xxy_log('xxy_console', "arr.push('芒果')", xxy_r + '（新长度）');
+        }
+        function xxy_pop() {
+            if (!xxy_arr.length) { xxy_log('xxy_console', 'arr.pop()', 'undefined（数组已空）'); return; }
+            const xxy_r = xxy_arr.pop();
+            xxy_refreshStage();
+            xxy_log('xxy_console', 'arr.pop()', "'" + xxy_r + "'（被删掉的队尾）");
+        }
+        function xxy_unshift() {
+            const xxy_r = xxy_arr.unshift('草莓');
+            xxy_refreshStage();
+            xxy_log('xxy_console', "arr.unshift('草莓')", xxy_r + '（新长度）');
+        }
+        function xxy_shift() {
+            if (!xxy_arr.length) { xxy_log('xxy_console', 'arr.shift()', 'undefined（数组已空）'); return; }
+            const xxy_r = xxy_arr.shift();
+            xxy_refreshStage();
+            xxy_log('xxy_console', 'arr.shift()', "'" + xxy_r + "'（被删掉的队头）");
+        }
+        function xxy_splice() {
+            if (xxy_arr.length < 2) { xxy_log('xxy_console', 'arr.splice(1, 1)', '数组长度不足，先加点东西吧'); return; }
+            const xxy_r = xxy_arr.splice(1, 1);
+            xxy_refreshStage();
+            xxy_log('xxy_console', 'arr.splice(1, 1)', "[" + xxy_r.map(function (x) { return "'" + x + "'"; }).join(', ') + "]（从下标 1 删了 1 个）");
+        }
+        function xxy_reset() {
+            xxy_arr = xxy_INIT.slice();
+            xxy_refreshStage();
+            xxy_log('xxy_console', "arr = ['苹果', '香蕉', '橙子', '葡萄']", '数组已重置');
+        }
+
+        /* ============ 4. 查找定位 ============ */
+        const xxy_FIND_DATA = ['苹果', '香蕉', '橙子', '葡萄', '西瓜'];
+        function xxy_findInit() { xxy_render('xxy_findRow', xxy_FIND_DATA, true); }
+
+        function xxy_find(xxy_name) {
+            xxy_findInit();
+            const xxy_idx = xxy_FIND_DATA.indexOf(xxy_name);
+            if (xxy_idx !== -1) {
+                document.getElementById('xxy_findRow').children[xxy_idx].classList.add('xxy_hit');
+            }
+            xxy_log('xxy_findConsole', "arr.indexOf('" + xxy_name + "')", String(xxy_idx) + (xxy_idx === -1 ? '（没找到，返回 -1）' : '（在下标 ' + xxy_idx + ' 的盒子里）'));
+        }
+        function xxy_has(xxy_name) {
+            xxy_findInit();
+            const xxy_hasIt = xxy_FIND_DATA.includes(xxy_name);
+            if (xxy_hasIt) {
+                document.getElementById('xxy_findRow').children[xxy_FIND_DATA.indexOf(xxy_name)].classList.add('xxy_hit');
+            }
+            xxy_log('xxy_findConsole', "arr.includes('" + xxy_name + "')", xxy_hasIt + (xxy_hasIt ? '（在！）' : '（不在）'));
+        }
+
+        /* ============ 5. 截取 · 合并 · 拼接 ============ */
+        const xxy_CUT_INIT = [1, 2, 3, 4, 5];
+        let xxy_cutArr = xxy_CUT_INIT.slice();
+
+        function xxy_cutInit() { xxy_render('xxy_cutRow', xxy_cutArr, false); }
+
+        function xxy_slice() {
+            const xxy_r = xxy_CUT_INIT.slice(1, 4);
+            xxy_cutInit();
+            const xxy_row = document.getElementById('xxy_cutRow');
+            Array.prototype.forEach.call(xxy_row.children, function (xxy_el, xxy_i) {
+                if (xxy_i >= 1 && xxy_i < 4) xxy_el.classList.add('xxy_hit');
+            });
+            xxy_log('xxy_cutConsole', 'arr.slice(1, 4)', JSON.stringify(xxy_r) + '（剪出副本，原数组不变）');
+        }
+        function xxy_concat() {
+            const xxy_r = xxy_cutArr.concat([6, 7]);
+            xxy_render('xxy_cutRow', xxy_r, false);
+            xxy_log('xxy_cutConsole', 'arr.concat([6, 7])', JSON.stringify(xxy_r) + '（生成新数组，原数组不变）');
+        }
+        function xxy_join() {
+            const xxy_r = xxy_cutArr.join('-');
+            xxy_cutInit();
+            xxy_log('xxy_cutConsole', "arr.join('-')", "'" + xxy_r + "'（变成了一根字符串）");
+        }
+        function xxy_revsort(xxy_type) {
+            if (xxy_type === 'reverse') { xxy_cutArr.reverse(); }
+            else { xxy_cutArr.sort(); }
+            xxy_cutInit();
+            xxy_log('xxy_cutConsole', 'arr.' + xxy_type + '()', JSON.stringify(xxy_cutArr) + '（注意：原数组被改变了！）');
+        }
+
+        /* ============ 6. 迭代加工厂 ============ */
+        const xxy_NUMS = [1, 2, 3, 4, 5, 6];
+        function xxy_iterInit() { xxy_render('xxy_iterRow', xxy_NUMS, false); }
+
+        function xxy_iter(xxy_type) {
+            xxy_iterInit();
+            let xxy_result;
+            if (xxy_type === 'forEach') {
+                xxy_result = '依次打印：1, 2, 3, 4, 5, 6（没有返回值，只为逐个处理）';
+            } else if (xxy_type === 'map') {
+                xxy_result = xxy_NUMS.map(function (x) { return x * 10; });
+                xxy_render('xxy_iterRow', xxy_result, false);
+            } else if (xxy_type === 'filter') {
+                xxy_result = xxy_NUMS.filter(function (x) { return x % 2 === 0; });
+                xxy_render('xxy_iterRow', xxy_result, false);
+            } else {
+                xxy_result = xxy_NUMS.reduce(function (a, b) { return a + b; });
+            }
+            if (Array.isArray(xxy_result)) {
+                xxy_result = JSON.stringify(xxy_result) + '（返回新数组，原数组不变）';
+            } else {
+                xxy_result = String(xxy_result) + (xxy_type === 'reduce' ? '（全部压成一个值）' : '');
+            }
+            xxy_log('xxy_iterConsole', 'nums.' + xxy_type + '(...)', xxy_result);
+        }
+
+        /* ============ 初始化 ============ */
+        xxy_refreshStage();
+        xxy_findInit();
+        xxy_cutInit();
+        xxy_iterInit();
+    </script>
+</body>
+</html>

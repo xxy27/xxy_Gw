@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1029-2 · JavaScript 对象图鉴</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-10-29 13:43，使用大模型：GLM-5.3-Flash (Trae CN)，功能名称：JavaScript 对象可视化演示 -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.65;
+        }
+
+        /* ---------- 头部 ---------- */
+        .xxy_hero {
+            position: relative;
+            background: linear-gradient(135deg, #7c2d12, #ea580c, #f59e0b);
+            color: #fff;
+            text-align: center;
+            padding: 46px 16px 40px;
+        }
+        .xxy_hero h1 { font-size: 30px; letter-spacing: 2px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; text-decoration: underline; }
+
+        .xxy_wrap { max-width: 960px; margin: 0 auto; padding: 26px 16px 60px; }
+
+        /* ---------- 通用卡片 ---------- */
+        .xxy_card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(124, 45, 18, .08);
+            padding: 22px 24px;
+            margin-bottom: 22px;
+        }
+        .xxy_card h2 {
+            font-size: 19px;
+            color: #7c2d12;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .xxy_card h2::before {
+            content: "";
+            width: 8px; height: 22px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #ea580c, #f59e0b);
+            flex: none;
+        }
+        .xxy_card > p.xxy_desc { font-size: 13.5px; color: #78716c; margin-bottom: 14px; }
+
+        .xxy_code {
+            display: block;
+            background: #292524;
+            color: #fed7aa;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            margin: 10px 0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .xxy_code b { color: #fbbf24; font-weight: normal; }
+        .xxy_code i { color: #86efac; font-style: normal; }
+        .xxy_code u { color: #f9a8d4; text-decoration: none; }
+
+        /* ---------- 对象格子 ---------- */
+        .xxy_row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 8px;
+            min-height: 74px;
+            padding: 12px 4px 4px;
+        }
+        .xxy_pair {
+            min-width: 88px;
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(234, 88, 12, .25);
+            animation: xxy_in .35s ease both;
+        }
+        .xxy_pair .xxy_key {
+            display: block;
+            padding: 4px 12px 3px;
+            font-size: 11.5px;
+            color: #fff;
+            background: linear-gradient(135deg, #9a3412, #c2410c);
+        }
+        .xxy_pair .xxy_val {
+            display: block;
+            padding: 7px 12px 8px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #7c2d12;
+            background: #ffedd5;
+        }
+        .xxy_pair.xxy_c1 .xxy_val { color: #0c4a6e; background: #e0f2fe; }
+        .xxy_pair.xxy_c1 .xxy_key { background: linear-gradient(135deg, #0369a1, #0284c7); }
+        .xxy_pair.xxy_c2 .xxy_val { color: #14532d; background: #dcfce7; }
+        .xxy_pair.xxy_c2 .xxy_key { background: linear-gradient(135deg, #15803d, #16a34a); }
+        .xxy_pair.xxy_c3 .xxy_val { color: #4c1d95; background: #ede9fe; }
+        .xxy_pair.xxy_c3 .xxy_key { background: linear-gradient(135deg, #6d28d9, #7c3aed); }
+        .xxy_pair.xxy_ghost { box-shadow: none; }
+        .xxy_pair.xxy_ghost .xxy_val { background: #f5f5f4; color: #a8a29e; }
+        .xxy_pair.xxy_ghost .xxy_key { background: #d6d3d1; }
+        .xxy_pair.xxy_hit { outline: 3px solid #facc15; outline-offset: 2px; animation: xxy_hit .5s ease 2; }
+
+        @keyframes xxy_in {
+            from { transform: scale(.4) translateY(10px); opacity: 0; }
+            to   { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes xxy_hit {
+            50% { transform: scale(1.15); }
+        }
+
+        .xxy_console {
+            background: #1c1917;
+            color: #86efac;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            min-height: 42px;
+            margin-top: 12px;
+        }
+        .xxy_console .xxy_prompt { color: #fbbf24; }
+
+        .xxy_btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 14px 0 4px;
+        }
+        .xxy_btn {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13.5px;
+            font-family: inherit;
+            color: #fff;
+            background: linear-gradient(135deg, #ea580c, #f59e0b);
+            box-shadow: 0 2px 6px rgba(234, 88, 12, .30);
+            transition: transform .12s ease, filter .12s ease;
+        }
+        .xxy_btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .xxy_btn:active { transform: translateY(0); }
+        .xxy_btn small { display: block; font-size: 10.5px; opacity: .9; font-weight: normal; }
+        .xxy_btn.xxy_warn { background: linear-gradient(135deg, #dc2626, #f87171); box-shadow: 0 2px 6px rgba(220,38,38,.30); }
+        .xxy_btn.xxy_calm { background: linear-gradient(135deg, #15803d, #22c55e); box-shadow: 0 2px 6px rgba(21,128,61,.30); }
+        .xxy_btn.xxy_plain { background: linear-gradient(135deg, #57534e, #78716c); box-shadow: 0 2px 6px rgba(87,83,78,.30); }
+
+        .xxy_notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .xxy_note {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #9a3412;
+        }
+        .xxy_note b { display: block; color: #c2410c; margin-bottom: 2px; }
+
+        .xxy_foot {
+            text-align: center;
+            font-size: 13px;
+            color: #a8a29e;
+            padding: 10px 0 30px;
+        }
+
+        @media (max-width: 560px) {
+            .xxy_hero h1 { font-size: 24px; }
+            .xxy_card { padding: 16px; }
+            .xxy_pair { min-width: 76px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html">← 返回首页</a>
+        <h1>JavaScript 对象图鉴</h1>
+        <p>把对象想象成一张档案卡：每格都有标签（属性名）和内容（属性值），数据按名字存放</p>
+    </header>
+
+    <main class="xxy_wrap">
+
+        <!-- 1. 认识对象 -->
+        <section class="xxy_card">
+            <h2>认识对象：一张带标签的档案卡</h2>
+            <p class="xxy_desc">对象（Object）用<b>键值对</b>存放数据：键是标签，值是内容。数组按位置找数据，对象按<b>名字</b>找数据。</p>
+            <div class="xxy_row">
+                <div class="xxy_pair"><span class="xxy_key">name</span><span class="xxy_val">小明</span></div>
+                <div class="xxy_pair xxy_c1"><span class="xxy_key">age</span><span class="xxy_val">18</span></div>
+                <div class="xxy_pair xxy_c2"><span class="xxy_key">gender</span><span class="xxy_val">男</span></div>
+                <div class="xxy_pair xxy_c3"><span class="xxy_key">hobby</span><span class="xxy_val">篮球</span></div>
+            </div>
+            <code class="xxy_code"><u>let</u> student = {
+    name: <i>'小明'</i>,      <u>// 属性名: 属性值</u>
+    age: <b>18</b>,
+    gender: <i>'男'</i>,
+    hobby: <i>'篮球'</i>
+};
+student.name  →  <i>'小明'</i>　　<u>// 用"名字"取数据</u></code>
+        </section>
+
+        <!-- 2. 创建对象 -->
+        <section class="xxy_card">
+            <h2>创建对象的三种方式</h2>
+            <p class="xxy_desc">字面量最常用；构造函数适合创建多个同类对象（像一张可复印的档案模板）。</p>
+            <code class="xxy_code"><u>// 方式一：对象字面量（推荐）</u>
+<u>let</u> obj1 = { name: <i>'小明'</i>, age: <b>18</b> };
+
+<u>// 方式二：new Object()</u>
+<u>let</u> obj2 = <b>new</b> Object();
+obj2.name = <i>'小红'</i>;
+
+<u>// 方式三：构造函数（批量造对象）</u>
+<u>function</u> <b>Student</b>(name, age) {
+    <b>this</b>.name = name;
+    <b>this</b>.age = age;
+}
+<u>let</u> obj3 = <b>new</b> <b>Student</b>(<i>'小刚'</i>, <b>19</b>);</code>
+            <div class="xxy_row">
+                <div class="xxy_pair"><span class="xxy_key">obj1.name</span><span class="xxy_val">小明</span></div>
+                <div class="xxy_pair xxy_c1"><span class="xxy_key">obj2.name</span><span class="xxy_val">小红</span></div>
+                <div class="xxy_pair xxy_c2"><span class="xxy_key">obj3.name</span><span class="xxy_val">小刚</span></div>
+            </div>
+        </section>
+
+        <!-- 3. 访问属性 -->
+        <section class="xxy_card">
+            <h2>访问属性：点语法 与 方括号</h2>
+            <p class="xxy_desc">点语法简单直观；方括号里可以放变量，适合"名字存在变量里"或属性名带空格的情况。</p>
+            <div class="xxy_stage xxy_row" id="xxy_accessRow"></div>
+            <div class="xxy_btns">
+                <button class="xxy_btn" onclick="xxy_access('dot')">student.name<small>点语法</small></button>
+                <button class="xxy_btn" onclick="xxy_access('bracket')">student['name']<small>方括号</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_access('variable')">student[xxy_keyVar]<small>方括号 + 变量</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_access('none')">student.phone<small>不存在的属性</small></button>
+            </div>
+            <div class="xxy_console" id="xxy_accessConsole"><span class="xxy_prompt">&gt;</span> 点击按钮看取值结果</div>
+        </section>
+
+        <!-- 4. 增删改游乐场 -->
+        <section class="xxy_card">
+            <h2>增删改游乐场：档案卡随点随变</h2>
+            <p class="xxy_desc">对象非常灵活：随时可以给档案卡<b>添一栏</b>（新增）、<b>改一栏</b>（修改）、<b>撕掉一栏</b>（delete 删除）。</p>
+            <div class="xxy_row" id="xxy_objRow" style="border:2px solid #fde4cc; border-radius:12px; background:#fffaf3; position:relative;">
+            </div>
+            <div class="xxy_btns">
+                <button class="xxy_btn xxy_calm" onclick="xxy_objAdd()">新增 score<small>student.score = 95</small></button>
+                <button class="xxy_btn" onclick="xxy_objSet()">修改 age<small>student.age = 19</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_objDel()">删除 hobby<small>delete student.hobby</small></button>
+                <button class="xxy_btn xxy_plain" onclick="xxy_objReset()">重置档案卡</button>
+            </div>
+            <div class="xxy_console" id="xxy_objConsole"><span class="xxy_prompt">&gt;</span> 点击按钮，档案卡会实时变化</div>
+            <div class="xxy_notes">
+                <div class="xxy_note"><b>点语法</b>student.age = 19：属性名写死时最方便。</div>
+                <div class="xxy_note"><b>方括号</b>student['a' + 'ge']：属性名需要拼出来时用它。</div>
+                <div class="xxy_note"><b>delete</b>删掉属性后，再读它就变成 undefined。</div>
+            </div>
+        </section>
+
+        <!-- 5. 对象方法与 this -->
+        <section class="xxy_card">
+            <h2>对象方法与 this：档案卡会说话</h2>
+            <p class="xxy_desc">属性的值也可以是一个函数，这时它叫<b>方法</b>。方法里的 <b>this</b> 指向"当前这张档案卡"自己。</p>
+            <code class="xxy_code"><u>let</u> student = {
+    name: <i>'小明'</i>,
+    sayHi: <u>function</u> () {
+        <u>return</u> <i>'大家好，我是'</i> + <b>this</b>.name;   <u>// this = student 自己</u>
+    }
+};</code>
+            <div class="xxy_btns">
+                <button class="xxy_btn" onclick="xxy_say()">student.sayHi()<small>调用方法</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_changeName()">先改名字 student.name = '小红'</button>
+            </div>
+            <div class="xxy_console" id="xxy_sayConsole"><span class="xxy_prompt">&gt;</span> 点击"调用方法"听档案卡自我介绍</div>
+        </section>
+
+        <!-- 6. 遍历对象 -->
+        <section class="xxy_card">
+            <h2>遍历对象：把档案卡读一遍</h2>
+            <p class="xxy_desc">for...in 逐个取出属性名；Object.keys / values / entries 分别拿到名字、内容、成对清单。</p>
+            <div class="xxy_row" id="xxy_loopRow"></div>
+            <div class="xxy_btns">
+                <button class="xxy_btn xxy_plain" onclick="xxy_loop('forin')">for...in<small>逐格报属性名</small></button>
+                <button class="xxy_btn" onclick="xxy_loop('keys')">Object.keys<small>所有标签</small></button>
+                <button class="xxy_btn xxy_calm" onclick="xxy_loop('values')">Object.values<small>所有内容</small></button>
+                <button class="xxy_btn xxy_warn" onclick="xxy_loop('entries')">Object.entries<small>标签 + 内容 成对</small></button>
+            </div>
+            <div class="xxy_console" id="xxy_loopConsole"><span class="xxy_prompt">&gt;</span> 遍历结果显示在这里</div>
+        </section>
+
+        <p class="xxy_foot">1029-2 · JavaScript 对象可视化 · 纯原生 HTML + CSS + JS</p>
+    </main>
+
+    <script>
+        /* ============ 通用渲染：渲染一张档案卡 ============ */
+        const xxy_COLORS = ['', 'xxy_c1', 'xxy_c2', 'xxy_c3'];
+
+        function xxy_renderObj(rowId, xxy_obj) {
+            const xxy_row = document.getElementById(rowId);
+            xxy_row.innerHTML = '';
+            const xxy_keys = Object.keys(xxy_obj);
+            if (xxy_keys.length === 0) {
+                xxy_row.innerHTML = '<div class="xxy_pair xxy_ghost"><span class="xxy_key">空</span><span class="xxy_val">对象没有属性了</span></div>';
+                return;
+            }
+            xxy_keys.forEach(function (xxy_k, xxy_i) {
+                const xxy_d = document.createElement('div');
+                xxy_d.className = 'xxy_pair ' + xxy_COLORS[xxy_i % xxy_COLORS.length];
+                xxy_d.innerHTML = '<span class="xxy_key">' + xxy_k + '</span><span class="xxy_val">' + xxy_obj[xxy_k] + '</span>';
+                xxy_row.appendChild(xxy_d);
+            });
+        }
+
+        function xxy_log(xxy_id, xxy_codeStr, xxy_result) {
+            document.getElementById(xxy_id).innerHTML =
+                '<span class="xxy_prompt">&gt;</span> ' + xxy_codeStr +
+                '<br><span class="xxy_prompt">←</span> 返回：' + xxy_result;
+        }
+
+        /* ============ 1~2. 示例对象数据 ============ */
+        const xxy_STUDENT = { name: '小明', age: 18, gender: '男', hobby: '篮球' };
+
+        /* ============ 3. 访问属性 ============ */
+        xxy_renderObj('xxy_accessRow', xxy_STUDENT);
+        let xxy_keyVar = 'hobby';
+
+        function xxy_access(xxy_type) {
+            if (xxy_type === 'dot') {
+                xxy_log('xxy_accessConsole', 'student.name', "'" + xxy_STUDENT.name + "'");
+            } else if (xxy_type === 'bracket') {
+                xxy_log('xxy_accessConsole', "student['name']", "'" + xxy_STUDENT['name'] + "'");
+            } else if (xxy_type === 'variable') {
+                xxy_log('xxy_accessConsole', "xxy_keyVar = 'hobby'; student[xxy_keyVar]", "'" + xxy_STUDENT[xxy_keyVar] + "'（用变量当属性名）");
+            } else {
+                xxy_log('xxy_accessConsole', 'student.phone', 'undefined（档案卡上没有这一栏）');
+            }
+        }
+
+        /* ============ 4. 增删改游乐场 ============ */
+        let xxy_card = { name: '小明', age: 18, gender: '男', hobby: '篮球' };
+        const xxy_CARD_INIT = { name: '小明', age: 18, gender: '男', hobby: '篮球' };
+
+        function xxy_objAdd() {
+            xxy_card.score = 95;
+            xxy_renderObj('xxy_objRow', xxy_card);
+            xxy_log('xxy_objConsole', 'student.score = 95', '新增一栏：score → 95');
+        }
+        function xxy_objSet() {
+            if (xxy_card.age === undefined) {
+                xxy_log('xxy_objConsole', 'student.age = 19', '对象中没有 age，请先重置档案卡');
+                return;
+            }
+            xxy_card.age = 19;
+            xxy_renderObj('xxy_objRow', xxy_card);
+            xxy_log('xxy_objConsole', 'student.age = 19', 'age 已从 18 改成 19');
+        }
+        function xxy_objDel() {
+            if (xxy_card.hobby === undefined) {
+                xxy_log('xxy_objConsole', 'delete student.hobby', 'hobby 已被删过了');
+                return;
+            }
+            delete xxy_card.hobby;
+            xxy_renderObj('xxy_objRow', xxy_card);
+            xxy_log('xxy_objConsole', 'delete student.hobby', '已删除 hobby，现在读它是 ' + xxy_card.hobby);
+        }
+        function xxy_objReset() {
+            xxy_card = Object.assign({}, xxy_CARD_INIT);
+            xxy_renderObj('xxy_objRow', xxy_card);
+            xxy_log('xxy_objConsole', 'student = {...原始数据}', '档案卡已重置');
+        }
+
+        /* ============ 5. 方法与 this ============ */
+        let xxy_talker = {
+            name: '小明',
+            sayHi: function () {
+                return '大家好，我是 ' + this.name + '！';
+            }
+        };
+        function xxy_say() {
+            xxy_log('xxy_sayConsole', 'student.sayHi()', "'" + xxy_talker.sayHi() + "'（this.name 取的是自己的 name）");
+        }
+        function xxy_changeName() {
+            xxy_talker.name = '小红';
+            xxy_log('xxy_sayConsole', "student.name = '小红'", '名字已改，再点"调用方法"试试，this 会跟着变');
+        }
+
+        /* ============ 6. 遍历对象 ============ */
+        const xxy_LOOP_OBJ = { name: '小明', age: 18, gender: '男', hobby: '篮球' };
+        xxy_renderObj('xxy_loopRow', xxy_LOOP_OBJ);
+
+        function xxy_loop(xxy_type) {
+            if (xxy_type === 'forin') {
+                const xxy_list = [];
+                for (const xxy_k in xxy_LOOP_OBJ) {
+                    xxy_list.push(xxy_k);
+                }
+                xxy_log('xxy_loopConsole', 'for (let key in student)', xxy_list.join(' → ') + '（依次取出每个属性名）');
+            } else if (xxy_type === 'keys') {
+                xxy_log('xxy_loopConsole', 'Object.keys(student)', JSON.stringify(Object.keys(xxy_LOOP_OBJ)));
+            } else if (xxy_type === 'values') {
+                xxy_log('xxy_loopConsole', 'Object.values(student)', JSON.stringify(Object.values(xxy_LOOP_OBJ)));
+            } else {
+                xxy_log('xxy_loopConsole', 'Object.entries(student)', JSON.stringify(Object.entries(xxy_LOOP_OBJ)) + '（每个属性变成 [键, 值]）');
+            }
+        }
+    </script>
+</body>
+</html>

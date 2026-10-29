@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1029-4 · 车型导购·Tab 切换</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-10-29 14:38，使用大模型：GLM-5.3-Flash (Trae CN)，功能名称：车型导购 Tab 切换列表页 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "SimSun", sans-serif;
+            background: #f4f4f4;
+            color: #222;
+            line-height: 1.5;
+            padding: 12px 12px 40px;
+        }
+
+        .xxy_back {
+            display: block;
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto 6px;
+            color: #6b7684;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .xxy_back .iconfont { font-size: 13px; margin-right: 4px; }
+        .xxy_back:hover { color: #17569c; text-decoration: underline; }
+
+        /* ---------- 外框 ---------- */
+        .xxy_panel {
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+            overflow: hidden;
+        }
+
+        /* ---------- Tab 栏 ---------- */
+        .xxy_tabs {
+            display: flex;
+            background: #ececec;
+            border-bottom: 1px solid #dcdcdc;
+        }
+
+        .xxy_tab {
+            flex: none;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #1d1d1d;
+            background: transparent;
+            border: none;
+            border-top: 3px solid transparent;
+            border-right: 1px solid #dedede;
+            padding: 11px 12px 10px;
+            margin-bottom: -1px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color .15s ease, background .15s ease;
+        }
+        .xxy_tab:hover { color: #17569c; background: #f5f5f5; }
+
+        .xxy_tab.xxy_active {
+            background: #fff;
+            color: #17569c;
+            font-weight: 500;
+            border-top-color: #17569c;
+            border-bottom: 1px solid #fff;
+        }
+        .xxy_tab.xxy_active:hover { background: #fff; }
+
+        /* ---------- 内容区 ---------- */
+        .xxy_content { padding: 14px 16px 10px; }
+
+        .xxy_headline {
+            font-size: 19px;
+            font-weight: 500;
+            line-height: 1.45;
+            color: #d81e06;
+            text-align: center;
+            letter-spacing: .3px;
+            margin-bottom: 8px;
+        }
+
+        .xxy_list { list-style: none; }
+
+        .xxy_item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f2f2f2;
+        }
+        .xxy_item:last-child { border-bottom: none; }
+
+        .xxy_item .xxy_dot {
+            flex: none;
+            width: 4px;
+            height: 4px;
+            background: #333;
+            position: relative;
+            top: -2px;
+        }
+
+        .xxy_item a {
+            flex: 1;
+            min-width: 0;
+            font-size: 15.5px;
+            color: #1c4f8f;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .xxy_item a:hover { color: #d81e06; text-decoration: underline; }
+
+        .xxy_date {
+            flex: none;
+            font-size: 14px;
+            color: #9a9a9a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (max-width: 520px) {
+            body { padding: 10px 8px 30px; }
+            .xxy_back { padding-left: 4px; }
+            .xxy_tabs { overflow-x: auto; }
+            .xxy_tabs::-webkit-scrollbar { display: none; }
+            .xxy_tab { padding: 10px 10px 9px; font-size: 14.5px; }
+            .xxy_headline { font-size: 17px; }
+            .xxy_item a { font-size: 14.5px; }
+            .xxy_date { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <a class="xxy_back" href="index.html"><span class="iconfont icon-fanhui"></span>返回首页</a>
+
+    <section class="xxy_panel">
+        <nav class="xxy_tabs" id="xxy_tabs" aria-label="车型导购分类"></nav>
+        <div class="xxy_content">
+            <h1 class="xxy_headline" id="xxy_headline"></h1>
+            <ul class="xxy_list" id="xxy_list"></ul>
+        </div>
+    </section>
+
+    <script>
+        /* 各 Tab 的数据：标签名、红色大标题、条目（文案 + 日期） */
+        const xxy_DATA = [
+            {
+                tab: '导购',
+                headline: 'B级品质满足A级需求 路盛E70亮点详解析',
+                items: [
+                    { text: '购车必看 凯迪拉克XTS领先型28T深度体验', date: '12/20' },
+                    { text: '爸爸去哪？亲子出游适合车型和注意事项', date: '12/20' },
+                    { text: '推荐：X1等城市四驱Style+经济省油的SUV', date: '12/19' },
+                    { text: '全景天窗/保养便利 30万办齐四驱SUV推荐', date: '12/19' },
+                    { text: '全民摇号时代?六款低价占号必备车型推荐', date: '12/19' },
+                    { text: '最高暴降20万！奥迪Q5等年底特惠SUV盘点', date: '12/18' }
+                ]
+            },
+            {
+                tab: '3-9万',
+                headline: '改变品牌的未来 认识豪华品牌最便宜车型',
+                items: [
+                    { text: '爸爸去哪？亲子出游适合车型和注意事项', date: '12/20' },
+                    { text: '推荐：X1等城市四驱Style+经济省油的SUV', date: '12/19' },
+                    { text: '全景天窗/保养便利 30万办齐四驱SUV推荐', date: '12/19' },
+                    { text: '最高暴降20万！奥迪Q5等年底特惠SUV盘点', date: '12/18' },
+                    { text: '比拼硬实力 8款低配四驱紧凑SUV性能点评', date: '12/18' },
+                    { text: '新蒙迪欧/雅阁等！盘点2013中级车大变脸', date: '12/17' }
+                ]
+            },
+            {
+                tab: '9-17万',
+                headline: '15万级降价车谁更值 预算/油耗/空间较量',
+                items: [
+                    { text: '爸爸去哪？亲子出游适合车型和注意事项', date: '12/20' },
+                    { text: '最高暴降20万！奥迪Q5等年底特惠SUV盘点', date: '12/18' },
+                    { text: '配侧气帘值得肯定！传祺GA3碰撞试验图解', date: '12/18' },
+                    { text: '高尔夫7≠两厢版速腾 配置/动力差异解读', date: '12/18' },
+                    { text: '花小钱也能养SUV 翼博等入门SUV使用手册', date: '12/17' },
+                    { text: '最高优惠4.3万 十款15万SUV年末购买推荐', date: '12/16' }
+                ]
+            },
+            {
+                tab: '17-42万',
+                headline: '最低仅4.6万元起 超低价SUV购买价值点评',
+                items: [
+                    { text: '全民摇号时代?六款低价占号必备车型推荐', date: '12/19' },
+                    { text: '凌派/观致3等 2013年全新热门家用车盘点', date: '12/11' },
+                    { text: '坚持低价高配路线！静态评测华泰路盛E70', date: '12/09' },
+                    { text: '买车先看销量 10月份销量前十名轿车盘点', date: '11/29' },
+                    { text: '抄底正当时 车展后清仓优惠老款车型推荐', date: '11/28' },
+                    { text: '土豪气质 细数车展那些低价车上的“神器”', date: '11/27' }
+                ]
+            },
+            {
+                tab: 'SUV',
+                headline: '改变品牌的未来 认识豪华品牌最便宜车型',
+                items: [
+                    { text: '推荐：X1等城市四驱Style+经济省油的SUV', date: '12/19' },
+                    { text: '全景天窗/保养便利 30万办齐四驱SUV推荐', date: '12/19' },
+                    { text: '最高暴降20万！奥迪Q5等年底特惠SUV盘点', date: '12/18' },
+                    { text: '比拼硬实力 8款低配四驱紧凑SUV性能点评', date: '12/18' },
+                    { text: '花小钱也能养SUV 翼博等入门SUV使用手册', date: '12/17' },
+                    { text: '最高优惠4.3万 十款15万SUV年末购买推荐', date: '12/16' }
+                ]
+            }
+        ];
+
+        let xxy_current = 0;
+
+        /* 渲染 Tab 按钮 */
+        function xxy_renderTabs() {
+            const xxy_bar = document.getElementById('xxy_tabs');
+            let xxy_html = '';
+            xxy_DATA.forEach(function (xxy_group, xxy_i) {
+                xxy_html += '<button type="button" class="xxy_tab" data-xxy-index="' + xxy_i + '">' + xxy_group.tab + '</button>';
+            });
+            xxy_bar.innerHTML = xxy_html;
+
+            xxy_bar.querySelectorAll('.xxy_tab').forEach(function (xxy_btn) {
+                xxy_btn.addEventListener('click', function () {
+                    xxy_switch(Number(xxy_btn.getAttribute('data-xxy-index')));
+                });
+            });
+        }
+
+        /* 切换 Tab：更新选中状态 + 渲染内容 */
+        function xxy_switch(xxy_index) {
+            xxy_current = xxy_index;
+            const xxy_btns = document.querySelectorAll('.xxy_tab');
+            xxy_btns.forEach(function (xxy_btn, xxy_i) {
+                xxy_btn.classList.toggle('xxy_active', xxy_i === xxy_index);
+            });
+
+            const xxy_group = xxy_DATA[xxy_index];
+            document.getElementById('xxy_headline').textContent = xxy_group.headline;
+
+            let xxy_html = '';
+            xxy_group.items.forEach(function (xxy_item) {
+                xxy_html +=
+                    '<li class="xxy_item">' +
+                        '<span class="xxy_dot"></span>' +
+                        '<a href="javascript:;">' + xxy_item.text + '</a>' +
+                        '<span class="xxy_date">' + xxy_item.date + '</span>' +
+                    '</li>';
+            });
+            document.getElementById('xxy_list').innerHTML = xxy_html;
+        }
+
+        xxy_renderTabs();
+        xxy_switch(0);
+    </script>
+</body>
+</html>

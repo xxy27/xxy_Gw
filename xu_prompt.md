@@ -77,3 +77,27 @@ Time: 2026-10-26 14:39:14
 Model: GLM-5.3-Flash (Trae CN)
 Prompt: 完成1026-2.html，展示JavaScript程序结构，循环，条件。然后提交到github。
 ---
+
+---
+Time: 2026-10-29 13:40:00
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1029-1.html，展示JavaScript数组的主要方式，形象一些。
+---
+
+---
+Time: 2026-10-29 13:43:00
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1029-2.html，展示Javascript对象。
+---
+
+---
+Time: 2026-10-29 14:24:00
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1029-3.html，使用的图标在font目录里选，完成的网页尽可能和给定的图片相似（浏览周排行榜列表）。
+---
+
+---
+Time: 2026-10-29 14:38:00
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1029-4.html页面开发，严格按照给定设计图还原视觉效果，包括布局、间距、字体、颜色和整体样式，使最终页面尽可能与图片一致。所需图标一律从font目录中挑选匹配的现有图标使用，不引入外部图标资源。页面需实现tab切换效果，点击各标签时正确切换对应内容区域，并显示当前选中状态。
+---
