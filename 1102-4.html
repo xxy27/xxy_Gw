@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-4 · 远程接口测试工具</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 14:21，使用大模型：DeepSeek-V4.1-Flash，功能名称：远程数据接口测试工具（GET/POST/PUT/PATCH/DELETE） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #eef1f6;
+            color: #22283a;
+            line-height: 1.6;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #312e81, #6366f1); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .85; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 50px; }
+
+        .xxy_layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        @media (max-width: 860px) { .xxy_layout { grid-template-columns: 1fr; } }
+
+        .xxy_panel {
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 3px 14px rgba(49, 46, 129, .09);
+            padding: 16px 18px; margin-bottom: 16px;
+        }
+        .xxy_panel h2 {
+            font-size: 15px; color: #4338ca; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .xxy_field { margin-bottom: 12px; }
+        .xxy_field label { display: block; font-size: 12.5px; color: #6b7280; margin-bottom: 5px; }
+        .xxy_row { display: flex; gap: 8px; }
+
+        input[type="text"], select, textarea {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px; color: #22283a;
+            border: 1px solid #d3dae8; border-radius: 8px;
+            padding: 9px 11px; outline: none; width: 100%;
+            background: #fbfcff;
+        }
+        input[type="text"]:focus, select:focus, textarea:focus { border-color: #6366f1; background: #fff; }
+        select { font-family: "Microsoft YaHei", sans-serif; cursor: pointer; }
+        textarea { resize: vertical; line-height: 1.5; }
+        textarea:disabled { background: #f1f3f8; color: #9aa3b2; cursor: not-allowed; }
+
+        .xxy_btn {
+            border: none; background: #6366f1; color: #fff;
+            border-radius: 8px; padding: 9px 18px; font-size: 14px;
+            cursor: pointer; white-space: nowrap;
+        }
+        .xxy_btn:hover { background: #4338ca; }
+        .xxy_btn:disabled { background: #cfd6e4; cursor: not-allowed; }
+        .xxy_btn.xxy_ghost { background: #e8e9ff; color: #4338ca; font-size: 13px; padding: 7px 12px; }
+        .xxy_btn.xxy_ghost:hover { background: #d7d9ff; }
+
+        .xxy_presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+
+        /* 响应区 */
+        .xxy_status-line {
+            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+            font-size: 13px; margin-bottom: 10px;
+        }
+        .xxy_code {
+            font-family: Consolas, monospace; font-size: 13px; font-weight: bold;
+            border-radius: 6px; padding: 3px 10px; background: #eef1f8; color: #4b5261;
+        }
+        .xxy_code.xxy_ok { background: #dcfce7; color: #15803d; }
+        .xxy_code.xxy_warn { background: #fef3c7; color: #b45309; }
+        .xxy_code.xxy_bad { background: #fee2e2; color: #b91c1c; }
+        .xxy_time { color: #7b8496; }
+
+        .xxy_tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .xxy_tab {
+            font-size: 13px; padding: 5px 14px; border-radius: 7px;
+            background: #f0f2f8; color: #5b6473; cursor: pointer; border: none;
+        }
+        .xxy_tab.xxy_active { background: #6366f1; color: #fff; }
+
+        .xxy_output {
+            background: #111827; border-radius: 10px;
+            padding: 14px 16px; min-height: 260px; max-height: 520px;
+            overflow: auto; font-family: Consolas, "Courier New", monospace;
+            font-size: 12.8px; color: #d1d5db;
+            white-space: pre-wrap; word-break: break-all;
+        }
+        .xxy_output .xxy_tip { color: #6b7280; }
+        .xxy_output .xxy_err { color: #fca5a5; }
+        .xxy_output .xxy_key { color: #93c5fd; }
+        .xxy_output .xxy_str { color: #86efac; }
+        .xxy_output .xxy_num { color: #fcd34d; }
+        .xxy_output .xxy_bool { color: #f0abfc; }
+
+        .xxy_error-box {
+            display: none; margin-top: 10px; font-size: 13px;
+            color: #b91c1c; background: #fef2f2;
+            border: 1px solid #fca5a5; border-left: 4px solid #ef4444;
+            border-radius: 8px; padding: 10px 14px;
+        }
+        .xxy_error-box.xxy_show { display: block; }
+        .xxy_error-box b { display: block; margin-bottom: 2px; }
+
+        .xxy_info {
+            font-size: 12.5px; color: #4338ca;
+            background: #f0f2ff; border: 1px solid #d7d9ff;
+            border-radius: 8px; padding: 10px 14px;
+        }
+        .xxy_info code {
+            background: #fff; border-radius: 5px; padding: 1px 6px;
+            font-family: Consolas, monospace; font-size: 12px;
+        }
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>远程接口测试工具</h1>
+                <p>支持 GET / POST / PUT / PATCH / DELETE · 原生 fetch 实现</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_layout">
+            <!-- 左：请求配置 -->
+            <div>
+                <div class="xxy_panel">
+                    <h2>请求配置 <span class="xxy_time" id="xxy_count">已发送 0 次</span></h2>
+
+                    <div class="xxy_field">
+                        <label>请求方法</label>
+                        <select id="xxy_method">
+                            <option value="GET">GET（获取数据）</option>
+                            <option value="POST">POST（新建数据）</option>
+                            <option value="PUT">PUT（整体更新）</option>
+                            <option value="PATCH">PATCH（局部更新）</option>
+                            <option value="DELETE">DELETE（删除数据）</option>
+                        </select>
+                    </div>
+
+                    <div class="xxy_field">
+                        <label>接口地址 URL</label>
+                        <input type="text" id="xxy_url" value="https://jsonplaceholder.typicode.com/posts" spellcheck="false">
+                    </div>
+
+                    <div class="xxy_field">
+                        <label>请求头 Headers（JSON 格式，可留空）</label>
+                        <textarea id="xxy_headers" rows="3" spellcheck="false">{ "Content-Type": "application/json; charset=UTF-8" }</textarea>
+                    </div>
+
+                    <div class="xxy_field">
+                        <label>请求体 Body（GET / DELETE 不需要填写）</label>
+                        <textarea id="xxy_body" rows="7" spellcheck="false">{
+  "title": "徐昕妤的测试数据",
+  "body": "这是通过 fetch 发送的 POST 请求内容",
+  "userId": 1
+}</textarea>
+                    </div>
+
+                    <div class="xxy_row">
+                        <button class="xxy_btn" id="xxy_send_btn">发送请求</button>
+                        <button class="xxy_btn xxy_ghost" id="xxy_clear_btn">清空结果</button>
+                    </div>
+                </div>
+
+                <div class="xxy_panel">
+                    <h2>快捷示例</h2>
+                    <div class="xxy_presets">
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="list">GET 文章列表</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="one">GET 单篇文章</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="post">POST 新建文章</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="put">PUT 整体更新</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="patch">PATCH 局部更新</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="delete">DELETE 删除文章</button>
+                        <button class="xxy_btn xxy_ghost" data-xxy-preset="404">GET 404 示例</button>
+                    </div>
+                    <div class="xxy_info">
+                        jsonplaceholder 是公开的测试接口，允许跨域；POST / PUT / PATCH / DELETE 只做模拟，不会真正写入数据，但会返回操作后的结果。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右：响应结果 -->
+            <div>
+                <div class="xxy_panel">
+                    <h2>响应结果</h2>
+                    <div class="xxy_status-line">
+                        <span class="xxy_code" id="xxy_status_code">-- --</span>
+                        <span class="xxy_time" id="xxy_time">耗时 -- ms</span>
+                        <span class="xxy_time" id="xxy_size">大小 --</span>
+                    </div>
+                    <div class="xxy_tabs">
+                        <button class="xxy_tab xxy_active" data-xxy-tab="body">响应体</button>
+                        <button class="xxy_tab" data-xxy-tab="header">响应头</button>
+                    </div>
+                    <div class="xxy_output" id="xxy_output"><span class="xxy_tip">// 点击“发送请求”后，这里会显示接口返回的数据……</span></div>
+                    <div class="xxy_error-box" id="xxy_error_box"></div>
+                </div>
+            </div>
+        </div>
+
+        <p class="xxy_footer">1102-4 · 远程接口测试工具 · 徐昕妤</p>
+    </div>
+
+    <script>
+        var xxy_method = document.getElementById("xxy_method");
+        var xxy_url = document.getElementById("xxy_url");
+        var xxy_headers = document.getElementById("xxy_headers");
+        var xxy_body = document.getElementById("xxy_body");
+        var xxy_send_btn = document.getElementById("xxy_send_btn");
+        var xxy_output = document.getElementById("xxy_output");
+        var xxy_error_box = document.getElementById("xxy_error_box");
+        var xxy_status_code = document.getElementById("xxy_status_code");
+        var xxy_time = document.getElementById("xxy_time");
+        var xxy_size = document.getElementById("xxy_size");
+        var xxy_count = document.getElementById("xxy_count");
+        var xxy_send_total = 0;          // 已发送请求次数
+        var xxy_active_tab = "body";     // 当前显示的标签页
+        var xxy_last_body = "";          // 最近一次的响应体文本
+        var xxy_last_headers = "";       // 最近一次的响应头文本
+
+        // 提示：GET / DELETE 时禁用请求体输入框
+        function xxy_sync_body_state() {
+            var xxy_m = xxy_method.value;
+            var xxy_disable = (xxy_m === "GET" || xxy_m === "DELETE");
+            xxy_body.disabled = xxy_disable;
+        }
+        xxy_method.addEventListener("change", xxy_sync_body_state);
+        xxy_sync_body_state();
+
+        // 清空错误提示
+        function xxy_hide_error() {
+            xxy_error_box.classList.remove("xxy_show");
+            xxy_error_box.innerHTML = "";
+        }
+
+        // 显示错误提示（标题 + 详细说明）
+        function xxy_show_error(xxy_title, xxy_detail) {
+            xxy_error_box.innerHTML = "<b>" + xxy_title + "</b>" + xxy_detail;
+            xxy_error_box.classList.add("xxy_show");
+        }
+
+        // 按状态码给状态徽标上色
+        function xxy_paint_code(xxy_res) {
+            var xxy_cls = "xxy_code";
+            if (xxy_res.ok) { xxy_cls += " xxy_ok"; }
+            else if (xxy_res.status >= 400 && xxy_res.status < 500) { xxy_cls += " xxy_warn"; }
+            else { xxy_cls += " xxy_bad"; }
+            xxy_status_code.className = xxy_cls;
+            xxy_status_code.textContent = xxy_res.status + " " + xxy_res.statusText;
+        }
+
+        // 把 JSON 文本加上简单的语法着色
+        function xxy_highlight(xxy_text) {
+            if (xxy_text === "") { return '<span class="xxy_tip">// 响应体为空</span>'; }
+            var xxy_escaped = xxy_text
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            xxy_escaped = xxy_escaped.replace(/("[^"]*")(\s*:)/g, '<span class="xxy_key">$1</span>$2');
+            xxy_escaped = xxy_escaped.replace(/:\s*("[^"]*")/g, ': <span class="xxy_str">$1</span>');
+            xxy_escaped = xxy_escaped.replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="xxy_num">$1</span>');
+            xxy_escaped = xxy_escaped.replace(/:\s*(true|false|null)/g, ': <span class="xxy_bool">$1</span>');
+            return xxy_escaped;
+        }
+
+        // 根据当前标签页刷新输出区
+        function xxy_render_output() {
+            if (xxy_active_tab === "body") {
+                xxy_output.innerHTML = xxy_highlight(xxy_last_body);
+            } else {
+                xxy_output.textContent = xxy_last_headers;
+            }
+        }
+
+        // 切换标签页
+        function xxy_switch_tab(xxy_name) {
+            xxy_active_tab = xxy_name;
+            var xxy_tabs = document.querySelectorAll(".xxy_tab");
+            for (var xxy_i = 0; xxy_i < xxy_tabs.length; xxy_i++) {
+                if (xxy_tabs[xxy_i].getAttribute("data-xxy-tab") === xxy_name) {
+                    xxy_tabs[xxy_i].classList.add("xxy_active");
+                } else {
+                    xxy_tabs[xxy_i].classList.remove("xxy_active");
+                }
+            }
+            xxy_render_output();
+        }
+        var xxy_tabs = document.querySelectorAll(".xxy_tab");
+        for (var xxy_t = 0; xxy_t < xxy_tabs.length; xxy_t++) {
+            xxy_tabs[xxy_t].addEventListener("click", function () {
+                xxy_switch_tab(this.getAttribute("data-xxy-tab"));
+            });
+        }
+
+        // 核心：用 fetch 发送请求并展示结果
+        async function xxy_send() {
+            xxy_hide_error();
+            var xxy_m = xxy_method.value;
+            var xxy_target = xxy_url.value.trim();
+            if (xxy_target === "") {
+                xxy_show_error("请求未发送", "接口地址为空，请填写完整的 URL（例如 https://jsonplaceholder.typicode.com/posts）。");
+                return;
+            }
+            if (!/^https?:\/\//i.test(xxy_target)) {
+                xxy_show_error("请求未发送", "URL 必须以 http:// 或 https:// 开头，当前填写：" + xxy_target);
+                return;
+            }
+
+            // 解析请求头
+            var xxy_head_obj = {};
+            var xxy_head_text = xxy_headers.value.trim();
+            if (xxy_head_text !== "") {
+                try {
+                    xxy_head_obj = JSON.parse(xxy_head_text);
+                } catch (xxy_e) {
+                    xxy_show_error("请求头格式错误", "Headers 必须是合法的 JSON 对象，例如 { \"Content-Type\": \"application/json\" }。（" + xxy_e.message + "）");
+                    return;
+                }
+            }
+
+            // 组装 fetch 配置
+            var xxy_options = { method: xxy_m, headers: xxy_head_obj };
+            if (xxy_m !== "GET" && xxy_m !== "DELETE" && xxy_body.value.trim() !== "") {
+                xxy_options.body = xxy_body.value;
+            }
+
+            xxy_send_btn.disabled = true;
+            xxy_send_btn.textContent = "请求中……";
+            xxy_output.innerHTML = '<span class="xxy_tip">// 正在等待接口响应……</span>';
+            xxy_status_code.className = "xxy_code";
+            xxy_status_code.textContent = "-- --";
+            var xxy_start = performance.now();
+
+            try {
+                var xxy_res = await fetch(xxy_target, xxy_options);
+                var xxy_cost = Math.round(performance.now() - xxy_start);
+                xxy_paint_code(xxy_res);
+                xxy_time.textContent = "耗时 " + xxy_cost + " ms";
+
+                // 响应头整理成文本
+                var xxy_hlines = "";
+                xxy_res.headers.forEach(function (xxy_value, xxy_key) {
+                    xxy_hlines += xxy_key + ": " + xxy_value + "\n";
+                });
+                xxy_last_headers = xxy_hlines === "" ? "// 该响应未暴露可读的响应头" : xxy_hlines;
+
+                // 响应体：优先按 JSON 美化，否则按纯文本
+                var xxy_raw = await xxy_res.text();
+                xxy_size.textContent = "大小 " + xxy_raw.length + " 字符";
+                if (xxy_raw === "") {
+                    xxy_last_body = "";
+                } else {
+                    try {
+                        xxy_last_body = JSON.stringify(JSON.parse(xxy_raw), null, 2);
+                    } catch (xxy_parse_err) {
+                        xxy_last_body = xxy_raw;   // 不是 JSON，原样展示
+                    }
+                }
+                xxy_render_output();
+
+                // 非 2xx 也给出提示
+                if (!xxy_res.ok) {
+                    xxy_show_error("请求返回异常状态码 " + xxy_res.status,
+                        "接口返回了 " + xxy_res.status + " " + xxy_res.statusText + "，请检查 URL 是否正确、资源是否存在。");
+                }
+            } catch (xxy_e) {
+                var xxy_cost2 = Math.round(performance.now() - xxy_start);
+                xxy_time.textContent = "耗时 " + xxy_cost2 + " ms";
+                xxy_last_body = "";
+                xxy_last_headers = "";
+                xxy_output.innerHTML = '<span class="xxy_err">// 请求失败，没有拿到任何响应</span>';
+                xxy_show_error("请求失败（网络错误）",
+                    "原因：" + xxy_e.message + "。常见情况：①域名拼写错误或网络不通；②接口未开启跨域（缺少 Access-Control-Allow-Origin），浏览器拦截了跨域请求；③页面以 file:// 打开且接口不允许该来源。");
+            }
+
+            xxy_send_total++;
+            xxy_count.textContent = "已发送 " + xxy_send_total + " 次";
+            xxy_send_btn.disabled = false;
+            xxy_send_btn.textContent = "发送请求";
+        }
+        xxy_send_btn.addEventListener("click", xxy_send);
+
+        // 在 URL 输入框里回车即发送
+        xxy_url.addEventListener("keydown", function (xxy_e) {
+            if (xxy_e.key === "Enter") { xxy_send(); }
+        });
+
+        // 清空结果
+        document.getElementById("xxy_clear_btn").addEventListener("click", function () {
+            xxy_output.innerHTML = '<span class="xxy_tip">// 点击“发送请求”后，这里会显示接口返回的数据……</span>';
+            xxy_status_code.className = "xxy_code";
+            xxy_status_code.textContent = "-- --";
+            xxy_time.textContent = "耗时 -- ms";
+            xxy_size.textContent = "大小 --";
+            xxy_last_body = "";
+            xxy_last_headers = "";
+            xxy_hide_error();
+        });
+
+        // 快捷示例：一键填入方法、地址、请求体
+        var xxy_presets = {
+            list: { method: "GET", url: "https://jsonplaceholder.typicode.com/posts", body: "" },
+            one: { method: "GET", url: "https://jsonplaceholder.typicode.com/posts/1", body: "" },
+            post: { method: "POST", url: "https://jsonplaceholder.typicode.com/posts", body: '{\n  "title": "徐昕妤的测试数据",\n  "body": "这是通过 fetch 发送的 POST 请求内容",\n  "userId": 1\n}' },
+            put: { method: "PUT", url: "https://jsonplaceholder.typicode.com/posts/1", body: '{\n  "id": 1,\n  "title": "整体更新后的标题",\n  "body": "PUT 会替换整条资源",\n  "userId": 1\n}' },
+            patch: { method: "PATCH", url: "https://jsonplaceholder.typicode.com/posts/1", body: '{\n  "title": "只修改标题（局部更新）"\n}' },
+            delete: { method: "DELETE", url: "https://jsonplaceholder.typicode.com/posts/1", body: "" },
+            "404": { method: "GET", url: "https://jsonplaceholder.typicode.com/posts/99999", body: "" }
+        };
+        var xxy_btns = document.querySelectorAll("[data-xxy-preset]");
+        for (var xxy_b = 0; xxy_b < xxy_btns.length; xxy_b++) {
+            xxy_btns[xxy_b].addEventListener("click", function () {
+                var xxy_p = xxy_presets[this.getAttribute("data-xxy-preset")];
+                xxy_method.value = xxy_p.method;
+                xxy_url.value = xxy_p.url;
+                xxy_body.value = xxy_p.body === "" ? xxy_body.value : xxy_p.body;
+                xxy_sync_body_state();
+                xxy_send();
+            });
+        }
+    </script>
+</body>
+</html>

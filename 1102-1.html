@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-1 · JSON 数据格式展示</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 13:32，使用大模型：GLM-5.3-Flash，功能名称：JSON数据格式展示与解析实验 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.6;
+        }
+
+        .xxy_hero {
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            color: #fff;
+            text-align: center;
+            padding: 40px 16px 34px;
+            position: relative;
+        }
+        .xxy_hero h1 { font-size: 28px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; }
+
+        .xxy_wrap { max-width: 960px; margin: 0 auto; padding: 26px 16px 50px; }
+
+        .xxy_section-title {
+            font-size: 20px;
+            margin: 30px 0 14px;
+            padding-left: 12px;
+            border-left: 5px solid #14b8a6;
+        }
+
+        .xxy_intro {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, .1);
+            padding: 18px 20px;
+            font-size: 14px;
+            color: #3f4655;
+        }
+        .xxy_intro strong { color: #0f766e; }
+        .xxy_intro ul { margin: 8px 0 0 20px; }
+        .xxy_intro li { margin: 3px 0; }
+
+        /* 数据类型卡片 */
+        .xxy_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 14px;
+        }
+        .xxy_card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, .1);
+            border-top: 4px solid var(--xxy_color, #14b8a6);
+        }
+        .xxy_card h3 { font-size: 16px; color: var(--xxy_color, #0f766e); margin-bottom: 4px; }
+        .xxy_card code {
+            display: block;
+            margin-top: 6px;
+            background: #042f2e;
+            color: #ccfbf1;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            overflow-x: auto;
+        }
+        .xxy_card p { font-size: 13px; color: #4b5162; }
+
+        /* 对比表 */
+        .xxy_table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, .1);
+            font-size: 13.5px;
+        }
+        .xxy_table th, .xxy_table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #e6eaf2; }
+        .xxy_table th { background: #0f766e; color: #fff; font-weight: normal; }
+        .xxy_table tr:last-child td { border-bottom: none; }
+        .xxy_table td code {
+            background: #f0fdfa;
+            color: #0f766e;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+        }
+
+        /* 实验室 */
+        .xxy_lab {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, .1);
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .xxy_lab h3 { font-size: 16px; color: #0f766e; margin-bottom: 10px; }
+        .xxy_lab p.xxy_desc { font-size: 13.5px; color: #4b5162; margin-bottom: 12px; }
+        .xxy_lab textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 1px solid #cfd8e3;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            resize: vertical;
+            outline: none;
+        }
+        .xxy_lab textarea:focus { border-color: #14b8a6; }
+        .xxy_btn {
+            border: none;
+            background: #14b8a6;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .xxy_btn:hover { background: #0f766e; }
+        .xxy_btn.xxy_ghost { background: #ccfbf1; color: #115e59; }
+        .xxy_btn.xxy_ghost:hover { background: #99f6e4; }
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+        .xxy_panel {
+            background: #042f2e;
+            border-radius: 10px;
+            min-height: 110px;
+            max-height: 320px;
+            overflow: auto;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            color: #ccfbf1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .xxy_panel .xxy_tip { color: #5eead4; opacity: .6; }
+        .xxy_panel .xxy_err { color: #fca5a5; }
+
+        .xxy_note {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #8a5a00;
+            background: #fff8e6;
+            border: 1px solid #ffe1a6;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        <h1>JSON 数据格式</h1>
+        <p>JavaScript Object Notation · 轻量级数据交换格式</p>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_section-title">JSON 是什么</h2>
+        <div class="xxy_intro">
+            <strong>JSON（JavaScript Object Notation）</strong>是一种轻量级的数据交换格式，采用完全独立于语言的文本格式来存储和表示数据，易于人阅读和编写，也易于机器解析和生成，是目前前后端数据传输最常用的格式。
+            <ul>
+                <li>数据由<strong>键值对</strong>组成，键必须用<strong>双引号</strong>包裹</li>
+                <li>数据由<strong>逗号</strong>分隔，<strong>大括号</strong>保存对象，<strong>方括号</strong>保存数组</li>
+                <li>文件扩展名为 <strong>.json</strong>，MIME 类型为 application/json</li>
+            </ul>
+        </div>
+
+        <h2 class="xxy_section-title">JSON 的六种值类型</h2>
+        <div class="xxy_cards">
+            <div class="xxy_card" style="--xxy_color:#0ea5e9">
+                <h3>字符串 String</h3>
+                <p>必须使用双引号，不支持单引号。</p>
+                <code>"name": "徐昕妤"</code>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#f59e0b">
+                <h3>数值 Number</h3>
+                <p>整数或浮点数，不支持十六进制与 NaN。</p>
+                <code>"age": 19</code>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#10b981">
+                <h3>布尔 Boolean</h3>
+                <p>只有 true 和 false 两个值，小写。</p>
+                <code>"isStudent": true</code>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#8b5cf6">
+                <h3>空值 Null</h3>
+                <p>表示空值，注意不能写成 NULL 或 Null。</p>
+                <code>"phone": null</code>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#ef4444">
+                <h3>数组 Array</h3>
+                <p>方括号包裹的有序值列表。</p>
+                <code>"hobby": ["html", "css", "js"]</code>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#6366f1">
+                <h3>对象 Object</h3>
+                <p>大括号包裹的无序键值对集合，可嵌套。</p>
+                <code>"score": { "js": 95, "css": 88 }</code>
+            </div>
+        </div>
+
+        <h2 class="xxy_section-title">JSON 与 JavaScript 对象的区别</h2>
+        <table class="xxy_table">
+            <tr><th>对比项</th><th>JSON</th><th>JS 对象字面量</th></tr>
+            <tr><td>键（属性名）</td><td>必须用双引号 <code>"name"</code></td><td>可省略引号 <code>name</code></td></tr>
+            <tr><td>字符串值</td><td>只能双引号</td><td>单、双引号均可</td></tr>
+            <tr><td>函数 / undefined</td><td>不允许出现</td><td>可以有</td></tr>
+            <tr><td>末尾逗号</td><td>不允许</td><td>允许（现代浏览器）</td></tr>
+            <tr><td>本质</td><td>字符串（文本格式）</td><td>内存中的对象（可以操作）</td></tr>
+        </table>
+
+        <h2 class="xxy_section-title">实验室一 · JSON.parse() 解析</h2>
+        <div class="xxy_lab">
+            <h3>把 JSON 字符串解析成 JS 对象</h3>
+            <p class="xxy_desc">在下框输入合法的 JSON 文本（默认已填入学生信息示例），点击"解析"按钮；解析成功会显示美化结果，并用 . 访问其中的属性。非法 JSON 会触发 try...catch 报错提示。</p>
+            <textarea id="xxy_parse_input" spellcheck="false">{
+  "name": "徐昕妤",
+  "age": 19,
+  "isStudent": true,
+  "phone": null,
+  "hobby": ["html", "css", "javascript"],
+  "score": { "js": 95, "css": 88, "html": 92 }
+}</textarea>
+            <div class="xxy_row">
+                <button class="xxy_btn" id="xxy_parse_btn">解析 JSON.parse()</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_err_btn">试试错误的 JSON</button>
+            </div>
+            <div class="xxy_panel" id="xxy_parse_panel"><span class="xxy_tip">// 解析结果将显示在这里……</span></div>
+        </div>
+
+        <h2 class="xxy_section-title">实验室二 · JSON.stringify() 序列化</h2>
+        <div class="xxy_lab">
+            <h3>把 JS 对象转换成 JSON 字符串</h3>
+            <p class="xxy_desc">stringify 是 parse 的逆操作：对象 → JSON 字符串。第二个参数传 null、第三个参数传 2，表示用两个空格缩进美化输出。</p>
+            <div class="xxy_row">
+                <button class="xxy_btn" id="xxy_compact_btn">紧凑输出</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_pretty_btn">美化输出（2 空格缩进）</button>
+            </div>
+            <div class="xxy_panel" id="xxy_stringify_panel"><span class="xxy_tip">// 序列化结果将显示在这里……</span></div>
+        </div>
+
+        <div class="xxy_note">
+            小结：JSON 只是一种<strong>字符串格式</strong>；JSON.parse() 让字符串变回可以操作的对象，JSON.stringify() 让对象变回可以传输的字符串，
+            二者互为逆操作，是前后端交换数据的基础。注意 JSON 的键必须双引号、不能含函数和 undefined。
+        </div>
+
+        <p class="xxy_footer">1102-1 · JSON 数据格式展示 · 徐昕妤</p>
+    </div>
+
+    <script>
+        // ================= 实验室一：JSON.parse =================
+        var xxy_parse_input = document.getElementById("xxy_parse_input");
+        var xxy_parse_panel = document.getElementById("xxy_parse_panel");
+
+        // 解析输入框中的 JSON 字符串，成功输出美化结果与属性访问示例
+        function xxy_run_parse() {
+            try {
+                var xxy_obj = JSON.parse(xxy_parse_input.value);
+                var xxy_out = "解析成功！typeof 结果：" + typeof xxy_obj + "\n\n";
+                xxy_out += JSON.stringify(xxy_obj, null, 2) + "\n\n";
+                xxy_out += "--- 用 . 与 [] 访问属性 ---\n";
+                xxy_out += "xxy_obj.name        → " + xxy_obj.name + "\n";
+                xxy_out += "xxy_obj.age         → " + xxy_obj.age + "\n";
+                xxy_out += "xxy_obj.hobby[1]    → " + xxy_obj.hobby[1] + "\n";
+                xxy_out += "xxy_obj.score.js    → " + xxy_obj.score.js;
+                xxy_parse_panel.innerHTML = '<span class="xxy_tip">' + xxy_out + "</span>";
+            } catch (xxy_e) {
+                xxy_parse_panel.innerHTML = '<span class="xxy_err">解析失败：' + xxy_e.message + "\n请检查：键是否用了双引号？是否多了/少了逗号？</span>";
+            }
+        }
+
+        // 故意填入一段非法 JSON，演示 try...catch 捕获错误
+        function xxy_run_err() {
+            xxy_parse_input.value = '{ name: "徐昕妤", "age": 19, }';
+            xxy_run_parse();
+        }
+        document.getElementById("xxy_parse_btn").addEventListener("click", xxy_run_parse);
+        document.getElementById("xxy_err_btn").addEventListener("click", xxy_run_err);
+
+        // ================= 实验室二：JSON.stringify =================
+        var xxy_stringify_panel = document.getElementById("xxy_stringify_panel");
+
+        // 演示用的 JS 对象（注意：这是对象，不是 JSON）
+        var xxy_student = {
+            name: "徐昕妤",
+            age: 19,
+            isStudent: true,
+            phone: null,
+            hobby: ["html", "css", "javascript"],
+            score: { js: 95, css: 88, html: 92 }
+        };
+
+        // 紧凑输出：不带缩进
+        function xxy_run_compact() {
+            var xxy_out = "原始 JS 对象（键没有引号，是对象不是 JSON）\n\n";
+            xxy_out += "JSON.stringify(xxy_student)\n→ ";
+            xxy_out += JSON.stringify(xxy_student);
+            xxy_stringify_panel.textContent = xxy_out;
+        }
+
+        // 美化输出：2 空格缩进
+        function xxy_run_pretty() {
+            var xxy_out = "JSON.stringify(xxy_student, null, 2)\n→\n";
+            xxy_out += JSON.stringify(xxy_student, null, 2);
+            xxy_stringify_panel.textContent = xxy_out;
+        }
+        document.getElementById("xxy_compact_btn").addEventListener("click", xxy_run_compact);
+        document.getElementById("xxy_pretty_btn").addEventListener("click", xxy_run_pretty);
+    </script>
+</body>
+</html>

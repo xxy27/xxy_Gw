@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-3 · 商品详情 · fetch 接口数据</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 13:52，使用大模型：DeepSeek-V4.1-Flash，功能名称：fetch根据ID获取商品详情（详情页） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f3f6fb;
+            color: #262c38;
+            line-height: 1.6;
+        }
+
+        .xxy_header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            padding: 20px 16px;
+        }
+        .xxy_header-inner {
+            max-width: 1080px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .85; }
+        .xxy_links { display: flex; gap: 8px; }
+        .xxy_link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            background: rgba(255, 255, 255, .16);
+            border-radius: 8px;
+            padding: 7px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .xxy_link:hover { background: rgba(255, 255, 255, .28); }
+
+        .xxy_wrap { max-width: 1080px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_status {
+            font-size: 13.5px;
+            color: #5b6473;
+            background: #fff;
+            border: 1px dashed #c7d2e6;
+            border-radius: 8px;
+            padding: 9px 14px;
+            margin-bottom: 16px;
+        }
+        .xxy_status.xxy_err { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
+        .xxy_status.xxy_ok { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+
+        .xxy_detail {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(30, 58, 138, .1);
+            padding: 24px;
+            display: none;
+            gap: 26px;
+            flex-wrap: wrap;
+        }
+        .xxy_detail.xxy_show { display: flex; }
+
+        /* 左侧图集 */
+        .xxy_gallery { width: 320px; max-width: 100%; }
+        .xxy_main-img {
+            width: 100%;
+            height: 300px;
+            background: #eef3fb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .xxy_main-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .xxy_thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .xxy_thumbs img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            background: #eef3fb;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            padding: 3px;
+        }
+        .xxy_thumbs img:hover { border-color: #2563eb; }
+
+        /* 右侧信息 */
+        .xxy_info { flex: 1; min-width: 280px; }
+        .xxy_info .xxy_tag {
+            display: inline-block;
+            font-size: 11.5px;
+            color: #1e40af;
+            background: #e8efff;
+            border-radius: 20px;
+            padding: 2px 10px;
+            margin-bottom: 8px;
+        }
+        .xxy_info h2 { font-size: 22px; margin-bottom: 6px; }
+        .xxy_info .xxy_sub { font-size: 13px; color: #7b8496; margin-bottom: 14px; }
+        .xxy_info .xxy_desc {
+            font-size: 13.5px;
+            color: #4b5261;
+            background: #f7f9fd;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+        }
+        .xxy_price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .xxy_price { color: #e11d48; font-size: 28px; font-weight: bold; }
+        .xxy_price small { font-size: 15px; font-weight: normal; }
+        .xxy_old { color: #9aa3b2; text-decoration: line-through; font-size: 14px; }
+        .xxy_cut {
+            font-size: 12px;
+            color: #e11d48;
+            background: #ffe8ee;
+            border-radius: 6px;
+            padding: 2px 8px;
+        }
+        .xxy_specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .xxy_spec {
+            background: #f7f9fd;
+            border: 1px solid #e2e8f4;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 13px;
+        }
+        .xxy_spec span { display: block; color: #7b8496; font-size: 12px; }
+        .xxy_spec b { color: #1e40af; }
+
+        .xxy_reviews { border-top: 1px solid #e8edf6; padding-top: 14px; }
+        .xxy_reviews h3 { font-size: 15px; color: #1e40af; margin-bottom: 10px; }
+        .xxy_review {
+            background: #f7f9fd;
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .xxy_review .xxy_rhead { display: flex; justify-content: space-between; font-size: 12px; color: #7b8496; margin-bottom: 3px; }
+        .xxy_review .xxy_stars { color: #b45309; }
+
+        .xxy_pager {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+        .xxy_btn {
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .xxy_btn:hover { background: #1e3a8a; }
+        .xxy_btn.xxy_ghost { background: #e0e9ff; color: #1e40af; }
+
+        .xxy_note {
+            margin-top: 22px;
+            font-size: 13px;
+            color: #1e40af;
+            background: #eff4ff;
+            border: 1px solid #c7d8ff;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .xxy_note code {
+            background: #fff;
+            border-radius: 5px;
+            padding: 1px 6px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+        }
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>商品详情</h1>
+                <p>数据来源：dummyjson.com · 按 ID 请求</p>
+            </div>
+            <div class="xxy_links">
+                <a class="xxy_link" href="1102-3.html"><span class="iconfont icon-shouye"></span>商品列表</a>
+                <a class="xxy_link" href="index.html">返回首页</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_status" id="xxy_status">正在加载商品详情……</div>
+
+        <div class="xxy_detail" id="xxy_detail">
+            <div class="xxy_gallery">
+                <div class="xxy_main-img"><img id="xxy_main_img" src="" alt="商品主图"></div>
+                <div class="xxy_thumbs" id="xxy_thumbs"></div>
+            </div>
+            <div class="xxy_info">
+                <span class="xxy_tag" id="xxy_category">--</span>
+                <h2 id="xxy_title">--</h2>
+                <div class="xxy_sub" id="xxy_sub">--</div>
+                <div class="xxy_desc" id="xxy_desc">--</div>
+                <div class="xxy_price-row">
+                    <span class="xxy_price"><small>$</small><span id="xxy_price">0</span></span>
+                    <span class="xxy_old" id="xxy_old">$0</span>
+                    <span class="xxy_cut" id="xxy_cut">--</span>
+                </div>
+                <div class="xxy_specs" id="xxy_specs"></div>
+                <div class="xxy_reviews" id="xxy_reviews">
+                    <h3>用户评价</h3>
+                    <div id="xxy_review_list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="xxy_pager" id="xxy_pager" style="display:none;">
+            <a class="xxy_btn xxy_ghost" href="1102-3.html"><span class="iconfont icon-shouye"></span>返回商品列表</a>
+            <div id="xxy_pager_right"></div>
+        </div>
+
+        <div class="xxy_note">
+            读取地址栏参数：<code>new URLSearchParams(location.search).get("id")</code>；
+            详情接口：<code>GET https://dummyjson.com/products/{id}</code>；
+            参数缺失时回退到默认 ID 1，ID 不存在（接口返回 404）时给出错误提示。
+        </div>
+
+        <p class="xxy_footer">1102-3 · 商品详情页 · 徐昕妤</p>
+    </div>
+
+    <script>
+        var xxy_status = document.getElementById("xxy_status");
+
+        // 设置状态栏文字与样式
+        function xxy_set_status(xxy_text, xxy_type) {
+            xxy_status.textContent = xxy_text;
+            var xxy_class = "xxy_status";
+            if (xxy_type === "err") { xxy_class += " xxy_err"; }
+            if (xxy_type === "ok") { xxy_class += " xxy_ok"; }
+            xxy_status.className = xxy_class;
+        }
+
+        // 从地址栏取 id 参数，非法则回退为 1
+        function xxy_get_id() {
+            var xxy_id = new URLSearchParams(location.search).get("id");
+            xxy_id = Number(xxy_id);
+            if (isNaN(xxy_id) || xxy_id <= 0) { xxy_id = 1; }
+            return xxy_id;
+        }
+
+        // 请求详情接口并渲染页面
+        async function xxy_load_detail() {
+            var xxy_id = xxy_get_id();
+            xxy_set_status("正在请求商品 " + xxy_id + " 的详情……", "normal");
+            try {
+                var xxy_res = await fetch("https://dummyjson.com/products/" + xxy_id);
+                if (!xxy_res.ok) {
+                    throw new Error("HTTP 状态码 " + xxy_res.status + "，商品 ID " + xxy_id + " 可能不存在");
+                }
+                var xxy_p = await xxy_res.json();
+                xxy_render_detail(xxy_p);
+                xxy_set_status("加载成功：GET https://dummyjson.com/products/" + xxy_id, "ok");
+            } catch (xxy_e) {
+                xxy_set_status("加载失败：" + xxy_e.message, "err");
+            }
+        }
+
+        // 把商品对象填入页面各区域
+        function xxy_render_detail(xxy_p) {
+            var xxy_old = (xxy_p.price / (1 - xxy_p.discountPercentage / 100)).toFixed(2);
+
+            document.getElementById("xxy_category").textContent = xxy_p.category;
+            document.getElementById("xxy_title").textContent = xxy_p.title;
+            document.getElementById("xxy_sub").textContent = "品牌：" + xxy_p.brand + " · SKU：" + xxy_p.sku + " · 商品编号：" + xxy_p.id;
+            document.getElementById("xxy_desc").textContent = xxy_p.description;
+            document.getElementById("xxy_price").textContent = xxy_p.price;
+            document.getElementById("xxy_old").textContent = "$" + xxy_old;
+            document.getElementById("xxy_cut").textContent = "省 " + Math.round(xxy_p.discountPercentage) + "%";
+
+            // 主图与缩略图
+            document.getElementById("xxy_main_img").src = xxy_p.images[0];
+            var xxy_thumbs = document.getElementById("xxy_thumbs");
+            var xxy_thtml = "";
+            for (var xxy_i = 0; xxy_i < xxy_p.images.length; xxy_i++) {
+                xxy_thtml += '<img src="' + xxy_p.images[xxy_i] + '" data-src="' + xxy_p.images[xxy_i] + '" alt="图' + (xxy_i + 1) + '">';
+            }
+            xxy_thumbs.innerHTML = xxy_thtml;
+            // 点击缩略图切换主图
+            var xxy_imgs = xxy_thumbs.querySelectorAll("img");
+            for (var xxy_j = 0; xxy_j < xxy_imgs.length; xxy_j++) {
+                xxy_imgs[xxy_j].addEventListener("click", function () {
+                    document.getElementById("xxy_main_img").src = this.getAttribute("data-src");
+                });
+            }
+
+            // 规格参数
+            document.getElementById("xxy_specs").innerHTML =
+                '<div class="xxy_spec"><span>评分</span><b>★ ' + xxy_p.rating + ' / 5</b></div>'
+                + '<div class="xxy_spec"><span>库存</span><b>' + xxy_p.stock + ' 件</b></div>'
+                + '<div class="xxy_spec"><span>重量</span><b>' + xxy_p.weight + ' </b></div>'
+                + '<div class="xxy_spec"><span>最小起订量</span><b>' + xxy_p.minimumOrderQuantity + ' 件</b></div>'
+                + '<div class="xxy_spec"><span>尺寸</span><b>' + xxy_p.dimensions.width + ' × ' + xxy_p.dimensions.height + ' × ' + xxy_p.dimensions.depth + '</b></div>'
+                + '<div class="xxy_spec"><span>保修</span><b>' + xxy_p.warrantyInformation + '</b></div>'
+                + '<div class="xxy_spec"><span>退换货</span><b>' + xxy_p.returnPolicy + '</b></div>'
+                + '<div class="xxy_spec"><span>发货</span><b>' + xxy_p.shippingInformation + '</b></div>';
+
+            // 用户评价（取前 3 条）
+            var xxy_rhtml = "";
+            var xxy_count = Math.min(3, xxy_p.reviews.length);
+            for (var xxy_k = 0; xxy_k < xxy_count; xxy_k++) {
+                var xxy_r = xxy_p.reviews[xxy_k];
+                xxy_rhtml += '<div class="xxy_review">'
+                    + '<div class="xxy_rhead"><span>' + xxy_r.reviewerName + '</span>'
+                    + '<span class="xxy_stars">' + "★".repeat(xxy_r.rating) + '</span></div>'
+                    + xxy_r.comment + '</div>';
+            }
+            if (xxy_count === 0) { xxy_rhtml = '<div class="xxy_review">暂无评价</div>'; }
+            document.getElementById("xxy_review_list").innerHTML = xxy_rhtml;
+
+            // 上一篇 / 下一篇：按 ID 顺序切换
+            var xxy_prev = xxy_p.id > 1 ? xxy_p.id - 1 : 8;
+            var xxy_next = xxy_p.id >= 8 ? 1 : xxy_p.id + 1;
+            document.getElementById("xxy_pager_right").innerHTML =
+                '<a class="xxy_btn" href="1102-3-detail.html?id=' + xxy_prev + '">← 上一件</a> '
+                + '<a class="xxy_btn" href="1102-3-detail.html?id=' + xxy_next + '">下一件 →</a>';
+
+            document.getElementById("xxy_detail").classList.add("xxy_show");
+            document.getElementById("xxy_pager").style.display = "flex";
+        }
+
+        xxy_load_detail();
+    </script>
+</body>
+</html>

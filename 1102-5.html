@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-5 · JavaScript 两种定时器</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 14:33，使用大模型：DeepSeek-V4.1-Flash，功能名称：JavaScript定时器演示（setTimeout / setInterval） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #0f766e, #059669); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 980px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .85; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 980px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_title {
+            font-size: 19px; margin: 26px 0 12px;
+            padding-left: 12px; border-left: 5px solid #059669;
+        }
+
+        .xxy_intro {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 3px 14px rgba(15, 118, 110, .09); font-size: 14px;
+        }
+        .xxy_intro ul { margin: 8px 0 0 20px; }
+        .xxy_intro li { margin: 4px 0; }
+        .xxy_intro code {
+            background: #ecfdf5; color: #047857; border-radius: 5px;
+            padding: 1px 6px; font-family: Consolas, monospace; font-size: 12.5px;
+        }
+
+        .xxy_cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+        .xxy_card {
+            background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 3px 14px rgba(15, 118, 110, .09);
+            border-top: 4px solid var(--xxy_color, #059669);
+        }
+        .xxy_card h3 { font-size: 16px; color: var(--xxy_color, #047857); margin-bottom: 4px; }
+        .xxy_card p { font-size: 13px; color: #4b5563; margin-bottom: 8px; }
+        .xxy_card pre {
+            background: #0f172a; color: #ccfbf1; border-radius: 8px;
+            padding: 10px 12px; font-family: Consolas, monospace; font-size: 12.5px;
+            overflow-x: auto; line-height: 1.55;
+        }
+
+        .xxy_lab {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 3px 14px rgba(15, 118, 110, .09); margin-bottom: 16px;
+        }
+        .xxy_lab h3 { font-size: 16px; color: #047857; margin-bottom: 6px; }
+        .xxy_lab .xxy_desc { font-size: 13px; color: #6b7280; margin-bottom: 14px; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .xxy_btn {
+            border: none; background: #059669; color: #fff;
+            border-radius: 8px; padding: 9px 18px; font-size: 14px; cursor: pointer;
+        }
+        .xxy_btn:hover { background: #047857; }
+        .xxy_btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .xxy_btn.xxy_ghost { background: #d1fae5; color: #047857; }
+        .xxy_btn.xxy_ghost:hover { background: #a7f3d0; }
+        .xxy_btn.xxy_warn { background: #ef4444; }
+        .xxy_btn.xxy_warn:hover { background: #b91c1c; }
+
+        .xxy_input {
+            border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px;
+            font-size: 14px; outline: none; width: 110px;
+            font-family: Consolas, monospace;
+        }
+        .xxy_input:focus { border-color: #059669; }
+
+        .xxy_stage {
+            margin-top: 14px; background: #f8fafc; border: 1px dashed #cbd5e1;
+            border-radius: 10px; padding: 16px; min-height: 96px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #334155; text-align: center;
+        }
+        .xxy_stage.xxy_boom { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; font-weight: bold; }
+        .xxy_stage .xxy_tip { font-size: 13px; color: #94a3b8; }
+        .xxy_big { font-family: Consolas, monospace; font-size: 30px; font-weight: bold; color: #047857; }
+
+        .xxy_progress {
+            margin-top: 12px; height: 10px; background: #e2e8f0;
+            border-radius: 6px; overflow: hidden;
+        }
+        .xxy_bar { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #059669); transition: width .2s linear; }
+
+        .xxy_note {
+            margin-top: 18px; font-size: 13px; color: #92400e;
+            background: #fffbeb; border: 1px solid #fde68a;
+            border-radius: 8px; padding: 10px 14px;
+        }
+        .xxy_footer { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>JavaScript 两种定时器</h1>
+                <p>setTimeout（延时执行一次）· setInterval（每隔一段时间重复执行）</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_title">概念与区别</h2>
+        <div class="xxy_intro">
+            JavaScript 是单线程语言，定时器并不是"真的多线程"，而是由浏览器计时，时间到了把回调函数放进任务队列，等主线程空闲时再执行。
+            <ul>
+                <li><code>setTimeout(fn, ms)</code>：延时指定毫秒后<strong>只执行一次</strong>，返回一个定时器 ID</li>
+                <li><code>setInterval(fn, ms)</code>：每隔指定毫秒<strong>重复执行</strong>，返回一个定时器 ID</li>
+                <li><code>clearTimeout(id)</code> / <code>clearInterval(id)</code>：按 ID 取消对应定时器</li>
+                <li>毫秒单位，1000 ms = 1 秒；定时器时间不精确，只保证"不早于"指定时间</li>
+            </ul>
+        </div>
+
+        <div class="xxy_cards" style="margin-top:14px;">
+            <div class="xxy_card" style="--xxy_color:#0ea5e9">
+                <h3>setTimeout · 延时执行一次</h3>
+                <p>常用于延迟提示、动画等待、防抖等"只做一次"的场景。</p>
+                <pre>var xxy_id = setTimeout(function () {
+    alert("3 秒到了");
+}, 3000);
+
+// 取消：clearTimeout(xxy_id)</pre>
+            </div>
+            <div class="xxy_card" style="--xxy_color:#f59e0b">
+                <h3>setInterval · 周期重复执行</h3>
+                <p>常用于时钟、轮播、倒计时、实时刷新等"持续重复"的场景。</p>
+                <pre>var xxy_id = setInterval(function () {
+    console.log("每 1 秒执行一次");
+}, 1000);
+
+// 停止：clearInterval(xxy_id)</pre>
+            </div>
+        </div>
+
+        <h2 class="xxy_title">实验一 · setTimeout 延时提示</h2>
+        <div class="xxy_lab">
+            <h3>设定延时时长，到点触发一次</h3>
+            <p class="xxy_desc">点击"开始计时"后开始倒计时，到达设定时间时舞台变红并弹出提示；在倒计时结束前点"取消定时器"可调用 clearTimeout 中止本次任务。</p>
+            <div class="xxy_row">
+                <input class="xxy_input" type="number" id="xxy_delay_input" value="3" min="1" max="10" step="1">
+                <span style="font-size:13px;color:#6b7280;">秒</span>
+                <button class="xxy_btn" id="xxy_delay_start">开始计时</button>
+                <button class="xxy_btn xxy_warn" id="xxy_delay_cancel">取消定时器</button>
+            </div>
+            <div class="xxy_stage" id="xxy_delay_stage"><span class="xxy_tip">尚未开始，点击"开始计时"……</span></div>
+        </div>
+
+        <h2 class="xxy_title">实验二 · setInterval 秒表与进度条</h2>
+        <div class="xxy_lab">
+            <h3>每 100 毫秒执行一次的回调</h3>
+            <p class="xxy_desc">开始后 setInterval 每 0.1 秒把计数 +1 并刷新显示，同时驱动进度条；点"暂停"用 clearInterval 停止，"重置"清零。</p>
+            <div class="xxy_row">
+                <button class="xxy_btn" id="xxy_timer_start">开始</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_timer_pause">暂停</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_timer_reset">重置</button>
+            </div>
+            <div class="xxy_stage"><span class="xxy_big" id="xxy_timer_show">0.0 s</span></div>
+            <div class="xxy_progress"><div class="xxy_bar" id="xxy_timer_bar"></div></div>
+        </div>
+
+        <h2 class="xxy_title">实验三 · setInterval 实时时钟</h2>
+        <div class="xxy_lab">
+            <h3>每秒刷新一次当前时间</h3>
+            <p class="xxy_desc">进入页面后时钟自动运行（setInterval 每 1000 ms 更新一次），可暂停/恢复，直观展示"重复执行"的效果。</p>
+            <div class="xxy_stage"><span class="xxy_big" id="xxy_clock">--:--:--</span></div>
+            <div class="xxy_row" style="margin-top:12px;">
+                <button class="xxy_btn xxy_ghost" id="xxy_clock_toggle">暂停时钟</button>
+            </div>
+        </div>
+
+        <div class="xxy_note">
+            对比记忆：<strong>setTimeout = 一次性的闹钟</strong>（响一次就结束），<strong>setInterval = 循环的节拍器</strong>（按固定间隔一直响，直到 clearInterval）。
+            两者都用同一个数字 ID 机制，取消时务必传入对应的定时器 ID，否则清除不掉。
+        </div>
+
+        <p class="xxy_footer">1102-5 · JavaScript 两种定时器 · 徐昕妤</p>
+    </div>
+
+    <script>
+        // ================= 实验一：setTimeout =================
+        var xxy_delay_input = document.getElementById("xxy_delay_input");
+        var xxy_delay_stage = document.getElementById("xxy_delay_stage");
+        var xxy_delay_start = document.getElementById("xxy_delay_start");
+        var xxy_delay_cancel = document.getElementById("xxy_delay_cancel");
+        var xxy_timeout_id = null;    // 保存 setTimeout 返回的 ID
+        var xxy_countdown_id = null;  // 倒计时显示用的另一个定时器
+
+        // 开始：先做倒计时展示，再用 setTimeout 到点触发
+        function xxy_start_delay() {
+            // 先清掉可能还在运行的旧定时器，避免叠加
+            if (xxy_timeout_id !== null) { clearTimeout(xxy_timeout_id); }
+            if (xxy_countdown_id !== null) { clearInterval(xxy_countdown_id); }
+
+            var xxy_seconds = Number(xxy_delay_input.value);
+            if (isNaN(xxy_seconds) || xxy_seconds <= 0) { xxy_seconds = 3; }
+            xxy_seconds = Math.min(10, Math.floor(xxy_seconds));
+
+            var xxy_left = xxy_seconds;
+            xxy_delay_stage.className = "xxy_stage";
+            xxy_delay_stage.innerHTML = '<span class="xxy_tip">倒计时 ' + xxy_left + ' 秒，到点会触发一次回调……</span>';
+
+            // 每 1 秒刷新一次剩余秒数
+            xxy_countdown_id = setInterval(function () {
+                xxy_left--;
+                if (xxy_left > 0) {
+                    xxy_delay_stage.innerHTML = '<span class="xxy_tip">倒计时 ' + xxy_left + ' 秒，到点会触发一次回调……</span>';
+                }
+            }, 1000);
+
+            // 核心：延时结束后只执行一次
+            xxy_timeout_id = setTimeout(function () {
+                clearInterval(xxy_countdown_id);
+                xxy_countdown_id = null;
+                xxy_timeout_id = null;
+                xxy_delay_stage.className = "xxy_stage xxy_boom";
+                xxy_delay_stage.innerHTML = "时间到！setTimeout 的回调已执行一次（" + xxy_seconds + " 秒）";
+            }, xxy_seconds * 1000);
+        }
+
+        // 取消：clearTimeout 中止尚未执行的任务
+        function xxy_cancel_delay() {
+            if (xxy_timeout_id === null) {
+                xxy_delay_stage.className = "xxy_stage";
+                xxy_delay_stage.innerHTML = '<span class="xxy_tip">当前没有正在运行的定时器，无需取消</span>';
+                return;
+            }
+            clearTimeout(xxy_timeout_id);
+            clearInterval(xxy_countdown_id);
+            xxy_timeout_id = null;
+            xxy_countdown_id = null;
+            xxy_delay_stage.className = "xxy_stage";
+            xxy_delay_stage.innerHTML = '<span class="xxy_tip">已调用 clearTimeout，回调不会执行了</span>';
+        }
+        xxy_delay_start.addEventListener("click", xxy_start_delay);
+        xxy_delay_cancel.addEventListener("click", xxy_cancel_delay);
+
+        // ================= 实验二：setInterval 秒表 =================
+        var xxy_timer_show = document.getElementById("xxy_timer_show");
+        var xxy_timer_bar = document.getElementById("xxy_timer_bar");
+        var xxy_timer_id = null;   // setInterval 返回的 ID，为 null 表示未运行
+        var xxy_tick = 0;          // 已流逝的 0.1 秒次数
+
+        // 刷新秒表显示与进度条（进度到 100% 后循环）
+        function xxy_paint_timer() {
+            xxy_timer_show.textContent = (xxy_tick / 10).toFixed(1) + " s";
+            xxy_timer_bar.style.width = (xxy_tick % 100) + "%";
+        }
+
+        // 开始：开启 setInterval，每 100 ms 执行一次回调
+        function xxy_timer_start_fn() {
+            if (xxy_timer_id !== null) { return; }   // 已在运行，避免重复创建
+            xxy_timer_id = setInterval(function () {
+                xxy_tick++;
+                xxy_paint_timer();
+            }, 100);
+        }
+
+        // 暂停：clearInterval 停止
+        function xxy_timer_pause_fn() {
+            if (xxy_timer_id === null) { return; }
+            clearInterval(xxy_timer_id);
+            xxy_timer_id = null;
+        }
+
+        // 重置：停止并清零
+        function xxy_timer_reset_fn() {
+            xxy_timer_pause_fn();
+            xxy_tick = 0;
+            xxy_paint_timer();
+        }
+        document.getElementById("xxy_timer_start").addEventListener("click", xxy_timer_start_fn);
+        document.getElementById("xxy_timer_pause").addEventListener("click", xxy_timer_pause_fn);
+        document.getElementById("xxy_timer_reset").addEventListener("click", xxy_timer_reset_fn);
+
+        // ================= 实验三：setInterval 实时时钟 =================
+        var xxy_clock = document.getElementById("xxy_clock");
+        var xxy_clock_toggle = document.getElementById("xxy_clock_toggle");
+        var xxy_clock_id = null;
+
+        // 把当前时间格式化成 HH:MM:SS
+        function xxy_paint_clock() {
+            var xxy_now = new Date();
+            var xxy_h = String(xxy_now.getHours()).padStart(2, "0");
+            var xxy_m = String(xxy_now.getMinutes()).padStart(2, "0");
+            var xxy_s = String(xxy_now.getSeconds()).padStart(2, "0");
+            xxy_clock.textContent = xxy_h + ":" + xxy_m + ":" + xxy_s;
+        }
+
+        // 启动时钟：每 1000 ms 刷新一次
+        function xxy_clock_start() {
+            xxy_paint_clock();
+            xxy_clock_id = setInterval(xxy_paint_clock, 1000);
+            xxy_clock_toggle.textContent = "暂停时钟";
+        }
+
+        // 暂停时钟
+        function xxy_clock_stop() {
+            clearInterval(xxy_clock_id);
+            xxy_clock_id = null;
+            xxy_clock_toggle.textContent = "恢复时钟";
+        }
+
+        xxy_clock_toggle.addEventListener("click", function () {
+            if (xxy_clock_id === null) {
+                xxy_clock_start();
+            } else {
+                xxy_clock_stop();
+            }
+        });
+
+        xxy_clock_start();   // 页面打开即开始走时
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-2 · fetch 获取接口数据 · 商品列表与详情</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 13:40，使用大模型：GLM-5.3-Flash，功能名称：fetch获取跨域接口数据并展示（商品列表与详情） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f38;
+            line-height: 1.6;
+        }
+
+        .xxy_hero {
+            background: linear-gradient(135deg, #b45309, #f59e0b);
+            color: #fff;
+            text-align: center;
+            padding: 40px 16px 34px;
+            position: relative;
+        }
+        .xxy_hero h1 { font-size: 28px; margin-bottom: 8px; }
+        .xxy_hero p { opacity: .88; font-size: 14px; }
+        .xxy_hero code {
+            display: inline-block;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, .16);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+        }
+        .xxy_back {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: .9;
+        }
+        .xxy_back:hover { opacity: 1; }
+
+        .xxy_wrap { max-width: 1000px; margin: 0 auto; padding: 26px 16px 50px; }
+
+        .xxy_section-title {
+            font-size: 20px;
+            margin: 26px 0 14px;
+            padding-left: 12px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .xxy_toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+        .xxy_btn {
+            border: none;
+            background: #f59e0b;
+            color: #fff;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .xxy_btn:hover { background: #b45309; }
+        .xxy_btn:disabled { background: #d8dce6; cursor: not-allowed; }
+
+        .xxy_status {
+            font-size: 13.5px;
+            color: #6b7280;
+            background: #fff;
+            border: 1px dashed #e5c07b;
+            border-radius: 8px;
+            padding: 9px 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .xxy_status.xxy_err { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
+
+        /* 商品网格 */
+        .xxy_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 14px;
+        }
+        .xxy_item {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(180, 83, 9, .1);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform .15s, border-color .15s;
+        }
+        .xxy_item:hover { transform: translateY(-3px); }
+        .xxy_item.xxy_active { border-color: #f59e0b; }
+        .xxy_item img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            background: #fffbeb;
+            display: block;
+            padding: 8px;
+        }
+        .xxy_item .xxy_info { padding: 10px 12px 12px; }
+        .xxy_item .xxy_brand { font-size: 11.5px; color: #b45309; }
+        .xxy_item h3 {
+            font-size: 14px;
+            margin: 2px 0 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .xxy_item .xxy_meta { display: flex; justify-content: space-between; font-size: 13px; }
+        .xxy_item .xxy_price { color: #b45309; font-weight: bold; }
+        .xxy_item .xxy_rate { color: #6b7280; font-size: 12px; }
+
+        /* 详情面板 */
+        .xxy_detail {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(180, 83, 9, .1);
+            padding: 20px;
+            display: none;
+        }
+        .xxy_detail.xxy_show { display: flex; gap: 20px; flex-wrap: wrap; }
+        .xxy_detail img {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            background: #fffbeb;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .xxy_detail .xxy_dinfo { flex: 1; min-width: 260px; }
+        .xxy_detail h3 { font-size: 20px; color: #b45309; margin-bottom: 4px; }
+        .xxy_detail .xxy_dbrand { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+        .xxy_detail p { font-size: 13.5px; color: #3f4655; margin-bottom: 12px; }
+        .xxy_detail .xxy_props { display: flex; gap: 10px; flex-wrap: wrap; }
+        .xxy_detail .xxy_prop {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .xxy_detail .xxy_prop b { color: #b45309; }
+
+        .xxy_note {
+            margin-top: 22px;
+            font-size: 13px;
+            color: #8a5a00;
+            background: #fff8e6;
+            border: 1px solid #ffe1a6;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .xxy_footer { text-align: center; color: #98a0b3; font-size: 13px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_hero">
+        <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        <h1>fetch 获取接口数据</h1>
+        <p>原生 fetch + 跨域接口 · 商品列表与详情</p>
+        <code>GET https://dummyjson.com/products?limit=8</code>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_section-title">商品列表（点击查看详情）</h2>
+        <div class="xxy_toolbar">
+            <button class="xxy_btn" id="xxy_load_btn">加载商品列表</button>
+            <div class="xxy_status" id="xxy_status">点击上方按钮，通过 fetch 向跨域接口请求 8 条商品数据……</div>
+        </div>
+        <div class="xxy_grid" id="xxy_grid"></div>
+
+        <h2 class="xxy_section-title">商品详情</h2>
+        <div class="xxy_detail" id="xxy_detail">
+            <img id="xxy_dimg" src="" alt="商品大图">
+            <div class="xxy_dinfo">
+                <h3 id="xxy_dtitle">--</h3>
+                <div class="xxy_dbrand" id="xxy_dbrand">--</div>
+                <p id="xxy_ddesc">--</p>
+                <div class="xxy_props" id="xxy_dprops"></div>
+            </div>
+        </div>
+
+        <div class="xxy_note">
+            要点：fetch 返回 Promise，用 <b>await fetch(url)</b> 发起请求，<b>res.ok</b> 判断 HTTP 状态，<b>res.json()</b> 把响应体解析为 JS 对象；
+            该接口（dummyjson.com）响应头带 <b>Access-Control-Allow-Origin: *</b>，所以允许跨域访问；
+            全程 try...catch 捕获网络错误，加载期间禁用按钮防止重复请求。
+        </div>
+
+        <p class="xxy_footer">1102-2 · fetch 接口数据展示 · 徐昕妤</p>
+    </div>
+
+    <script>
+        var xxy_list_url = "https://dummyjson.com/products?limit=8";  // 商品列表接口（支持跨域）
+        var xxy_load_btn = document.getElementById("xxy_load_btn");
+        var xxy_status = document.getElementById("xxy_status");
+        var xxy_grid = document.getElementById("xxy_grid");
+
+        // 显示状态提示；xxy_is_err 为 true 时显示红色错误样式
+        function xxy_set_status(xxy_text, xxy_is_err) {
+            xxy_status.textContent = xxy_text;
+            xxy_status.className = xxy_is_err ? "xxy_status xxy_err" : "xxy_status";
+        }
+
+        // 发起 fetch 请求，获取商品列表并渲染成卡片
+        async function xxy_load_products() {
+            xxy_load_btn.disabled = true;           // 加载期间禁用按钮，防止重复请求
+            xxy_set_status("正在请求接口……");
+            try {
+                var xxy_res = await fetch(xxy_list_url);
+                if (!xxy_res.ok) {                  // HTTP 状态码不是 2xx
+                    throw new Error("HTTP 状态码 " + xxy_res.status);
+                }
+                var xxy_data = await xxy_res.json(); // 把 JSON 响应解析为 JS 对象
+                xxy_render_list(xxy_data.products);
+                xxy_set_status("加载成功！共获取 " + xxy_data.products.length + " 条商品数据（接口支持跨域访问）");
+            } catch (xxy_e) {
+                xxy_set_status("请求失败：" + xxy_e.message + "（请检查网络后重试）", true);
+            }
+            xxy_load_btn.disabled = false;
+        }
+
+        // 遍历商品数组，生成卡片并绑定点击事件
+        function xxy_render_list(xxy_products) {
+            var xxy_html = "";
+            for (var xxy_i = 0; xxy_i < xxy_products.length; xxy_i++) {
+                var xxy_p = xxy_products[xxy_i];
+                xxy_html += '<div class="xxy_item" data-id="' + xxy_p.id + '">'
+                    + '<img src="' + xxy_p.thumbnail + '" alt="' + xxy_p.title + '">'
+                    + '<div class="xxy_info">'
+                    + '<div class="xxy_brand">' + xxy_p.brand + '</div>'
+                    + '<h3>' + xxy_p.title + '</h3>'
+                    + '<div class="xxy_meta"><span class="xxy_price">$' + xxy_p.price + '</span>'
+                    + '<span class="xxy_rate">★ ' + xxy_p.rating + '</span></div>'
+                    + '</div></div>';
+            }
+            xxy_grid.innerHTML = xxy_html;
+            // 给每张卡片绑定点击事件，请求对应详情接口
+            var xxy_cards = xxy_grid.querySelectorAll(".xxy_item");
+            for (var xxy_j = 0; xxy_j < xxy_cards.length; xxy_j++) {
+                xxy_cards[xxy_j].addEventListener("click", function () {
+                    xxy_load_detail(this.getAttribute("data-id"), this);
+                });
+            }
+        }
+
+        // 根据 ID 请求详情接口，展示单个商品信息
+        async function xxy_load_detail(xxy_id, xxy_card) {
+            // 高亮当前选中的卡片
+            var xxy_all = xxy_grid.querySelectorAll(".xxy_item");
+            for (var xxy_i = 0; xxy_i < xxy_all.length; xxy_i++) {
+                xxy_all[xxy_i].classList.remove("xxy_active");
+            }
+            xxy_card.classList.add("xxy_active");
+
+            xxy_set_status("正在请求商品 " + xxy_id + " 的详情……");
+            try {
+                var xxy_res = await fetch("https://dummyjson.com/products/" + xxy_id);
+                if (!xxy_res.ok) {
+                    throw new Error("HTTP 状态码 " + xxy_res.status);
+                }
+                var xxy_p = await xxy_res.json();
+
+                document.getElementById("xxy_dimg").src = xxy_p.images[0];
+                document.getElementById("xxy_dtitle").textContent = xxy_p.title;
+                document.getElementById("xxy_dbrand").textContent = "品牌：" + xxy_p.brand + " · 分类：" + xxy_p.category;
+                document.getElementById("xxy_ddesc").textContent = xxy_p.description;
+                document.getElementById("xxy_dprops").innerHTML =
+                    '<div class="xxy_prop">价格 <b>$' + xxy_p.price + '</b></div>'
+                    + '<div class="xxy_prop">评分 <b>★ ' + xxy_p.rating + '</b></div>'
+                    + '<div class="xxy_prop">库存 <b>' + xxy_p.stock + '</b> 件</div>'
+                    + '<div class="xxy_prop">折扣 <b>' + Math.round(xxy_p.discountPercentage) + '%</b></div>';
+
+                document.getElementById("xxy_detail").classList.add("xxy_show");
+                xxy_set_status("商品 " + xxy_id + " 详情加载成功（GET https://dummyjson.com/products/" + xxy_id + "）");
+            } catch (xxy_e) {
+                xxy_set_status("详情请求失败：" + xxy_e.message, true);
+            }
+        }
+
+        xxy_load_btn.addEventListener("click", xxy_load_products);
+    </script>
+</body>
+</html>

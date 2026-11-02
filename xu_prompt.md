@@ -101,3 +101,45 @@ Time: 2026-10-29 14:38:00
 Model: GLM-5.3-Flash (Trae CN)
 Prompt: 完成1029-4.html页面开发，严格按照给定设计图还原视觉效果，包括布局、间距、字体、颜色和整体样式，使最终页面尽可能与图片一致。所需图标一律从font目录中挑选匹配的现有图标使用，不引入外部图标资源。页面需实现tab切换效果，点击各标签时正确切换对应内容区域，并显示当前选中状态。
 ---
+
+---
+Time: 2026-11-02 13:32:32
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1102-1.html，展示json。
+---
+
+---
+Time: 2026-11-02 13:40:20
+Model: GLM-5.3-Flash (Trae CN)
+Prompt: 完成1102-2.html，获取一个接口的数据并展示，接口可以跨域访问。使用fetch和原生代码实现。（接口清单：dog.ceo、jsonplaceholder、dummyjson、fakestoreapi）
+---
+
+---
+Time: 2026-11-02 13:52:19
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: 完成1102-3.html和1102-3-detail.html，显示列表和详情，数据来源于接口，使用fetch。列表：https://dummyjson.com/products?limit=8 详情：https://dummyjson.com/products/1
+---
+
+---
+Time: 2026-11-02 14:21:19
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: 完成1102-4.html，对远程数据接口进行测试，支持get、post等，显示返回的数据和错误提示信息，示例post接口：https://jsonplaceholder.typicode.com/posts
+---
+
+---
+Time: 2026-11-02 14:33:22
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: 完成1102-5.html，展示JavaScript的两种定时器。
+---
+
+---
+Time: 2026-11-02 14:35:52
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: 完成1102-6.html，使用promise和async完成异步操作的演示包饺子的流程。先买原料，取原料，原料到手之后同时和面、和馅，两个活动都完成之后包饺子，包完饺子吃饺子。使用settimeout模拟每一个流程，如买完原料6s。在页面上显示流程。
+---
+
+---
+Time: 2026-11-02 14:38:56
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: 上传到github
+---

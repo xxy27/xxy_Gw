@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1102-6 · Promise 与 async 异步流程 · 包饺子</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-02 14:35，使用大模型：DeepSeek-V4.1-Flash，功能名称：Promise与async异步操作演示（包饺子流程） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f6f4f0;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #b91c1c, #ea580c); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 1000px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .9; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .18); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .32); }
+
+        .xxy_wrap { max-width: 1000px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_title {
+            font-size: 19px; margin: 24px 0 12px;
+            padding-left: 12px; border-left: 5px solid #ea580c;
+        }
+
+        .xxy_intro {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 3px 14px rgba(185, 28, 28, .08); font-size: 14px;
+        }
+        .xxy_intro ul { margin: 8px 0 0 20px; }
+        .xxy_intro li { margin: 4px 0; }
+        .xxy_intro code {
+            background: #fff7ed; color: #c2410c; border-radius: 5px;
+            padding: 1px 6px; font-family: Consolas, monospace; font-size: 12.5px;
+        }
+
+        /* 流程区 */
+        .xxy_flow { display: flex; flex-direction: column; gap: 10px; }
+        .xxy_step {
+            background: #fff; border-radius: 12px; padding: 13px 16px;
+            box-shadow: 0 2px 10px rgba(185, 28, 28, .07);
+            border-left: 5px solid #e5e7eb;
+            display: flex; align-items: center; gap: 12px;
+            transition: border-color .2s, background .2s;
+        }
+        .xxy_step.xxy_running { border-left-color: #ea580c; background: #fffbf5; }
+        .xxy_step.xxy_done { border-left-color: #16a34a; background: #f7fff9; }
+        .xxy_step.xxy_skip { opacity: .55; }
+
+        .xxy_icon {
+            width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%;
+            background: #f3f4f6; color: #6b7280;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .xxy_step.xxy_running .xxy_icon { background: #ffedd5; color: #c2410c; }
+        .xxy_step.xxy_done .xxy_icon { background: #dcfce7; color: #15803d; }
+
+        .xxy_step-main { flex: 1; }
+        .xxy_step-name { font-size: 15px; font-weight: bold; }
+        .xxy_step-note { font-size: 12.5px; color: #6b7280; }
+        .xxy_step-time {
+            font-family: Consolas, monospace; font-size: 12.5px; color: #9ca3af; white-space: nowrap;
+        }
+        .xxy_step.xxy_done .xxy_step-time { color: #15803d; }
+        .xxy_step.xxy_running .xxy_step-time { color: #c2410c; }
+
+        /* 并行分组 */
+        .xxy_parallel {
+            background: #fff; border-radius: 12px; padding: 12px 14px 14px;
+            box-shadow: 0 2px 10px rgba(185, 28, 28, .07);
+            border: 1px dashed #fdba74;
+        }
+        .xxy_parallel-label {
+            font-size: 12.5px; color: #c2410c; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .xxy_parallel .xxy_step { box-shadow: none; background: #fffaf5; }
+
+        .xxy_flow { counter-reset: xxy-step; }
+        .xxy_step { counter-increment: xxy-step; }
+        .xxy_icon .iconfont { display: none; }
+        .xxy_icon::before { content: counter(xxy-step); font-weight: bold; font-size: 16px; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+        .xxy_btn {
+            border: none; background: #ea580c; color: #fff;
+            border-radius: 8px; padding: 9px 20px; font-size: 14px; cursor: pointer;
+        }
+        .xxy_btn:hover { background: #c2410c; }
+        .xxy_btn:disabled { background: #d6d3d1; cursor: not-allowed; }
+        .xxy_btn.xxy_ghost { background: #ffedd5; color: #c2410c; }
+        .xxy_btn.xxy_ghost:hover { background: #fed7aa; }
+
+        .xxy_progress { height: 8px; background: #ede9e4; border-radius: 5px; overflow: hidden; margin-bottom: 16px; }
+        .xxy_bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ea580c, #b91c1c); transition: width .3s linear; }
+
+        .xxy_log {
+            background: #1c1917; border-radius: 10px; padding: 14px 16px;
+            max-height: 240px; overflow: auto;
+            font-family: Consolas, "Courier New", monospace; font-size: 12.5px;
+            color: #d6d3d1; white-space: pre-wrap; line-height: 1.7;
+        }
+        .xxy_log .xxy_lt { color: #78716c; }
+        .xxy_log .xxy_lok { color: #86efac; }
+        .xxy_log .xxy_lnow { color: #fed7aa; }
+
+        .xxy_note {
+            margin-top: 18px; font-size: 13px; color: #92400e;
+            background: #fffbeb; border: 1px solid #fde68a;
+            border-radius: 8px; padding: 10px 14px;
+        }
+        .xxy_note code { font-family: Consolas, monospace; }
+        .xxy_footer { text-align: center; color: #a8a29e; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>Promise + async 包饺子</h1>
+                <p>用异步流程模拟：买原料 → 取原料 → 同时和面、和馅 → 包饺子 → 吃饺子</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <h2 class="xxy_title">为什么用 Promise</h2>
+        <div class="xxy_intro">
+            包饺子的每一步都要"等"，如果写成多层嵌套回调就是回调地狱。用 <code>Promise</code> 把每个耗时操作包装成一个"承诺"，
+            再用 <code>async / await</code> 按顺序等待，代码就像同步写法一样清晰；
+            <code>Promise.all()</code> 可以让和面、和馅两件事同时进行，等两者都完成后再继续。
+            <ul>
+                <li>每个步骤都用 <code>setTimeout</code> 模拟耗时（如买原料 6 秒）</li>
+                <li>下单/成功时 <code>resolve()</code>，出问题时 <code>reject()</code></li>
+                <li><code>await</code> 会暂停当前 async 函数，等 Promise 完成再往下走</li>
+            </ul>
+        </div>
+
+        <h2 class="xxy_title">包饺子流程</h2>
+        <div class="xxy_row">
+            <button class="xxy_btn" id="xxy_start_btn">开始包饺子</button>
+            <button class="xxy_btn xxy_ghost" id="xxy_reset_btn">重置</button>
+            <span class="xxy_step-time" id="xxy_total">总耗时 0.0 s</span>
+        </div>
+        <div class="xxy_progress"><div class="xxy_bar" id="xxy_bar"></div></div>
+
+        <div class="xxy_flow">
+            <div class="xxy_step" id="xxy_step-buy">
+                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_step-main">
+                    <div class="xxy_step-name">1. 买原料</div>
+                    <div class="xxy_step-note">去超市买面粉、猪肉、韭菜，耗时 6 秒</div>
+                </div>
+                <div class="xxy_step-time" id="xxy_time-buy">未开始</div>
+            </div>
+
+            <div class="xxy_step" id="xxy_step-carry">
+                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_step-main">
+                    <div class="xxy_step-name">2. 取原料</div>
+                    <div class="xxy_step-note">把原料带回家并拆开，耗时 3 秒（等待上一步完成）</div>
+                </div>
+                <div class="xxy_step-time" id="xxy_time-carry">未开始</div>
+            </div>
+
+            <div class="xxy_parallel">
+                <div class="xxy_parallel-label"><span class="iconfont icon-shouye"></span>原料到手后，两件事同时开始（Promise.all 并行）</div>
+                <div class="xxy_step" id="xxy_step-dough">
+                    <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                    <div class="xxy_step-main">
+                        <div class="xxy_step-name">3. 和面</div>
+                        <div class="xxy_step-note">揉面、醒面，耗时 5 秒</div>
+                    </div>
+                    <div class="xxy_step-time" id="xxy_time-dough">未开始</div>
+                </div>
+                <div class="xxy_step" id="xxy_step-filling" style="margin-top:8px;">
+                    <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                    <div class="xxy_step-main">
+                        <div class="xxy_step-name">4. 和馅</div>
+                        <div class="xxy_step-note">剁肉、拌韭菜，耗时 4 秒（与和面同时进行）</div>
+                    </div>
+                    <div class="xxy_step-time" id="xxy_time-filling">未开始</div>
+                </div>
+            </div>
+
+            <div class="xxy_step" id="xxy_step-wrap">
+                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_step-main">
+                    <div class="xxy_step-name">5. 包饺子</div>
+                    <div class="xxy_step-note">面与馅都好了才开始，耗时 8 秒</div>
+                </div>
+                <div class="xxy_step-time" id="xxy_time-wrap">未开始</div>
+            </div>
+
+            <div class="xxy_step" id="xxy_step-eat">
+                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_step-main">
+                    <div class="xxy_step-name">6. 吃饺子</div>
+                    <div class="xxy_step-note">下锅煮熟，开吃，耗时 4 秒</div>
+                </div>
+                <div class="xxy_step-time" id="xxy_time-eat">未开始</div>
+            </div>
+        </div>
+
+        <h2 class="xxy_title">执行日志</h2>
+        <div class="xxy_log" id="xxy_log"><span class="xxy_lt">// 点击“开始包饺子”，这里会按时间顺序输出每一步……</span></div>
+
+        <div class="xxy_note">
+            顺序保证：<code>await</code> 逐步等待，所以"取原料"一定在"买原料"之后；
+            并行提速：<code>Promise.all([和面(), 和馅()])</code> 同时启动，总耗时约等于两者中较慢的那个（5 秒），而不是 5 + 4 秒；
+            关键点：<code>async</code> 函数本身返回 Promise，<code>await</code> 只能写在 async 函数内部。
+        </div>
+
+        <p class="xxy_footer">1102-6 · Promise 与 async 异步流程 · 徐昕妤</p>
+    </div>
+
+    <script>
+        var xxy_start_btn = document.getElementById("xxy_start_btn");
+        var xxy_reset_btn = document.getElementById("xxy_reset_btn");
+        var xxy_log_box = document.getElementById("xxy_log");
+        var xxy_bar = document.getElementById("xxy_bar");
+        var xxy_total = document.getElementById("xxy_total");
+        var xxy_run_id = 0;          // 运行标记：重置时 +1，旧流程据此自动中止
+        var xxy_start_time = 0;      // 本次流程开始时间
+        var xxy_tick_id = null;      // 刷新总耗时的定时器
+
+        var xxy_steps = {
+            buy: 6000,      // 买原料 6 秒
+            carry: 3000,    // 取原料 3 秒
+            dough: 5000,    // 和面 5 秒
+            filling: 4000,  // 和馅 4 秒
+            wrap: 8000,     // 包饺子 8 秒
+            eat: 4000       // 吃饺子 4 秒
+        };
+        var xxy_total_ms = 26000;   // 顺序耗时合计（和面、和馅取较长者）
+
+        // 计算从开始到现在的秒数，保留一位小数
+        function xxy_elapsed() {
+            return ((performance.now() - xxy_start_time) / 1000).toFixed(1);
+        }
+
+        // 往日志区追加一行（xxy_type: "now" 进行中 / "ok" 完成）
+        function xxy_log(xxy_text, xxy_type) {
+            var xxy_cls = xxy_type === "ok" ? "xxy_lok" : "xxy_lnow";
+            xxy_log_box.innerHTML += '\n<span class="xxy_lt">[' + xxy_elapsed() + 's]</span> <span class="' + xxy_cls + '">' + xxy_text + "</span>";
+            xxy_log_box.scrollTop = xxy_log_box.scrollHeight;
+        }
+
+        // 把某个步骤标记为"进行中"
+        function xxy_mark_running(xxy_key) {
+            var xxy_card = document.getElementById("xxy_step-" + xxy_key);
+            xxy_card.className = "xxy_step xxy_running";
+            document.getElementById("xxy_time-" + xxy_key).textContent = "进行中…";
+        }
+
+        // 把某个步骤标记为"已完成"，并写上本步耗时
+        function xxy_mark_done(xxy_key, xxy_ms) {
+            var xxy_card = document.getElementById("xxy_step-" + xxy_key);
+            xxy_card.className = "xxy_step xxy_done";
+            document.getElementById("xxy_time-" + xxy_key).textContent = "完成 · " + (xxy_ms / 1000).toFixed(1) + " s";
+        }
+
+        // 核心：把 setTimeout 包装成 Promise，等待指定毫秒后 resolve
+        function xxy_wait(xxy_key, xxy_label, xxy_ms, xxy_token) {
+            return new Promise(function (xxy_resolve) {
+                if (xxy_token !== xxy_run_id) {          // 流程已被重置，直接结束
+                    xxy_resolve("aborted");
+                    return;
+                }
+                xxy_mark_running(xxy_key);
+                xxy_log(xxy_label + " 开始（模拟 " + (xxy_ms / 1000) + " 秒）", "now");
+                setTimeout(function () {
+                    if (xxy_token !== xxy_run_id) {      // 计时期间被重置
+                        xxy_resolve("aborted");
+                        return;
+                    }
+                    xxy_mark_done(xxy_key, xxy_ms);
+                    xxy_log(xxy_label + " 完成", "ok");
+                    xxy_resolve(xxy_ms);
+                }, xxy_ms);
+            });
+        }
+
+        // 刷新总耗时与进度条
+        function xxy_refresh_total() {
+            var xxy_ms = performance.now() - xxy_start_time;
+            xxy_total.textContent = "总耗时 " + (xxy_ms / 1000).toFixed(1) + " s";
+            var xxy_percent = Math.min(100, (xxy_ms / xxy_total_ms) * 100);
+            xxy_bar.style.width = xxy_percent + "%";
+        }
+
+        // 重置界面到初始状态
+        function xxy_reset_ui() {
+            xxy_run_id++;                     // 让正在运行的旧流程失效
+            if (xxy_tick_id !== null) { clearInterval(xxy_tick_id); xxy_tick_id = null; }
+            xxy_start_btn.disabled = false;
+            xxy_bar.style.width = "0%";
+            xxy_total.textContent = "总耗时 0.0 s";
+            xxy_log_box.innerHTML = '<span class="xxy_lt">// 点击“开始包饺子”，这里会按时间顺序输出每一步……</span>';
+            var xxy_keys = ["buy", "carry", "dough", "filling", "wrap", "eat"];
+            for (var xxy_i = 0; xxy_i < xxy_keys.length; xxy_i++) {
+                var xxy_key = xxy_keys[xxy_i];
+                document.getElementById("xxy_step-" + xxy_key).className = "xxy_step";
+                document.getElementById("xxy_time-" + xxy_key).textContent = "未开始";
+            }
+        }
+
+        // 主流程：async + await 按顺序等待，Promise.all 并行处理和面与和馅
+        async function xxy_make_dumplings() {
+            xxy_reset_ui();
+            var xxy_token = xxy_run_id;
+            xxy_start_btn.disabled = true;
+            xxy_start_time = performance.now();
+            xxy_log("开始包饺子，第一步去买原料", "now");
+            xxy_tick_id = setInterval(xxy_refresh_total, 100);
+
+            // 1. 买原料 → 2. 取原料（顺序执行）
+            await xxy_wait("buy", "买原料", xxy_steps.buy, xxy_token);
+            if (xxy_token !== xxy_run_id) { return; }
+            await xxy_wait("carry", "取原料", xxy_steps.carry, xxy_token);
+            if (xxy_token !== xxy_run_id) { return; }
+
+            // 3+4. 原料到手后，和面与和馅同时进行
+            xxy_log("原料已到手，和面与和馅同时开始（Promise.all 并行）", "now");
+            await Promise.all([
+                xxy_wait("dough", "和面", xxy_steps.dough, xxy_token),
+                xxy_wait("filling", "和馅", xxy_steps.filling, xxy_token)
+            ]);
+            if (xxy_token !== xxy_run_id) { return; }
+            xxy_log("面与馅都已准备好，可以包饺子了", "ok");
+
+            // 5. 包饺子 → 6. 吃饺子
+            await xxy_wait("wrap", "包饺子", xxy_steps.wrap, xxy_token);
+            if (xxy_token !== xxy_run_id) { return; }
+            await xxy_wait("eat", "吃饺子", xxy_steps.eat, xxy_token);
+            if (xxy_token !== xxy_run_id) { return; }
+
+            // 全部完成
+            clearInterval(xxy_tick_id);
+            xxy_tick_id = null;
+            xxy_bar.style.width = "100%";
+            xxy_total.textContent = "总耗时 " + ((performance.now() - xxy_start_time) / 1000).toFixed(1) + " s";
+            xxy_log("全部完成，饺子真香！", "ok");
+            xxy_start_btn.disabled = false;
+        }
+
+        xxy_start_btn.addEventListener("click", xxy_make_dumplings);
+        xxy_reset_btn.addEventListener("click", xxy_reset_ui);
+    </script>
+</body>
+</html>
