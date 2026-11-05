@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1105-4 · ECharts 地理关系图与气泡图</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-05 13:57，使用大模型：GLM-5.3-FlashX，功能名称：ECharts地理坐标系关系图与气泡图 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f4f6fa;
+            color: #1f2937;
+            line-height: 1.65;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #4c1d95, #7c3aed); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 1120px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .88; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 1120px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_panel {
+            background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 3px 14px rgba(76, 29, 149, .08); margin-bottom: 16px;
+        }
+        .xxy_panel h2 { font-size: 15px; color: #6d28d9; margin-bottom: 12px; }
+        .xxy_panel .xxy_desc { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+
+        .xxy_chart { width: 100%; height: 560px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+        .xxy_btn {
+            border: none; background: #7c3aed; color: #fff;
+            border-radius: 8px; padding: 8px 18px; font-size: 13.5px; cursor: pointer;
+        }
+        .xxy_btn:hover { background: #6d28d9; }
+        .xxy_btn.xxy_ghost { background: #ede9fe; color: #6d28d9; }
+        .xxy_btn.xxy_ghost:hover { background: #ddd6fe; }
+
+        .xxy_note {
+            font-size: 13px; color: #334155;
+            background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .xxy_note code {
+            background: #fff; border-radius: 5px; padding: 1px 6px;
+            font-family: Consolas, monospace; font-size: 12px; color: #7c3aed;
+        }
+        .xxy_footer { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>ECharts 地理可视化</h1>
+                <p>图一：地理坐标系上的关系图（城市航线）· 图二：气泡图（各省份业务量）</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_panel">
+            <h2>图一 · 地理坐标系上的关系图（graph + geo）</h2>
+            <p class="xxy_desc">在全国地图上以经纬度放置 10 个城市节点，用带箭头的连线表示航线/物流关系；支持缩放拖动（roam），悬停节点或连线可查看详情。</p>
+            <div class="xxy_chart" id="xxy_chart_graph"></div>
+            <div class="xxy_row">
+                <button class="xxy_btn xxy_ghost" id="xxy_relayout_btn">重新布局航线</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_reset_graph_btn">重置缩放</button>
+            </div>
+        </div>
+
+        <div class="xxy_panel">
+            <h2>图二 · 气泡图（geo + effectScatter 气泡）</h2>
+            <p class="xxy_desc">气泡大小表示各省份业务量（value），颜色随数值由绿到红渐变；开启 rippleEffect 涟漪动画，悬停查看具体数据，支持地图缩放。</p>
+            <div class="xxy_chart" id="xxy_chart_bubble"></div>
+            <div class="xxy_row">
+                <button class="xxy_btn xxy_ghost" id="xxy_sort_btn">按数值重新着色</button>
+            </div>
+        </div>
+
+        <div class="xxy_note">
+            实现说明：<code>echarts.min.js</code>（v5.5.1）已下载到本地 <code>cdn/</code> 目录，中国地图 GeoJSON（DataV 版，含 34 个省级行政区）下载到 <code>cdn/geo/china.js</code>（包装为全局变量，用 script 标签加载，file:// 直接双击打开也可用）；
+            图一使用 <code>series.type='graph'</code> + <code>coordinateSystem:'geo'</code>，图二使用 <code>effectScatter</code> 气泡 + <code>visualMap</code> 颜色映射。
+        </div>
+
+        <p class="xxy_footer">1105-4 · ECharts 地理关系图与气泡图 · 徐昕妤</p>
+    </div>
+
+    <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/geo/china.js"></script>
+    <script>
+        var xxy_chart_graph = echarts.init(document.getElementById("xxy_chart_graph"));
+        var xxy_chart_bubble = echarts.init(document.getElementById("xxy_chart_bubble"));
+
+        // ================= 图一数据：城市航线关系 =================
+        var xxy_cities = [
+            { name: "北京", value: [116.405285, 39.904989] },
+            { name: "上海", value: [121.472644, 31.231706] },
+            { name: "广州", value: [113.280637, 23.125178] },
+            { name: "成都", value: [104.065735, 30.659462] },
+            { name: "武汉", value: [114.298572, 30.584355] },
+            { name: "西安", value: [108.948024, 34.263161] },
+            { name: "杭州", value: [120.585432, 30.258467] },
+            { name: "哈尔滨", value: [126.642464, 45.756967] },
+            { name: "乌鲁木齐", value: [87.617733, 43.792818] },
+            { name: "昆明", value: [102.712251, 25.040609] }
+        ];
+        var xxy_routes = [
+            { source: "北京", target: "上海" },
+            { source: "北京", target: "哈尔滨" },
+            { source: "北京", target: "乌鲁木齐" },
+            { source: "北京", target: "成都" },
+            { source: "北京", target: "广州" },
+            { source: "上海", target: "杭州" },
+            { source: "上海", target: "武汉" },
+            { source: "成都", target: "昆明" },
+            { source: "武汉", target: "西安" },
+            { source: "西安", target: "乌鲁木齐" },
+            { source: "广州", target: "昆明" },
+            { source: "杭州", target: "武汉" }
+        ];
+
+        function xxy_create_graph() {
+            xxy_chart_graph.setOption({
+                title: { text: "主要城市航线关系图", left: "center", top: 10, textStyle: { fontSize: 16 } },
+                tooltip: {
+                    trigger: "item",
+                    formatter: function (xxy_p) {
+                        if (xxy_p.dataType === "edge") {
+                            return xxy_p.data.source + " → " + xxy_p.data.target + " 航线";
+                        }
+                        return xxy_p.name + "<br>经纬度：" + xxy_p.value[0].toFixed(2) + "E, " + xxy_p.value[1].toFixed(2) + "N";
+                    }
+                },
+                geo: {
+                    map: "xxy_china",
+                    roam: true,
+                    aspectScale: 0.88,
+                    zoom: 1.15,
+                    label: { show: true, color: "#6b7280", fontSize: 9, textBorderColor: "#fff", textBorderWidth: 2 },
+                    itemStyle: { areaColor: "#eef4fb", borderColor: "#b6c6db" },
+                    emphasis: { itemStyle: { areaColor: "#dbe7f7" }, label: { color: "#374151" } }
+                },
+                series: [
+                    {
+                        type: "graph",
+                        coordinateSystem: "geo",
+                        zlevel: 2,
+                        data: xxy_cities.map(function (xxy_c) {
+                            return {
+                                name: xxy_c.name,
+                                value: xxy_c.value,
+                                symbolSize: 13,
+                                itemStyle: { color: "#7c3aed", borderColor: "#fff", borderWidth: 2, shadowBlur: 8, shadowColor: "rgba(124,58,237,.5)" },
+                                label: { show: true, formatter: "{b}", position: "right", color: "#4c1d95", fontSize: 11, fontWeight: "bold" }
+                            };
+                        }),
+                        edges: xxy_routes.map(function (xxy_r) {
+                            return {
+                                source: xxy_r.source,
+                                target: xxy_r.target,
+                                lineStyle: { color: "#718adb", width: 1.6, curveness: 0.18 },
+                                emphasis: { lineStyle: { width: 3, color: "#f59e0b" } }
+                            };
+                        }),
+                        edgeSymbol: ["none", "arrow"],
+                        edgeSymbolSize: 6,
+                        lineStyle: { color: "#718adbff", opacity: 1 }
+                    }
+                ]
+            });
+        }
+
+        // 随机生成一套新航线（保持节点连通感）
+        function xxy_relayout() {
+            var xxy_new = [];
+            for (var xxy_i = 0; xxy_i < xxy_cities.length - 1; xxy_i++) {
+                xxy_new.push({ source: xxy_cities[xxy_i].name, target: xxy_cities[xxy_i + 1].name });
+            }
+            for (var xxy_j = 0; xxy_j < 4; xxy_j++) {
+                var xxy_a = Math.floor(Math.random() * xxy_cities.length);
+                var xxy_b = Math.floor(Math.random() * xxy_cities.length);
+                if (xxy_a !== xxy_b) { xxy_new.push({ source: xxy_cities[xxy_a].name, target: xxy_cities[xxy_b].name }); }
+            }
+            xxy_routes = xxy_new;
+            xxy_create_graph();
+        }
+        document.getElementById("xxy_relayout_btn").addEventListener("click", xxy_relayout);
+        document.getElementById("xxy_reset_graph_btn").addEventListener("click", function () {
+            xxy_chart_graph.setOption({ geo: { zoom: 1.15, center: null } });
+        });
+
+        // ================= 图二数据：省份业务量气泡 =================
+        var xxy_bubble_data = [
+            { name: "广东", value: [113.280637, 23.125178, 966] },
+            { name: "北京", value: [116.405285, 39.904989, 852] },
+            { name: "上海", value: [121.472644, 31.231706, 798] },
+            { name: "浙江", value: [120.152791, 30.267446, 705] },
+            { name: "江苏", value: [118.767413, 32.041544, 640] },
+            { name: "四川", value: [104.065735, 30.659462, 512] },
+            { name: "湖北", value: [114.298572, 30.584355, 458] },
+            { name: "山东", value: [117.000923, 36.675807, 430] },
+            { name: "河南", value: [113.665412, 34.757975, 386] },
+            { name: "福建", value: [119.306239, 26.075302, 342] },
+            { name: "湖南", value: [112.982279, 28.19409, 315] },
+            { name: "陕西", value: [108.948024, 34.263161, 287] },
+            { name: "辽宁", value: [123.429096, 41.796767, 254] },
+            { name: "云南", value: [102.712251, 25.040609, 216] },
+            { name: "新疆", value: [87.617733, 43.792818, 158] },
+            { name: "西藏", value: [91.132212, 29.660361, 62] }
+        ];
+
+        function xxy_create_bubble() {
+            xxy_chart_bubble.setOption({
+                title: { text: "各省份业务量气泡图", left: "center", top: 10, textStyle: { fontSize: 16 } },
+                tooltip: {
+                    trigger: "item",
+                    formatter: function (xxy_p) {
+                        return xxy_p.name + "<br>业务量：" + xxy_p.value[2] + " 单";
+                    }
+                },
+                visualMap: {
+                    show: true,
+                    min: 0,
+                    max: 1000,
+                    left: 20,
+                    bottom: 20,
+                    text: ["高", "低"],
+                    calculable: true,
+                    inRange: { color: ["#22c55e", "#eab308", "#ef4444"] },
+                    textStyle: { color: "#6b7280" }
+                },
+                geo: {
+                    map: "xxy_china",
+                    roam: true,
+                    aspectScale: 0.88,
+                    zoom: 1.15,
+                    label: { show: false },
+                    itemStyle: { areaColor: "#f1f5f9", borderColor: "#cbd5e1" },
+                    emphasis: { itemStyle: { areaColor: "#e2e8f0" } }
+                },
+                series: [
+                    {
+                        type: "effectScatter",
+                        coordinateSystem: "geo",
+                        zlevel: 2,
+                        rippleEffect: { brushType: "stroke", scale: 2.6 },
+                        symbolSize: function (xxy_val) {
+                            return Math.max(8, Math.sqrt(xxy_val[2]) * 1.1);   // 面积正比于数值
+                        },
+                        data: xxy_bubble_data.map(function (xxy_d) {
+                            return {
+                                name: xxy_d.name,
+                                value: xxy_d.value,
+                                label: { show: true, formatter: "{b}", position: "right", fontSize: 10, color: "#334155" },
+                                itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,.25)" }
+                            };
+                        })
+                    }
+                ]
+            });
+        }
+
+        // "按数值重新着色"：把 visualMap 区间按当前数据动态调整，颜色立即刷新
+        document.getElementById("xxy_sort_btn").addEventListener("click", function () {
+            var xxy_max = 0;
+            for (var xxy_i = 0; xxy_i < xxy_bubble_data.length; xxy_i++) {
+                if (xxy_bubble_data[xxy_i].value[2] > xxy_max) { xxy_max = xxy_bubble_data[xxy_i].value[2]; }
+            }
+            xxy_chart_bubble.setOption({ visualMap: { min: 0, max: Math.ceil(xxy_max / 100) * 100 } });
+        });
+
+        // 窗口变化时自适应
+        window.addEventListener("resize", function () {
+            xxy_chart_graph.resize();
+            xxy_chart_bubble.resize();
+        });
+
+        // ================= 初始化：注册地图（china.js 已通过 script 标签注入 window.xxy_china_geo，file:// 下也能加载） =================
+        (function () {
+            if (typeof window.xxy_china_geo === "undefined") {
+                document.getElementById("xxy_chart_graph").innerHTML =
+                    '<div style="padding:40px;text-align:center;color:#b91c1c;font-size:14px;">地图数据加载失败：未找到 cdn/geo/china.js，请确认文件与页面在同一目录。</div>';
+                return;
+            }
+            echarts.registerMap("xxy_china", window.xxy_china_geo);
+            xxy_create_graph();
+            xxy_create_bubble();
+        })();
+    </script>
+</body>
+</html>

@@ -91,10 +91,12 @@
         }
         .xxy_parallel .xxy_step { box-shadow: none; background: #fffaf5; }
 
-        .xxy_flow { counter-reset: xxy-step; }
-        .xxy_step { counter-increment: xxy-step; }
-        .xxy_icon .iconfont { display: none; }
-        .xxy_icon::before { content: counter(xxy-step); font-weight: bold; font-size: 16px; }
+        .xxy_icon .iconfont { font-size: 20px; }
+
+        .xxy_step-bar { margin-top: 8px; height: 5px; background: #f1f3f5; border-radius: 4px; overflow: hidden; }
+        .xxy_step-bar-in { height: 100%; width: 0%; background: #fdba74; transition: width .12s linear; }
+        .xxy_step.xxy_running .xxy_step-bar-in { background: linear-gradient(90deg, #fb923c, #ea580c); }
+        .xxy_step.xxy_done .xxy_step-bar-in { background: linear-gradient(90deg, #4ade80, #16a34a); }
 
         .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
         .xxy_btn {
@@ -162,19 +164,21 @@
 
         <div class="xxy_flow">
             <div class="xxy_step" id="xxy_step-buy">
-                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_icon"><span class="iconfont icon-kehuishouwu-niunaihe"></span></div>
                 <div class="xxy_step-main">
                     <div class="xxy_step-name">1. 买原料</div>
                     <div class="xxy_step-note">去超市买面粉、猪肉、韭菜，耗时 6 秒</div>
+                    <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-buy"></div></div>
                 </div>
                 <div class="xxy_step-time" id="xxy_time-buy">未开始</div>
             </div>
 
             <div class="xxy_step" id="xxy_step-carry">
-                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_icon"><span class="iconfont icon-shouye1"></span></div>
                 <div class="xxy_step-main">
                     <div class="xxy_step-name">2. 取原料</div>
                     <div class="xxy_step-note">把原料带回家并拆开，耗时 3 秒（等待上一步完成）</div>
+                    <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-carry"></div></div>
                 </div>
                 <div class="xxy_step-time" id="xxy_time-carry">未开始</div>
             </div>
@@ -182,37 +186,41 @@
             <div class="xxy_parallel">
                 <div class="xxy_parallel-label"><span class="iconfont icon-shouye"></span>原料到手后，两件事同时开始（Promise.all 并行）</div>
                 <div class="xxy_step" id="xxy_step-dough">
-                    <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                    <div class="xxy_icon"><span class="iconfont icon-a-huajuan1"></span></div>
                     <div class="xxy_step-main">
                         <div class="xxy_step-name">3. 和面</div>
                         <div class="xxy_step-note">揉面、醒面，耗时 5 秒</div>
+                        <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-dough"></div></div>
                     </div>
                     <div class="xxy_step-time" id="xxy_time-dough">未开始</div>
                 </div>
                 <div class="xxy_step" id="xxy_step-filling" style="margin-top:8px;">
-                    <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                    <div class="xxy_icon"><span class="iconfont icon-pingguo"></span></div>
                     <div class="xxy_step-main">
                         <div class="xxy_step-name">4. 和馅</div>
                         <div class="xxy_step-note">剁肉、拌韭菜，耗时 4 秒（与和面同时进行）</div>
+                        <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-filling"></div></div>
                     </div>
                     <div class="xxy_step-time" id="xxy_time-filling">未开始</div>
                 </div>
             </div>
 
             <div class="xxy_step" id="xxy_step-wrap">
-                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_icon"><span class="iconfont icon-bianji"></span></div>
                 <div class="xxy_step-main">
                     <div class="xxy_step-name">5. 包饺子</div>
                     <div class="xxy_step-note">面与馅都好了才开始，耗时 8 秒</div>
+                    <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-wrap"></div></div>
                 </div>
                 <div class="xxy_step-time" id="xxy_time-wrap">未开始</div>
             </div>
 
             <div class="xxy_step" id="xxy_step-eat">
-                <div class="xxy_icon"><span class="iconfont icon-shouye"></span></div>
+                <div class="xxy_icon"><span class="iconfont icon-xihuan"></span></div>
                 <div class="xxy_step-main">
                     <div class="xxy_step-name">6. 吃饺子</div>
                     <div class="xxy_step-note">下锅煮熟，开吃，耗时 4 秒</div>
+                    <div class="xxy_step-bar"><div class="xxy_step-bar-in" id="xxy_prog-eat"></div></div>
                 </div>
                 <div class="xxy_step-time" id="xxy_time-eat">未开始</div>
             </div>
@@ -239,6 +247,7 @@
         var xxy_run_id = 0;          // 运行标记：重置时 +1，旧流程据此自动中止
         var xxy_start_time = 0;      // 本次流程开始时间
         var xxy_tick_id = null;      // 刷新总耗时的定时器
+        var xxy_running = {};        // 正在运行的步骤：key → { 开始时间, 总时长 }
 
         var xxy_steps = {
             buy: 6000,      // 买原料 6 秒
@@ -262,17 +271,22 @@
             xxy_log_box.scrollTop = xxy_log_box.scrollHeight;
         }
 
-        // 把某个步骤标记为"进行中"
+        // 把某个步骤标记为"进行中"，并记录开始时间用于本步进度条
         function xxy_mark_running(xxy_key) {
             var xxy_card = document.getElementById("xxy_step-" + xxy_key);
             xxy_card.className = "xxy_step xxy_running";
-            document.getElementById("xxy_time-" + xxy_key).textContent = "进行中…";
+            xxy_running[xxy_key] = { start: performance.now(), ms: xxy_steps[xxy_key] };
+            document.getElementById("xxy_prog-" + xxy_key).style.width = "0%";
+            document.getElementById("xxy_time-" + xxy_key).textContent =
+                "0.0 / " + (xxy_steps[xxy_key] / 1000).toFixed(1) + " s";
         }
 
-        // 把某个步骤标记为"已完成"，并写上本步耗时
+        // 把某个步骤标记为"已完成"，进度条填满并写上本步耗时
         function xxy_mark_done(xxy_key, xxy_ms) {
             var xxy_card = document.getElementById("xxy_step-" + xxy_key);
             xxy_card.className = "xxy_step xxy_done";
+            delete xxy_running[xxy_key];
+            document.getElementById("xxy_prog-" + xxy_key).style.width = "100%";
             document.getElementById("xxy_time-" + xxy_key).textContent = "完成 · " + (xxy_ms / 1000).toFixed(1) + " s";
         }
 
@@ -297,12 +311,21 @@
             });
         }
 
-        // 刷新总耗时与进度条
+        // 刷新总耗时、总进度条，以及每个正在运行步骤自己的进度条
         function xxy_refresh_total() {
             var xxy_ms = performance.now() - xxy_start_time;
             xxy_total.textContent = "总耗时 " + (xxy_ms / 1000).toFixed(1) + " s";
             var xxy_percent = Math.min(100, (xxy_ms / xxy_total_ms) * 100);
             xxy_bar.style.width = xxy_percent + "%";
+
+            for (var xxy_key in xxy_running) {
+                var xxy_item = xxy_running[xxy_key];
+                var xxy_step_ms = performance.now() - xxy_item.start;
+                var xxy_rate = Math.min(100, (xxy_step_ms / xxy_item.ms) * 100);
+                document.getElementById("xxy_prog-" + xxy_key).style.width = xxy_rate + "%";
+                document.getElementById("xxy_time-" + xxy_key).textContent =
+                    (xxy_step_ms / 1000).toFixed(1) + " / " + (xxy_item.ms / 1000).toFixed(1) + " s";
+            }
         }
 
         // 重置界面到初始状态
@@ -314,10 +337,12 @@
             xxy_total.textContent = "总耗时 0.0 s";
             xxy_log_box.innerHTML = '<span class="xxy_lt">// 点击“开始包饺子”，这里会按时间顺序输出每一步……</span>';
             var xxy_keys = ["buy", "carry", "dough", "filling", "wrap", "eat"];
+            xxy_running = {};
             for (var xxy_i = 0; xxy_i < xxy_keys.length; xxy_i++) {
                 var xxy_key = xxy_keys[xxy_i];
                 document.getElementById("xxy_step-" + xxy_key).className = "xxy_step";
                 document.getElementById("xxy_time-" + xxy_key).textContent = "未开始";
+                document.getElementById("xxy_prog-" + xxy_key).style.width = "0%";
             }
         }
 

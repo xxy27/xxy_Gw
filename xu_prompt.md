@@ -143,3 +143,33 @@ Time: 2026-11-02 14:38:56
 Model: DeepSeek-V4.1-Flash (Trae CN)
 Prompt: 上传到github
 ---
+
+---
+Time: 2026-11-02 14:45:52
+Model: DeepSeek-V4.1-Flash (Trae CN)
+Prompt: d:\AI Web\1102-6.html 加上合适的小图标和每个步骤自己的进度条，让进度更清晰
+---
+
+---
+Time: 2026-11-05 13:33:27
+Model: GLM-5.3-FlashX (Trae CN)
+Prompt: 完成1105-1.html和1105-2.html，第一个显示canvas动画，包括文字徐昕妤，第二个显示基于canvas的全站系统的系统架构图（电商系统）
+---
+
+---
+Time: 2026-11-05 13:42:13
+Model: GLM-5.3-FlashX (Trae CN)
+Prompt: 完成1105-3.html，其中包括基于知识库的智能客服系统的系统架构图，图的格式为svg，科研方向。
+---
+
+---
+Time: 2026-11-05 13:57:31
+Model: GLM-5.3-FlashX (Trae CN)
+Prompt: 完成1105-4.html，其中包括echarts的两个图：地理坐标系上的关系图和气泡图，cdn文件下载到cdn目录下。
+---
+
+---
+Time: 2026-11-05 14:02:54
+Model: GLM-5.3-FlashX (Trae CN)
+Prompt: 为啥显示不出来（1105-4 地图加载失败：Failed to fetch，file:// 协议限制）
+---

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1105-1 · Canvas 动画 · 徐昕妤</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-05 13:33，使用大模型：GLM-5.3-FlashX，功能名称：Canvas动画演示（文字徐昕妤） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #1e1b4b, #4338ca); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 960px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .85; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 960px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_panel {
+            background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+            padding: 16px 18px; margin-bottom: 16px;
+            box-shadow: 0 3px 16px rgba(0, 0, 0, .3);
+        }
+        .xxy_panel h2 { font-size: 15px; color: #a5b4fc; margin-bottom: 12px; }
+
+        .xxy_stage {
+            position: relative; border-radius: 10px; overflow: hidden;
+            border: 1px solid #334155; background: #0b1120;
+        }
+        canvas { display: block; width: 100%; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+        .xxy_btn {
+            border: none; background: #6366f1; color: #fff;
+            border-radius: 8px; padding: 8px 18px; font-size: 13.5px; cursor: pointer;
+        }
+        .xxy_btn:hover { background: #4338ca; }
+        .xxy_btn.xxy_ghost { background: #312e81; color: #c7d2fe; }
+        .xxy_btn.xxy_ghost:hover { background: #3730a3; }
+        .xxy_hint { font-size: 12.5px; color: #94a3b8; }
+
+        .xxy_intro { font-size: 13.5px; color: #cbd5e1; }
+        .xxy_intro code {
+            background: #0b1120; color: #7dd3fc; border-radius: 5px;
+            padding: 1px 6px; font-family: Consolas, monospace; font-size: 12.5px;
+        }
+        .xxy_intro ul { margin: 8px 0 0 20px; }
+        .xxy_intro li { margin: 3px 0; }
+
+        .xxy_footer { text-align: center; color: #64748b; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>Canvas 动画 · 徐昕妤</h1>
+                <p>requestAnimationFrame 驱动 · 粒子星空 + 发光文字 + 流动渐变</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_panel">
+            <h2>动画舞台（点击画布可加一圈烟花）</h2>
+            <div class="xxy_stage">
+                <canvas id="xxy_canvas" width="900" height="480"></canvas>
+            </div>
+            <div class="xxy_row">
+                <button class="xxy_btn" id="xxy_toggle_btn">暂停动画</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_firework_btn">放一朵烟花</button>
+                <button class="xxy_btn xxy_ghost" id="xxy_color_btn">换个配色</button>
+                <span class="xxy_hint" id="xxy_fps">FPS --</span>
+            </div>
+        </div>
+
+        <div class="xxy_panel">
+            <h2>实现要点</h2>
+            <div class="xxy_intro">
+                <ul>
+                    <li><code>requestAnimationFrame</code> 循环重绘：每帧先用半透明矩形盖一层实现"拖尾"残影，再画新内容</li>
+                    <li><code>fillText</code> 绘制"徐昕妤"三个字：字号随 <code>sin</code> 呼吸缩放，双层绘制做出霓虹发光</li>
+                    <li>150 个星星粒子匀速漂移、循环穿边，闪烁透明度各不相同</li>
+                    <li>烟花 = 一组带初速度与重力的粒子，寿命结束后 <code>splice</code> 移除</li>
+                    <li>背景色在两种深色间用 <code>HSL</code> 缓慢插值流动</li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="xxy_footer">1105-1 · Canvas 动画 · 徐昕妤</p>
+    </div>
+
+    <script>
+        var xxy_canvas = document.getElementById("xxy_canvas");
+        var xxy_ctx = xxy_canvas.getContext("2d");
+        var xxy_W = xxy_canvas.width;
+        var xxy_H = xxy_canvas.height;
+        var xxy_paused = false;
+        var xxy_frame = 0;               // 帧计数，用于呼吸与 FPS
+        var xxy_last_time = performance.now();
+        var xxy_fps_el = document.getElementById("xxy_fps");
+        var xxy_hue = 235;               // 当前配色基准色相
+        var xxy_hue_target = 235;
+
+        // ---------- 星星粒子 ----------
+        var xxy_stars = [];
+        for (var xxy_i = 0; xxy_i < 150; xxy_i++) {
+            xxy_stars.push({
+                x: Math.random() * xxy_W,
+                y: Math.random() * xxy_H,
+                r: Math.random() * 1.6 + 0.4,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35,
+                tw: Math.random() * Math.PI * 2       // 闪烁相位
+            });
+        }
+
+        // ---------- 烟花粒子 ----------
+        var xxy_sparks = [];
+        function xxy_burst(xxy_x, xxy_y) {
+            var xxy_count = 46;
+            var xxy_base_hue = Math.random() * 360;
+            for (var xxy_i = 0; xxy_i < xxy_count; xxy_i++) {
+                var xxy_angle = (Math.PI * 2 / xxy_count) * xxy_i + Math.random() * 0.2;
+                var xxy_speed = Math.random() * 3.2 + 1.4;
+                xxy_sparks.push({
+                    x: xxy_x, y: xxy_y,
+                    vx: Math.cos(xxy_angle) * xxy_speed,
+                    vy: Math.sin(xxy_angle) * xxy_speed,
+                    life: 1,                              // 1 → 0 衰减
+                    hue: xxy_base_hue + Math.random() * 40
+                });
+            }
+        }
+
+        // ---------- 发光文字 ----------
+        function xxy_draw_text() {
+            var xxy_scale = 1 + Math.sin(xxy_frame * 0.03) * 0.06;   // 呼吸缩放
+            var xxy_size = 88 * xxy_scale;
+            xxy_ctx.save();
+            xxy_ctx.translate(xxy_W / 2, xxy_H / 2 + 10);
+            xxy_ctx.font = "bold " + xxy_size.toFixed(1) + "px 'Microsoft YaHei', sans-serif";
+            xxy_ctx.textAlign = "center";
+            xxy_ctx.textBaseline = "middle";
+            // 外层辉光
+            xxy_ctx.shadowColor = "hsl(" + xxy_hue + ", 90%, 65%)";
+            xxy_ctx.shadowBlur = 34;
+            xxy_ctx.fillStyle = "hsl(" + xxy_hue + ", 95%, 72%)";
+            xxy_ctx.fillText("徐昕妤", 0, 0);
+            // 再补一层阴影加浓光晕
+            xxy_ctx.shadowBlur = 16;
+            xxy_ctx.fillText("徐昕妤", 0, 0);
+            // 中心高亮层
+            xxy_ctx.shadowBlur = 0;
+            xxy_ctx.fillStyle = "#ffffff";
+            xxy_ctx.globalAlpha = 0.92;
+            xxy_ctx.fillText("徐昕妤", 0, 0);
+            // 下方小字
+            xxy_ctx.globalAlpha = 0.7;
+            xxy_ctx.font = "16px 'Microsoft YaHei', sans-serif";
+            xxy_ctx.fillStyle = "hsl(" + xxy_hue + ", 70%, 82%)";
+            xxy_ctx.shadowColor = "hsl(" + xxy_hue + ", 90%, 60%)";
+            xxy_ctx.shadowBlur = 10;
+            xxy_ctx.fillText("XU XIN YU · CANVAS ANIMATION", 0, 86);
+            xxy_ctx.restore();
+        }
+
+        // ---------- 每帧绘制 ----------
+        function xxy_render() {
+            // 半透明覆盖 = 拖尾残影
+            xxy_ctx.fillStyle = "rgba(11, 17, 32, 0.28)";
+            xxy_ctx.fillRect(0, 0, xxy_W, xxy_H);
+
+            // 底部流动光带
+            var xxy_grad = xxy_ctx.createLinearGradient(0, xxy_H, xxy_W, 0);
+            xxy_grad.addColorStop(0, "hsla(" + xxy_hue + ", 80%, 45%, 0.10)");
+            xxy_grad.addColorStop(1, "hsla(" + ((xxy_hue + 60) % 360) + ", 80%, 55%, 0.06)");
+            xxy_ctx.fillStyle = xxy_grad;
+            xxy_ctx.fillRect(0, 0, xxy_W, xxy_H);
+
+            // 星星
+            for (var xxy_i = 0; xxy_i < xxy_stars.length; xxy_i++) {
+                var xxy_s = xxy_stars[xxy_i];
+                xxy_s.x += xxy_s.vx;
+                xxy_s.y += xxy_s.vy;
+                xxy_s.tw += 0.05;
+                // 循环穿边
+                if (xxy_s.x < 0) { xxy_s.x = xxy_W; }
+                if (xxy_s.x > xxy_W) { xxy_s.x = 0; }
+                if (xxy_s.y < 0) { xxy_s.y = xxy_H; }
+                if (xxy_s.y > xxy_H) { xxy_s.y = 0; }
+                var xxy_alpha = 0.35 + Math.abs(Math.sin(xxy_s.tw)) * 0.6;
+                xxy_ctx.beginPath();
+                xxy_ctx.arc(xxy_s.x, xxy_s.y, xxy_s.r, 0, Math.PI * 2);
+                xxy_ctx.fillStyle = "rgba(199, 210, 254, " + xxy_alpha.toFixed(2) + ")";
+                xxy_ctx.fill();
+            }
+
+            // 文字
+            xxy_draw_text();
+
+            // 烟花
+            for (var xxy_j = xxy_sparks.length - 1; xxy_j >= 0; xxy_j--) {
+                var xxy_p = xxy_sparks[xxy_j];
+                xxy_p.x += xxy_p.vx;
+                xxy_p.y += xxy_p.vy;
+                xxy_p.vy += 0.045;            // 重力
+                xxy_p.vx *= 0.985;            // 空气阻力
+                xxy_p.vy *= 0.985;
+                xxy_p.life -= 0.014;
+                if (xxy_p.life <= 0) { xxy_sparks.splice(xxy_j, 1); continue; }
+                xxy_ctx.beginPath();
+                xxy_ctx.arc(xxy_p.x, xxy_p.y, 2.1, 0, Math.PI * 2);
+                xxy_ctx.fillStyle = "hsla(" + xxy_p.hue + ", 95%, 65%, " + xxy_p.life.toFixed(2) + ")";
+                xxy_ctx.fill();
+            }
+        }
+
+        // ---------- 主循环 ----------
+        function xxy_loop() {
+            if (!xxy_paused) {
+                xxy_frame++;
+                // 色相缓慢逼近目标
+                xxy_hue += (xxy_hue_target - xxy_hue) * 0.02;
+                xxy_render();
+                // 每 30 帧刷新一次 FPS 显示
+                if (xxy_frame % 30 === 0) {
+                    var xxy_now = performance.now();
+                    var xxy_fps = Math.round(30000 / (xxy_now - xxy_last_time));
+                    xxy_last_time = xxy_now;
+                    xxy_fps_el.textContent = "FPS " + xxy_fps;
+                }
+            }
+            requestAnimationFrame(xxy_loop);
+        }
+        requestAnimationFrame(xxy_loop);
+
+        // ---------- 交互 ----------
+        document.getElementById("xxy_toggle_btn").addEventListener("click", function () {
+            xxy_paused = !xxy_paused;
+            this.textContent = xxy_paused ? "继续动画" : "暂停动画";
+        });
+
+        document.getElementById("xxy_firework_btn").addEventListener("click", function () {
+            xxy_burst(xxy_W / 2 + (Math.random() - 0.5) * 300, xxy_H * 0.3 + Math.random() * 60);
+        });
+
+        document.getElementById("xxy_color_btn").addEventListener("click", function () {
+            xxy_hue_target = (xxy_hue_target + 90) % 360;   // 每次转 90 度色相
+        });
+
+        xxy_canvas.addEventListener("click", function (xxy_e) {
+            var xxy_rect = xxy_canvas.getBoundingClientRect();
+            var xxy_x = (xxy_e.clientX - xxy_rect.left) * (xxy_W / xxy_rect.width);
+            var xxy_y = (xxy_e.clientY - xxy_rect.top) * (xxy_H / xxy_rect.height);
+            xxy_burst(xxy_x, xxy_y);
+        });
+    </script>
+</body>
+</html>
