@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1105-8 · 电商销售数据大屏</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-05 15:10，使用大模型：GLM-5.3-Flash，功能名称：基于ECharts的数据大屏（三列布局，中间顶部为中国地图） -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #050b17;
+            color: #cfe3ff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 顶部标题栏 ===== */
+        .xxy_header {
+            height: 64px; flex: 0 0 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px;
+            background: linear-gradient(180deg, rgba(20, 60, 120, .55), rgba(5, 11, 23, 0));
+            border-bottom: 1px solid rgba(64, 156, 255, .35);
+        }
+        .xxy_header h1 {
+            font-size: 24px; letter-spacing: 6px; color: #e8f3ff;
+            text-shadow: 0 0 18px rgba(64, 156, 255, .8);
+        }
+        .xxy_header-side { font-size: 13px; color: #7fa8d9; display: flex; gap: 18px; align-items: center; }
+        .xxy_clock { font-family: Consolas, monospace; font-size: 16px; color: #9fd0ff; }
+        .xxy_back {
+            color: #9fd0ff; text-decoration: none; font-size: 12.5px;
+            border: 1px solid rgba(64, 156, 255, .5); border-radius: 6px; padding: 5px 12px;
+        }
+        .xxy_back:hover { background: rgba(64, 156, 255, .18); }
+
+        /* ===== 三列大屏网格 ===== */
+        .xxy_screen {
+            flex: 1; min-height: 0;
+            display: grid; gap: 12px; padding: 12px 16px 14px;
+            grid-template-columns: 27fr 46fr 27fr;
+            grid-template-rows: 58fr 42fr;
+        }
+        .xxy_panel {
+            position: relative;
+            background: rgba(10, 30, 62, .45);
+            border: 1px solid rgba(64, 156, 255, .28);
+            border-radius: 8px;
+            padding: 10px 12px 6px;
+            display: flex; flex-direction: column;
+            min-height: 0;
+        }
+        /* 四角亮边装饰 */
+        .xxy_panel::before, .xxy_panel::after,
+        .xxy_corner::before, .xxy_corner::after {
+            content: ""; position: absolute; width: 12px; height: 12px;
+            border-color: #4aa3ff; border-style: solid; border-width: 0;
+        }
+        .xxy_panel::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; }
+        .xxy_panel::after { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; }
+        .xxy_corner::before { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; }
+        .xxy_corner::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; }
+
+        .xxy_panel h2 {
+            flex: 0 0 auto; font-size: 14px; font-weight: normal; color: #8fc3ff;
+            letter-spacing: 2px; padding-left: 10px; border-left: 3px solid #4aa3ff;
+            margin-bottom: 4px;
+        }
+        .xxy_chart { flex: 1; min-height: 0; }
+
+        /* 中间列：地图占第一行，下方排行第二行 */
+        .xxy_center-map { grid-column: 2; grid-row: 1; }
+        .xxy_center-bottom { grid-column: 2; grid-row: 2; }
+        .xxy_left-top { grid-column: 1; grid-row: 1; }
+        .xxy_left-bottom { grid-column: 1; grid-row: 2; }
+        .xxy_right-top { grid-column: 3; grid-row: 1; }
+        .xxy_right-bottom { grid-column: 3; grid-row: 2; }
+
+        /* 汇总指标条 */
+        .xxy_kpis { display: flex; gap: 12px; justify-content: center; margin-bottom: 2px; flex: 0 0 auto; }
+        .xxy_kpi {
+            text-align: center; padding: 4px 18px;
+            background: rgba(64, 156, 255, .1); border: 1px solid rgba(64, 156, 255, .25); border-radius: 6px;
+        }
+        .xxy_kpi b { display: block; font-size: 20px; font-family: Consolas, monospace; color: #ffd166; }
+        .xxy_kpi span { font-size: 12px; color: #7fa8d9; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-side"><span class="iconfont icon-shouye"></span>DATA CENTER</div>
+        <h1>电商销售数据大屏</h1>
+        <div class="xxy_header-side">
+            <span class="xxy_clock" id="xxy_clock">--:--:--</span>
+            <a class="xxy_back" href="index.html">返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_screen">
+        <!-- 左列 -->
+        <section class="xxy_panel xxy_left-top">
+            <h2>月度销售额趋势（万元）</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_chart" id="xxy_chart_line"></div>
+        </section>
+        <section class="xxy_panel xxy_left-bottom">
+            <h2>品类销量对比（万件）</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_chart" id="xxy_chart_bar"></div>
+        </section>
+
+        <!-- 中列：上地图 + 下排行 -->
+        <section class="xxy_panel xxy_center-map">
+            <h2>全国销售分布</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_kpis" id="xxy_kpis"></div>
+            <div class="xxy_chart" id="xxy_chart_map"></div>
+        </section>
+        <section class="xxy_panel xxy_center-bottom">
+            <h2>省份销售 TOP5</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_chart" id="xxy_chart_rank"></div>
+        </section>
+
+        <!-- 右列 -->
+        <section class="xxy_panel xxy_right-top">
+            <h2>销售渠道占比</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_chart" id="xxy_chart_pie"></div>
+        </section>
+        <section class="xxy_panel xxy_right-bottom">
+            <h2>重点区域客户画像</h2>
+            <div class="xxy_corner"></div>
+            <div class="xxy_chart" id="xxy_chart_radar"></div>
+        </section>
+    </div>
+
+    <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/geo/china.js"></script>
+    <script>
+        // ================= 公共 =================
+        var xxy_charts = [];
+
+        function xxy_init(xxy_id) {
+            var xxy_chart = echarts.init(document.getElementById(xxy_id));
+            xxy_charts.push(xxy_chart);
+            return xxy_chart;
+        }
+
+        var xxy_text_color = "#8fb8e8";
+        var xxy_axis_line = { lineStyle: { color: "rgba(64,156,255,.35)" } };
+
+        // 顶部时钟
+        function xxy_tick_clock() {
+            var xxy_now = new Date();
+            function xxy_pad(x) { return (x < 10 ? "0" : "") + x; }
+            document.getElementById("xxy_clock").textContent =
+                xxy_now.getFullYear() + "-" + xxy_pad(xxy_now.getMonth() + 1) + "-" + xxy_pad(xxy_now.getDate()) +
+                "  " + xxy_pad(xxy_now.getHours()) + ":" + xxy_pad(xxy_now.getMinutes()) + ":" + xxy_pad(xxy_now.getSeconds());
+        }
+        xxy_tick_clock();
+        setInterval(xxy_tick_clock, 1000);
+
+        // ================= 中间顶部：中国地图（地理信息图） =================
+        echarts.registerMap("xxy_china", window.xxy_china_geo);
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_map");
+            var xxy_prov_data = [
+                { name: "广东", value: 2860 }, { name: "江苏", value: 2410 }, { name: "浙江", value: 2285 },
+                { name: "山东", value: 1875 }, { name: "四川", value: 1620 }, { name: "河南", value: 1490 },
+                { name: "湖北", value: 1355 }, { name: "福建", value: 1280 }, { name: "湖南", value: 1210 },
+                { name: "上海", value: 1185 }, { name: "北京", value: 1150 }, { name: "安徽", value: 1040 },
+                { name: "河北", value: 980 }, { name: "陕西", value: 860 }, { name: "重庆", value: 795 },
+                { name: "江西", value: 720 }, { name: "辽宁", value: 685 }, { name: "云南", value: 640 },
+                { name: "广西", value: 610 }, { name: "山西", value: 520 }, { name: "贵州", value: 480 },
+                { name: "天津", value: 450 }, { name: "黑龙江", value: 415 }, { name: "吉林", value: 390 },
+                { name: "内蒙古", value: 375 }, { name: "新疆", value: 320 }, { name: "甘肃", value: 260 },
+                { name: "海南", value: 235 }, { name: "宁夏", value: 150 }, { name: "青海", value: 120 },
+                { name: "西藏", value: 65 }
+            ];
+            // 主要城市气泡
+            var xxy_city_data = [
+                { name: "广州", value: [113.26, 23.13, 98] },
+                { name: "上海", value: [121.47, 31.23, 92] },
+                { name: "北京", value: [116.40, 39.90, 88] },
+                { name: "杭州", value: [120.15, 30.27, 85] },
+                { name: "成都", value: [104.06, 30.57, 80] },
+                { name: "武汉", value: [114.30, 30.59, 74] },
+                { name: "西安", value: [108.94, 34.34, 66] },
+                { name: "沈阳", value: [123.43, 41.80, 52] }
+            ];
+            xxy_chart.setOption({
+                tooltip: {
+                    trigger: "item",
+                    formatter: function (xxy_p) {
+                        if (xxy_p.seriesType === "effectScatter") {
+                            return "<b>" + xxy_p.name + "</b><br>订单热度 " + xxy_p.value[2] + " 万单";
+                        }
+                        return "<b>" + xxy_p.name + "</b><br>销售额 " + (xxy_p.value || 0) + " 万元";
+                    }
+                },
+                visualMap: {
+                    min: 0, max: 3000, left: 10, bottom: 10,
+                    text: ["高", "低"], calculable: false,
+                    inRange: { color: ["#123a7a", "#1e6fd9", "#37b5ff", "#7fe3ff"] },
+                    textStyle: { color: xxy_text_color, fontSize: 11 }
+                },
+                geo: {
+                    map: "xxy_china", roam: true,
+                    zoom: 1.15, top: 42,
+                    label: { show: false },
+                    itemStyle: {
+                        areaColor: "#12305e",
+                        borderColor: "rgba(90,180,255,.75)",
+                        borderWidth: 1,
+                        shadowColor: "rgba(30,110,220,.5)",
+                        shadowBlur: 14
+                    },
+                    emphasis: {
+                        label: { show: true, color: "#fff" },
+                        itemStyle: { areaColor: "#2a8fe0" }
+                    }
+                },
+                series: [
+                    {
+                        type: "map", map: "xxy_china", geoIndex: 0, data: xxy_prov_data
+                    },
+                    {
+                        type: "effectScatter", coordinateSystem: "geo",
+                        data: xxy_city_data,
+                        symbolSize: function (xxy_val) { return 6 + xxy_val[2] / 10; },
+                        rippleEffect: { brushType: "stroke", scale: 3.2 },
+                        label: { show: true, formatter: "{b}", position: "right", color: "#cfe8ff", fontSize: 11 },
+                        itemStyle: { color: "#ffd166", shadowColor: "#ffae00", shadowBlur: 10 }
+                    }
+                ]
+            });
+        })();
+
+        // 中间 KPI 指标
+        (function () {
+            var xxy_kpis = [
+                { num: "1,286", label: "今日订单（万）" },
+                { num: "3.7 亿", label: "今日销售额" },
+                { num: "58.2 万", label: "在线用户" },
+                { num: "99.98%", label: "系统可用性" }
+            ];
+            var xxy_html = "";
+            for (var xxy_i = 0; xxy_i < xxy_kpis.length; xxy_i++) {
+                xxy_html += '<div class="xxy_kpi"><b>' + xxy_kpis[xxy_i].num + "</b><span>" + xxy_kpis[xxy_i].label + "</span></div>";
+            }
+            document.getElementById("xxy_kpis").innerHTML = xxy_html;
+        })();
+
+        // ================= 中间底部：省份 TOP5 横向排行 =================
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_rank");
+            var xxy_names = ["广东", "江苏", "浙江", "山东", "四川"];
+            var xxy_vals = [2860, 2410, 2285, 1875, 1620];
+            xxy_chart.setOption({
+                grid: { left: 66, right: 46, top: 12, bottom: 4 },
+                tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, formatter: "{b}<br>销售额：{c} 万元" },
+                xAxis: { type: "value", show: false },
+                yAxis: {
+                    type: "category", inverse: true, data: xxy_names,
+                    axisLine: xxy_axis_line, axisTick: { show: false },
+                    axisLabel: { color: xxy_text_color, fontSize: 13 }
+                },
+                series: [{
+                    type: "bar", data: xxy_vals, barWidth: 12,
+                    label: { show: true, position: "right", color: "#ffd166", fontSize: 12, formatter: "{c} 万" },
+                    itemStyle: {
+                        borderRadius: 6,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: "#1e6fd9" },
+                            { offset: 1, color: "#37d5ff" }
+                        ])
+                    },
+                    showBackground: true,
+                    backgroundStyle: { color: "rgba(64,156,255,.08)", borderRadius: 6 }
+                }]
+            });
+        })();
+
+        // ================= 左上：月度趋势折线 =================
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_line");
+            xxy_chart.setOption({
+                grid: { left: 44, right: 16, top: 26, bottom: 24 },
+                tooltip: { trigger: "axis" },
+                xAxis: {
+                    type: "category",
+                    data: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+                    axisLine: xxy_axis_line, axisTick: { show: false },
+                    axisLabel: { color: xxy_text_color, fontSize: 11 }
+                },
+                yAxis: {
+                    type: "value", splitLine: { lineStyle: { color: "rgba(64,156,255,.12)" } },
+                    axisLabel: { color: xxy_text_color, fontSize: 11 }
+                },
+                series: [
+                    {
+                        name: "今年", type: "line", smooth: true,
+                        data: [420, 515, 380, 610, 590, 730, 865, 820, 690, 940, 780, 1100],
+                        symbol: "circle", symbolSize: 6,
+                        lineStyle: { color: "#37d5ff", width: 2.5 },
+                        itemStyle: { color: "#37d5ff" },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: "rgba(55,213,255,.35)" },
+                                { offset: 1, color: "rgba(55,213,255,0)" }
+                            ])
+                        }
+                    },
+                    {
+                        name: "去年", type: "line", smooth: true,
+                        data: [360, 420, 350, 480, 510, 600, 660, 700, 620, 730, 690, 860],
+                        symbol: "none",
+                        lineStyle: { color: "rgba(255,209,102,.7)", width: 1.6, type: "dashed" },
+                        itemStyle: { color: "#ffd166" }
+                    }
+                ],
+                legend: {
+                    top: 0, right: 6, textStyle: { color: xxy_text_color, fontSize: 11 }, itemWidth: 14, itemHeight: 8
+                }
+            });
+        })();
+
+        // ================= 左下：品类销量柱状图 =================
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_bar");
+            xxy_chart.setOption({
+                grid: { left: 44, right: 16, top: 26, bottom: 24 },
+                tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+                xAxis: {
+                    type: "category",
+                    data: ["数码", "服饰", "美妆", "食品", "家居", "图书"],
+                    axisLine: xxy_axis_line, axisTick: { show: false },
+                    axisLabel: { color: xxy_text_color, fontSize: 12 }
+                },
+                yAxis: {
+                    type: "value", splitLine: { lineStyle: { color: "rgba(64,156,255,.12)" } },
+                    axisLabel: { color: xxy_text_color, fontSize: 11 }
+                },
+                series: [{
+                    type: "bar", data: [186, 152, 134, 121, 98, 64], barWidth: 18,
+                    itemStyle: {
+                        borderRadius: [6, 6, 0, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "#7fe3ff" },
+                            { offset: 1, color: "#1e6fd9" }
+                        ])
+                    },
+                    label: { show: true, position: "top", color: "#9fd0ff", fontSize: 11 }
+                }]
+            });
+        })();
+
+        // ================= 右上：渠道占比环形图 =================
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_pie");
+            xxy_chart.setOption({
+                tooltip: { trigger: "item", formatter: "{b}<br>占比 {d}%" },
+                legend: {
+                    orient: "vertical", right: 4, top: "middle",
+                    textStyle: { color: xxy_text_color, fontSize: 11 }, itemWidth: 12, itemHeight: 8
+                },
+                series: [{
+                    type: "pie", radius: ["44%", "68%"], center: ["38%", "54%"],
+                    data: [
+                        { name: "移动App", value: 42 },
+                        { name: "小程序", value: 24 },
+                        { name: "PC商城", value: 15 },
+                        { name: "直播带货", value: 13 },
+                        { name: "线下门店", value: 6 }
+                    ],
+                    label: { show: false },
+                    itemStyle: { borderColor: "#050b17", borderWidth: 2 },
+                    emphasis: { label: { show: true, color: "#cfe8ff", fontSize: 13 } }
+                }]
+            });
+        })();
+
+        // ================= 右下：客户画像雷达图 =================
+        (function () {
+            var xxy_chart = xxy_init("xxy_chart_radar");
+            xxy_chart.setOption({
+                tooltip: {},
+                legend: {
+                    bottom: 0, textStyle: { color: xxy_text_color, fontSize: 11 }, itemWidth: 12, itemHeight: 8
+                },
+                radar: {
+                    indicator: [
+                        { name: "消费力", max: 100 }, { name: "复购率", max: 100 },
+                        { name: "活跃度", max: 100 }, { name: "客单价", max: 100 },
+                        { name: "增长率", max: 100 }, { name: "好评率", max: 100 }
+                    ],
+                    radius: "58%", center: ["50%", "46%"],
+                    axisName: { color: xxy_text_color, fontSize: 11 },
+                    splitLine: { lineStyle: { color: "rgba(64,156,255,.2)" } },
+                    splitArea: { areaStyle: { color: ["rgba(64,156,255,.04)", "rgba(64,156,255,.1)"] } },
+                    axisLine: xxy_axis_line
+                },
+                series: [{
+                    type: "radar",
+                    data: [
+                        {
+                            name: "华东", value: [88, 76, 82, 90, 68, 95],
+                            lineStyle: { color: "#37d5ff" }, itemStyle: { color: "#37d5ff" },
+                            areaStyle: { color: "rgba(55,213,255,.25)" }
+                        },
+                        {
+                            name: "华南", value: [80, 85, 74, 78, 82, 91],
+                            lineStyle: { color: "#ffd166" }, itemStyle: { color: "#ffd166" },
+                            areaStyle: { color: "rgba(255,209,102,.2)" }
+                        }
+                    ]
+                }]
+            });
+        })();
+
+        // ================= 自适应 =================
+        window.addEventListener("resize", function () {
+            for (var xxy_i = 0; xxy_i < xxy_charts.length; xxy_i++) { xxy_charts[xxy_i].resize(); }
+        });
+    </script>
+</body>
+</html>
