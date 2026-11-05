@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1105-6 · Mermaid 智能客服流程图与 ER 图</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-05 14:20，使用大模型：GLM-5.3-FlashX，功能名称：基于Mermaid的智能客服系统流程图与ER图 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f5f7fa;
+            color: #1f2937;
+            line-height: 1.65;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #7c2d12, #ea580c); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 1080px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .88; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 1080px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_panel {
+            background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 3px 14px rgba(124, 45, 18, .08); margin-bottom: 16px;
+        }
+        .xxy_panel h2 { font-size: 15px; color: #c2410c; margin-bottom: 6px; }
+        .xxy_panel .xxy_desc { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+
+        .xxy_diagram {
+            border: 1px solid #e2e8f0; border-radius: 10px; background: #fcfdff;
+            padding: 14px; overflow: auto;
+        }
+        .xxy_diagram svg { max-width: 100% !important; height: auto !important; }
+
+        .xxy_note {
+            font-size: 13px; color: #334155;
+            background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .xxy_note code {
+            background: #fff; border-radius: 5px; padding: 1px 6px;
+            font-family: Consolas, monospace; font-size: 12px; color: #c2410c;
+        }
+        .xxy_err {
+            display: none; margin-top: 10px; font-size: 13px; color: #b91c1c;
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px;
+        }
+        .xxy_footer { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>Mermaid · 智能客服系统建模</h1>
+                <p>flowchart 问答处理流程图 · erDiagram 知识库数据模型 · 本地 mermaid.min.js 离线渲染</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_panel">
+            <h2>图一 · 智能客服问答处理流程图（flowchart）</h2>
+            <p class="xxy_desc">用户提问后经过：意图识别 → 知识检索 → 置信度判断的三级分流，低置信度转人工并沉淀知识，答案经安全过滤后返回。</p>
+            <div class="xxy_diagram">
+                <pre class="mermaid">
+flowchart TD
+    A([用户发起提问]) --> B[API 网关<br>鉴权 / 限流]
+    B --> C[会话管理<br>加载多轮上下文]
+    C --> D{意图识别}
+    D -->|闲聊寒暄| E[闲聊话术模板<br>直接回复]
+    D -->|业务咨询| F[问题改写<br>Query Rewrite]
+    D -->|投诉报障| G[创建工单<br>通知人工跟进]
+    F --> H[(向量知识库<br>Embedding 召回 Top-K)]
+    H --> I[重排序<br>Cross-Encoder 精排]
+    I --> J{置信度是否达标}
+    J -->|是| K[LLM 生成答案<br>Prompt = 问题 + 知识片段]
+    J -->|否| L[转人工客服]
+    K --> M{答案安全过滤}
+    M -->|通过| N[返回答案<br>附引用来源]
+    M -->|不通过| O[拒答并记录日志]
+    L --> P([人工解答])
+    E --> N
+    G --> P
+    N --> Q[(问答日志库)]
+    O --> Q
+    P --> Q
+    Q -->|标注 / 评估| R[知识运营后台<br>知识更新与模型微调]
+    R -.补充知识.-> H
+    style A fill:#ffedd5,stroke:#ea580c,stroke-width:2px
+    style H fill:#ccfbf1,stroke:#0d9488,stroke-width:2px
+    style K fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px
+    style N fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    style L fill:#fee2e2,stroke:#dc2626,stroke-width:2px
+                </pre>
+            </div>
+            <div class="xxy_err" id="xxy_err1"></div>
+        </div>
+
+        <div class="xxy_panel">
+            <h2>图二 · 智能客服知识库数据模型（ER 图）</h2>
+            <p class="xxy_desc">核心实体：用户、会话、消息、知识条目、知识分类、工单。一条会话包含多条消息；消息命中知识条目；低置信度消息可升级为工单。</p>
+            <div class="xxy_diagram">
+                <pre class="mermaid">
+erDiagram
+    USER ||--o{ SESSION : "发起"
+    SESSION ||--o{ MESSAGE : "包含"
+    MESSAGE }o--o{ KNOWLEDGE : "命中引用"
+    KNOWLEDGE }o--|| CATEGORY : "属于"
+    MESSAGE ||--o| TICKET : "升级为"
+    TICKET }o--|| USER : "分配给客服"
+
+    USER {
+        bigint user_id PK "用户ID"
+        varchar nickname "昵称"
+        varchar role "角色: customer/agent/admin"
+        datetime created_at "注册时间"
+    }
+    SESSION {
+        bigint session_id PK "会话ID"
+        bigint user_id FK "所属用户"
+        varchar channel "渠道: web/app/wechat"
+        tinyint status "状态: 进行中/已结束/转人工"
+        datetime started_at "开始时间"
+    }
+    MESSAGE {
+        bigint message_id PK "消息ID"
+        bigint session_id FK "所属会话"
+        tinyint sender "发送方: 用户/机器人/客服"
+        text content "消息内容"
+        float confidence "答案置信度"
+        int tokens "token消耗"
+        datetime created_at "发送时间"
+    }
+    KNOWLEDGE {
+        bigint knowledge_id PK "知识ID"
+        bigint category_id FK "分类ID"
+        varchar title "问题标题"
+        text answer "标准答案"
+        vector embedding "语义向量"
+        tinyint review_status "审核状态"
+        datetime updated_at "更新时间"
+    }
+    CATEGORY {
+        bigint category_id PK "分类ID"
+        varchar name "分类名称: 退款/物流/账户"
+        bigint parent_id FK "父分类"
+    }
+    TICKET {
+        bigint ticket_id PK "工单ID"
+        bigint message_id FK "来源消息"
+        bigint agent_id FK "受理客服"
+        varchar priority "优先级"
+        varchar status "状态: 待处理/处理中/已解决"
+        datetime resolved_at "解决时间"
+    }
+                </pre>
+            </div>
+            <div class="xxy_err" id="xxy_err2"></div>
+        </div>
+
+        <div class="xxy_note">
+            实现说明：<code>mermaid.min.js</code>（v10.9.1，约 3.3MB）已下载到本地 <code>cdn/mermaid/</code> 目录，页面完全离线渲染；
+            图表源码写在 <code>&lt;pre class="mermaid"&gt;</code> 中，由 <code>mermaid.initialize</code> 自动把文本转成 SVG，
+            流程图使用 <code>flowchart TD</code> 语法（含判定分支、虚线补充知识回路），ER 图使用 <code>erDiagram</code> 语法（含主键/外键/字段注释）。
+        </div>
+
+        <p class="xxy_footer">1105-6 · Mermaid 智能客服流程图与 ER 图 · 徐昕妤</p>
+    </div>
+
+    <script src="cdn/mermaid/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: "base",
+            themeVariables: {
+                primaryColor: "#ffedd5",
+                primaryBorderColor: "#ea580c",
+                primaryTextColor: "#1f2937",
+                lineColor: "#64748b",
+                fontSize: "14px"
+            },
+            flowchart: { curve: "basis", useMaxWidth: true },
+            er: { useMaxWidth: true }
+        });
+
+        // 渲染失败时给出提示（如语法错误）
+        window.addEventListener("error", function () {}, true);
+        mermaid.parseError = function (xxy_err, xxy_hash) {
+            var xxy_box = document.getElementById(xxy_hash === 2 ? "xxy_err2" : "xxy_err1");
+            xxy_box.textContent = "图表渲染出错：" + xxy_err;
+            xxy_box.style.display = "block";
+        };
+    </script>
+</body>
+</html>

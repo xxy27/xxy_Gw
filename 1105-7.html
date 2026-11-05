@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1105-7 · Three.js 3D 图表</title>
+    <!-- 姓名：徐昕妤，建立时间：2026-11-05 14:30，使用大模型：GLM-5.3-FlashX，功能名称：基于Three.js的3D柱状图与3D饼图 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.65;
+        }
+
+        .xxy_header { background: linear-gradient(135deg, #111827, #374151); color: #fff; padding: 20px 16px; }
+        .xxy_header-inner {
+            max-width: 1080px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .xxy_brand h1 { font-size: 21px; }
+        .xxy_brand p { font-size: 12.5px; opacity: .88; }
+        .xxy_back {
+            color: #fff; text-decoration: none; font-size: 13px;
+            background: rgba(255, 255, 255, .16); border-radius: 8px;
+            padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .xxy_back:hover { background: rgba(255, 255, 255, .3); }
+
+        .xxy_wrap { max-width: 1080px; margin: 0 auto; padding: 22px 16px 50px; }
+
+        .xxy_panel {
+            background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+            padding: 16px 18px; margin-bottom: 16px;
+            box-shadow: 0 3px 16px rgba(0, 0, 0, .3);
+        }
+        .xxy_panel h2 { font-size: 15px; color: #fbbf24; margin-bottom: 6px; }
+        .xxy_panel .xxy_desc { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+
+        .xxy_stage { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #334155; background: #0b1120; }
+        .xxy_stage canvas { display: block; width: 100%; height: 480px; }
+
+        .xxy_row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+        .xxy_btn {
+            border: none; background: #f59e0b; color: #1f2937; font-weight: bold;
+            border-radius: 8px; padding: 8px 18px; font-size: 13.5px; cursor: pointer;
+        }
+        .xxy_btn:hover { background: #d97706; color: #fff; }
+        .xxy_btn.xxy_ghost { background: #334155; color: #cbd5e1; }
+        .xxy_btn.xxy_ghost:hover { background: #475569; color: #fff; }
+        .xxy_hint { font-size: 12.5px; color: #94a3b8; }
+
+        .xxy_note {
+            font-size: 13px; color: #cbd5e1;
+            background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .xxy_note code {
+            background: #0b1120; border-radius: 5px; padding: 1px 6px;
+            font-family: Consolas, monospace; font-size: 12px; color: #7dd3fc;
+        }
+        .xxy_footer { text-align: center; color: #64748b; font-size: 13px; margin-top: 22px; }
+    </style>
+</head>
+<body>
+    <header class="xxy_header">
+        <div class="xxy_header-inner">
+            <div class="xxy_brand">
+                <h1>Three.js 3D 图表</h1>
+                <p>图一：3D 柱状图（全年销售额）· 图二：3D 饼图（渠道流量占比）· 拖拽旋转 / 滚轮缩放</p>
+            </div>
+            <a class="xxy_back" href="index.html"><span class="iconfont icon-shouye"></span>返回首页</a>
+        </div>
+    </header>
+
+    <div class="xxy_wrap">
+        <div class="xxy_panel">
+            <h2>图一 · 3D 柱状图</h2>
+            <p class="xxy_desc">12 根柱子对应全年 12 个月的销售额，颜色随数值从青到紫渐变，逐根生长入场动画；悬停柱子高亮自转并显示数值。</p>
+            <div class="xxy_stage"><canvas id="xxy_bar_canvas"></canvas></div>
+            <div class="xxy_row">
+                <button class="xxy_btn xxy_ghost" id="xxy_bar_random_btn">随机生成新数据</button>
+                <span class="xxy_hint">拖拽旋转 · 滚轮缩放 · 悬停查看数值</span>
+            </div>
+        </div>
+
+        <div class="xxy_panel">
+            <h2>图二 · 3D 饼图</h2>
+            <p class="xxy_desc">五个流量渠道占比渲染为扇形柱体，整体自动缓慢旋转；点击扇区沿角平分线方向弹出分离，再次点击收回。</p>
+            <div class="xxy_stage"><canvas id="xxy_pie_canvas"></canvas></div>
+            <div class="xxy_row">
+                <button class="xxy_btn xxy_ghost" id="xxy_pie_spin_btn">暂停/恢复旋转</button>
+                <span class="xxy_hint">点击扇区将其分离查看</span>
+            </div>
+        </div>
+
+        <div class="xxy_note">
+            实现说明：<code>three.min.js</code>（r158，约 0.6MB）已下载到本地 <code>cdn/three/</code> 目录，完全离线渲染。
+            柱状图用 <code>BoxGeometry</code> 按数值缩放高度并配 HSL 渐变色与生长动画；饼图用 <code>CylinderGeometry</code> 的
+            <code>thetaStart / thetaLength</code> 参数切分扇区；两者均基于 <code>Raycaster</code> 实现鼠标拾取交互，
+            场景含环境光 + 双平行光 + 地面网格，轨道控制（拖拽旋转 / 滚轮缩放）为手写实现，未依赖附加库。
+        </div>
+
+        <p class="xxy_footer">1105-7 · Three.js 3D 图表 · 徐昕妤</p>
+    </div>
+
+    <script src="cdn/three/three.min.js"></script>
+    <script>
+        // ================= 通用工具 =================
+        function xxy_make_scene(xxy_canvas) {
+            var xxy_scene = new THREE.Scene();
+            xxy_scene.background = new THREE.Color(0x0b1120);
+            xxy_scene.fog = new THREE.Fog(0x0b1120, 26, 60);
+
+            var xxy_camera = new THREE.PerspectiveCamera(45, xxy_canvas.clientWidth / 480, 0.1, 200);
+            var xxy_renderer = new THREE.WebGLRenderer({ canvas: xxy_canvas, antialias: true });
+            xxy_renderer.setSize(xxy_canvas.clientWidth, 480, false);
+            xxy_renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // 灯光：环境光 + 两个方向的平行光
+            xxy_scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+            var xxy_dir1 = new THREE.DirectionalLight(0xffffff, 0.9);
+            xxy_dir1.position.set(8, 14, 10);
+            xxy_scene.add(xxy_dir1);
+            var xxy_dir2 = new THREE.DirectionalLight(0x7dd3fc, 0.35);
+            xxy_dir2.position.set(-10, 6, -8);
+            xxy_scene.add(xxy_dir2);
+
+            // 半透明地面网格
+            var xxy_grid = new THREE.GridHelper(30, 30, 0x334155, 0x1e293b);
+            xxy_grid.position.y = -0.01;
+            xxy_scene.add(xxy_grid);
+
+            return { scene: xxy_scene, camera: xxy_camera, renderer: xxy_renderer };
+        }
+
+        // 手写轨道控制：拖拽旋转 + 滚轮缩放（不依赖 OrbitControls 附加库）
+        function xxy_orbit(xxy_canvas, xxy_camera, xxy_target, xxy_opts) {
+            var xxy_state = {
+                dist: xxy_opts.dist, theta: xxy_opts.theta, phi: xxy_opts.phi,
+                dragging: false, lx: 0, ly: 0
+            };
+            function xxy_update() {
+                xxy_camera.position.set(
+                    xxy_target.x + xxy_state.dist * Math.sin(xxy_state.phi) * Math.sin(xxy_state.theta),
+                    xxy_target.y + xxy_state.dist * Math.cos(xxy_state.phi),
+                    xxy_target.z + xxy_state.dist * Math.sin(xxy_state.phi) * Math.cos(xxy_state.theta)
+                );
+                xxy_camera.lookAt(xxy_target);
+            }
+            xxy_canvas.addEventListener("mousedown", function (xxy_e) { xxy_state.dragging = true; xxy_state.lx = xxy_e.clientX; xxy_state.ly = xxy_e.clientY; });
+            window.addEventListener("mouseup", function () { xxy_state.dragging = false; });
+            window.addEventListener("mousemove", function (xxy_e) {
+                if (!xxy_state.dragging) { return; }
+                xxy_state.theta -= (xxy_e.clientX - xxy_state.lx) * 0.008;
+                xxy_state.phi = Math.max(0.15, Math.min(1.45, xxy_state.phi - (xxy_e.clientY - xxy_state.ly) * 0.006));
+                xxy_state.lx = xxy_e.clientX; xxy_state.ly = xxy_e.clientY;
+                xxy_update();
+            });
+            xxy_canvas.addEventListener("wheel", function (xxy_e) {
+                xxy_e.preventDefault();
+                xxy_state.dist = Math.max(6, Math.min(40, xxy_state.dist + xxy_e.deltaY * 0.02));
+                xxy_update();
+            }, { passive: false });
+            xxy_update();
+            return xxy_state;
+        }
+
+        // 屏幕坐标 → 3D 拾取
+        function xxy_pick(xxy_canvas, xxy_camera, xxy_objects, xxy_e) {
+            var xxy_rect = xxy_canvas.getBoundingClientRect();
+            var xxy_mouse = new THREE.Vector2(
+                ((xxy_e.clientX - xxy_rect.left) / xxy_rect.width) * 2 - 1,
+                -((xxy_e.clientY - xxy_rect.top) / xxy_rect.height) * 2 + 1
+            );
+            var xxy_ray = new THREE.Raycaster();
+            xxy_ray.setFromCamera(xxy_mouse, xxy_camera);
+            var xxy_hits = xxy_ray.intersectObjects(xxy_objects);
+            return xxy_hits.length ? xxy_hits[0].object : null;
+        }
+
+        // 画布上方的 HTML 数值气泡
+        function xxy_make_tip(xxy_canvas) {
+            var xxy_el = document.createElement("div");
+            xxy_el.style.cssText = "position:absolute;pointer-events:none;display:none;background:rgba(15,23,42,.92);border:1px solid #f59e0b;color:#fde68a;font-size:12.5px;padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:5;";
+            xxy_canvas.parentNode.style.position = "relative";
+            xxy_canvas.parentNode.appendChild(xxy_el);
+            return {
+                show: function (xxy_x, xxy_y, xxy_text) {
+                    xxy_el.innerHTML = xxy_text;
+                    xxy_el.style.display = "block";
+                    var xxy_rect = xxy_canvas.getBoundingClientRect();
+                    xxy_el.style.left = (xxy_x - xxy_rect.left + 14) + "px";
+                    xxy_el.style.top = (xxy_y - xxy_rect.top - 10) + "px";
+                },
+                hide: function () { xxy_el.style.display = "none"; }
+            };
+        }
+
+        // 窗口自适应
+        function xxy_fit(xxy_canvas, xxy_camera, xxy_renderer) {
+            window.addEventListener("resize", function () {
+                xxy_camera.aspect = xxy_canvas.clientWidth / 480;
+                xxy_camera.updateProjectionMatrix();
+                xxy_renderer.setSize(xxy_canvas.clientWidth, 480, false);
+            });
+        }
+
+        // ================= 图一：3D 柱状图 =================
+        (function () {
+            var xxy_canvas = document.getElementById("xxy_bar_canvas");
+            var xxy_c = xxy_make_scene(xxy_canvas);
+            var xxy_ctl = xxy_orbit(xxy_canvas, xxy_c.camera, new THREE.Vector3(0, 3, 0), { dist: 22, theta: 0.6, phi: 1.05 });
+            var xxy_tip = xxy_make_tip(xxy_canvas);
+            xxy_fit(xxy_canvas, xxy_c.camera, xxy_c.renderer);
+
+            var xxy_group = new THREE.Group();
+            xxy_c.scene.add(xxy_group);
+            var xxy_bars = [];
+            var xxy_month_names = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+            var xxy_values = [420, 515, 380, 610, 590, 730, 865, 820, 690, 940, 780, 1100];
+
+            function xxy_build(xxy_vals) {
+                for (var xxy_i = 0; xxy_i < xxy_bars.length; xxy_i++) { xxy_group.remove(xxy_bars[xxy_i]); }
+                xxy_bars = [];
+                var xxy_max = Math.max.apply(null, xxy_vals);
+                var xxy_gap = 1.6;
+                var xxy_start = -(xxy_vals.length - 1) * xxy_gap / 2;
+
+                for (var xxy_j = 0; xxy_j < xxy_vals.length; xxy_j++) {
+                    var xxy_h = (xxy_vals[xxy_j] / xxy_max) * 8 + 0.4;
+                    // HSL 渐变：数值越大颜色越暖
+                    var xxy_color = new THREE.Color().setHSL(0.58 - 0.45 * (xxy_vals[xxy_j] / xxy_max), 0.75, 0.55);
+                    var xxy_mat = new THREE.MeshStandardMaterial({ color: xxy_color, roughness: 0.35, metalness: 0.25 });
+                    var xxy_bar = new THREE.Mesh(new THREE.BoxGeometry(0.9, xxy_h, 0.9), xxy_mat);
+                    xxy_bar.position.set(xxy_start + xxy_j * xxy_gap, 0.001, 0);
+                    xxy_bar.scale.y = 0.001;                       // 生长动画从 0 开始
+                    xxy_bar.userData = { month: xxy_month_names[xxy_j], value: xxy_vals[xxy_j], targetH: xxy_h, born: performance.now() + xxy_j * 70 };
+                    xxy_group.add(xxy_bar);
+                    xxy_bars.push(xxy_bar);
+                }
+            }
+
+            var xxy_hover = null;
+            xxy_canvas.addEventListener("mousemove", function (xxy_e) {
+                var xxy_hit = xxy_pick(xxy_canvas, xxy_c.camera, xxy_bars, xxy_e);
+                if (xxy_hover && xxy_hover !== xxy_hit) {
+                    xxy_hover.material.emissive.setHex(0x000000);
+                    xxy_hover.rotation.y = 0;
+                }
+                if (xxy_hit) {
+                    xxy_hit.material.emissive.setHex(0x333333);
+                    xxy_tip.show(xxy_e.clientX, xxy_e.clientY, "<b>" + xxy_hit.userData.month + "</b>　销售额 " + xxy_hit.userData.value + " 万元");
+                    xxy_canvas.style.cursor = "pointer";
+                } else {
+                    xxy_tip.hide();
+                    xxy_canvas.style.cursor = "default";
+                }
+                xxy_hover = xxy_hit;
+            });
+
+            (function xxy_loop() {
+                requestAnimationFrame(xxy_loop);
+                var xxy_now = performance.now();
+                for (var xxy_i = 0; xxy_i < xxy_bars.length; xxy_i++) {
+                    var xxy_b = xxy_bars[xxy_i];
+                    if (xxy_now > xxy_b.userData.born && xxy_b.scale.y < 1) {
+                        xxy_b.scale.y = Math.min(1, xxy_b.scale.y + 0.08);   // 逐根生长
+                        xxy_b.position.y = xxy_b.userData.targetH * xxy_b.scale.y / 2;
+                    }
+                    if (xxy_hover === xxy_b) {
+                        xxy_b.rotation.y += 0.02;                            // 悬停柱子自转
+                    }
+                }
+                xxy_c.renderer.render(xxy_c.scene, xxy_c.camera);
+            })();
+
+            document.getElementById("xxy_bar_random_btn").addEventListener("click", function () {
+                var xxy_new = [];
+                for (var xxy_i = 0; xxy_i < 12; xxy_i++) { xxy_new.push(Math.floor(Math.random() * 900) + 150); }
+                xxy_hover = null;
+                xxy_build(xxy_new);
+            });
+
+            xxy_build(xxy_values);
+        })();
+
+        // ================= 图二：3D 饼图 =================
+        (function () {
+            var xxy_canvas = document.getElementById("xxy_pie_canvas");
+            var xxy_c = xxy_make_scene(xxy_canvas);
+            var xxy_ctl = xxy_orbit(xxy_canvas, xxy_c.camera, new THREE.Vector3(0, 0, 0), { dist: 20, theta: 0.5, phi: 0.95 });
+            var xxy_tip = xxy_make_tip(xxy_canvas);
+            xxy_fit(xxy_canvas, xxy_c.camera, xxy_c.renderer);
+
+            var xxy_group = new THREE.Group();
+            xxy_c.scene.add(xxy_group);
+
+            var xxy_data = [
+                { name: "自然流量", value: 34, color: 0x22c55e },
+                { name: "付费推广", value: 26, color: 0x3b82f6 },
+                { name: "社交媒体", value: 18, color: 0xf59e0b },
+                { name: "邮件营销", value: 13, color: 0xef4444 },
+                { name: "直接访问", value: 9,  color: 0xa855f7 }
+            ];
+            var xxy_total = 0;
+            for (var xxy_i = 0; xxy_i < xxy_data.length; xxy_i++) { xxy_total += xxy_data[xxy_i].value; }
+
+            // 用 CylinderGeometry 的 thetaStart/thetaLength 切分扇形柱体
+            var xxy_sectors = [];
+            var xxy_theta = 0;
+            for (var xxy_j = 0; xxy_j < xxy_data.length; xxy_j++) {
+                var xxy_d = xxy_data[xxy_j];
+                var xxy_len = (xxy_d.value / xxy_total) * Math.PI * 2;
+                var xxy_geo = new THREE.CylinderGeometry(5, 5, 1.6, 48, 1, false, xxy_theta, xxy_len);
+                var xxy_mat = new THREE.MeshStandardMaterial({ color: xxy_d.color, roughness: 0.3, metalness: 0.2 });
+                var xxy_sec = new THREE.Mesh(xxy_geo, xxy_mat);
+                var xxy_mid = xxy_theta + xxy_len / 2;               // 扇区角平分线（分离方向）
+                xxy_sec.userData = {
+                    name: xxy_d.name,
+                    percent: ((xxy_d.value / xxy_total) * 100).toFixed(1),
+                    pulled: false,
+                    cur: 0,
+                    dir: new THREE.Vector3(Math.sin(xxy_mid), 0, Math.cos(xxy_mid))
+                };
+                xxy_group.add(xxy_sec);
+                xxy_sectors.push(xxy_sec);
+                xxy_theta += xxy_len;
+            }
+
+            var xxy_spinning = true;
+            var xxy_hover = null;
+
+            xxy_canvas.addEventListener("mousemove", function (xxy_e) {
+                var xxy_hit = xxy_pick(xxy_canvas, xxy_c.camera, xxy_sectors, xxy_e);
+                if (xxy_hit) {
+                    xxy_tip.show(xxy_e.clientX, xxy_e.clientY, "<b>" + xxy_hit.userData.name + "</b>　占比 " + xxy_hit.userData.percent + "%（点击分离/收回）");
+                    xxy_canvas.style.cursor = "pointer";
+                } else {
+                    xxy_tip.hide();
+                    xxy_canvas.style.cursor = "default";
+                }
+                xxy_hover = xxy_hit;
+            });
+
+            xxy_canvas.addEventListener("click", function (xxy_e) {
+                var xxy_hit = xxy_pick(xxy_canvas, xxy_c.camera, xxy_sectors, xxy_e);
+                if (xxy_hit) { xxy_hit.userData.pulled = !xxy_hit.userData.pulled; }
+            });
+
+            document.getElementById("xxy_pie_spin_btn").addEventListener("click", function () {
+                xxy_spinning = !xxy_spinning;
+            });
+
+            (function xxy_loop() {
+                requestAnimationFrame(xxy_loop);
+                if (xxy_spinning) { xxy_group.rotation.y += 0.004; }
+                // 分离/收回动画：沿扇区角平分线（组内局部坐标）平滑移动
+                for (var xxy_i = 0; xxy_i < xxy_sectors.length; xxy_i++) {
+                    var xxy_s = xxy_sectors[xxy_i];
+                    var xxy_goal = xxy_s.userData.pulled ? 1.8 : 0;
+                    xxy_s.userData.cur += (xxy_goal - xxy_s.userData.cur) * 0.12;
+                    xxy_s.position.copy(xxy_s.userData.dir).multiplyScalar(xxy_s.userData.cur);
+                }
+                xxy_c.renderer.render(xxy_c.scene, xxy_c.camera);
+            })();
+        })();
+    </script>
+</body>
+</html>
